@@ -18,28 +18,32 @@ const commitIfSomeChangesWithPrompt = async ({ cwd }: { cwd: string }) => {
   const out = await exec({ cwd, command: `git status --porcelain`, verbose: false })
   const { packageJsonData } = await getPackageJsonData({ dirPath: cwd })
   if (!out) {
-    console.info(`Nothing to commit (${packageJsonData.name}): ${cwd}`)
-    return
+    // console.info(`Nothing to commit (${packageJsonData.name}): ${cwd}`)
+    return { commited: false, message: null }
   }
-  console.info(`Will be commmitted (${packageJsonData.name}): ${cwd}
+  console.info(`Commiting (${packageJsonData.name}): ${cwd}
 ${out.trim()}`)
   const message = readlineSync.question('Commit message (default: "Small fix"): ', {
     defaultInput: 'Small fix',
   })
-  // await spawn({ cwd, command: `git add -A` })
-  // await spawn({ cwd, command: `git commit -m "${message}"` })
+  await spawn({ cwd, command: `git add -A` })
+  await spawn({ cwd, command: `git commit -m "${message}"` })
+  return { commited: true, message }
 }
 
 export const bumpPushPublishIfNotActual = async ({ cwd }: { cwd: string }) => {
-  // actual when head is on the latest tag
   const { packageJsonData } = await getPackageJsonData({ dirPath: cwd })
-  const latestTag = await exec({ cwd, command: `git describe --tags --abbrev=0` })
-  if (latestTag.trim() === packageJsonData.version) {
-    console.info(`Already actual (${packageJsonData.name}): ${cwd}`)
-    return
+  const latestTagRaw = await exec({ cwd, command: `git describe --tags --abbrev=0`, verbose: false })
+  const latestTag = latestTagRaw.trim().replace(/^v/, '')
+  const lastCommitMessageRaw = await exec({ cwd, command: `git log -1 --pretty=%B`, verbose: false })
+  const lastCommitMessage = lastCommitMessageRaw.trim()
+  if (latestTag === lastCommitMessage) {
+    // console.info(`Already actual (${packageJsonData.name}): ${cwd}`)
+    return { published: false }
   }
-  console.info(`Will be bumpPushPublish (${packageJsonData.name}): ${cwd}`)
-  // await bumpPushPublish({ cwd })
+  console.info(`Publishing (${packageJsonData.name}): ${cwd}`)
+  await bumpPushPublish({ cwd })
+  return { published: true }
 }
 
 export const commitBumpPushPublishRecursive = async ({ cwd }: { cwd: string }) => {
@@ -48,8 +52,15 @@ export const commitBumpPushPublishRecursive = async ({ cwd }: { cwd: string }) =
   if (!packagesPaths.length) {
     throw new Error('No packages found')
   }
+  let commitedSome = false
+  let publishedSome = false
   for (const packagePath of packagesPaths) {
-    await commitIfSomeChangesWithPrompt({ cwd: packagePath })
-    await bumpPushPublishIfNotActual({ cwd: packagePath })
+    const { commited } = await commitIfSomeChangesWithPrompt({ cwd: packagePath })
+    const { published } = await bumpPushPublishIfNotActual({ cwd: packagePath })
+    commitedSome = commitedSome || commited
+    publishedSome = publishedSome || published
+  }
+  if (!commitedSome && !publishedSome) {
+    console.info('Nothing to commit and publish')
   }
 }
