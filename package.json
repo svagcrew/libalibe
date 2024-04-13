@@ -1,0 +1,39 @@
+{
+  "name": "libalibe",
+  "version": "0.0.1",
+  "homepage": "https://github.com/svagcrew/libalibe",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/svagcrew/libalibe.git"
+  },
+  "bugs": {
+    "url": "https://github.com/svagcrew/libalibe/issues"
+  },
+  "author": {
+    "name": "Sergei Dmitriev",
+    "url": "https://sergei.svag.group"
+  },
+  "license": "MIT",
+  "publishConfig": {
+    "access": "public"
+  },
+  "bin": {
+    "lili": "./dist/index.js",
+    "lili!": "./src/index.ts"
+  },
+  "dependencies": {
+    "fast-glob": "^3.3.2",
+    "js-yaml": "^4.1.0",
+    "lodash": "^4.17.21",
+    "svag-tsconfig": "^0.0.3",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.4.5",
+    "yargs": "^17.7.2",
+    "zod": "^3.22.4"
+  },
+  "devDependencies": {
+    "@types/js-yaml": "^4.0.9",
+    "@types/lodash": "^4.17.0",
+    "@types/yargs": "^17.0.32"
+  }
+}

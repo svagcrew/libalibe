@@ -1,0 +1,107 @@
+import child_process from 'child_process'
+import fg from 'fast-glob'
+import { promises as fs } from 'fs'
+import yaml from 'js-yaml'
+import { basename } from 'path'
+
+export const getPathsByGlobs = async ({ globs, baseDir }: { globs: string[]; baseDir: string }) => {
+  const filePaths = await fg(globs, {
+    cwd: baseDir,
+    onlyFiles: true,
+    absolute: true,
+  })
+  return { filePaths }
+}
+
+export const getDataFromFile = async ({ filePath }: { filePath: string }) => {
+  const ext = basename(filePath).split('.').pop()
+  if (ext === 'js' || ext === 'ts') {
+    return require(filePath)
+  }
+  if (ext === 'yml' || ext === 'yaml') {
+    return yaml.load(await fs.readFile(filePath, 'utf8'))
+  }
+  if (ext === 'json') {
+    return JSON.parse(await fs.readFile(filePath, 'utf8'))
+  }
+  throw new Error(`Unsupported file extension: ${ext}`)
+}
+
+export const stringsToLikeArrayString = (paths: string[]) => {
+  return paths.map((path) => `"${path}"`).join(', ')
+}
+
+export const fulfillDistPath = ({ distPath, distLang }: { distPath: string; distLang: string }) => {
+  return distPath.replace(/\$lang/g, distLang)
+}
+
+export const exec = async ({ cwd, command, verbose = true }: { cwd: string; command: string; verbose?: boolean }) => {
+  return await new Promise((resolve, reject) => {
+    child_process.exec(command, { cwd }, (error, stdout, stderr) => {
+      if (error) {
+        if (verbose) {
+          console.error(error)
+        }
+        return reject(error)
+      }
+      if (stderr) {
+        if (verbose) {
+          console.error(stderr)
+        }
+        return reject(stderr)
+      }
+      if (stdout) {
+        if (verbose) {
+          console.log(stdout)
+        }
+        return resolve(stdout)
+      }
+      if (verbose) {
+        console.error('Unknown error')
+      }
+      reject(new Error('Unknown error'))
+    })
+  })
+}
+
+export const spawn = async ({ cwd, command, verbose = true }: { cwd: string; command: string; verbose?: boolean }) => {
+  return await new Promise((resolve, reject) => {
+    // this not work. becouse one of args can be "string inside string"
+    // const [commandSelf, ...commandArgs] = command.split(' ')
+    const { commandSelf, commandArgs } = (() => {
+      const commandParts = command.match(/(?:[^\s"]+|"[^"]*")+/g)
+      if (!commandParts) {
+        throw new Error('Invalid command')
+      }
+      return {
+        commandSelf: commandParts[0],
+        commandArgs: commandParts.slice(1),
+      }
+    })()
+    if (verbose) {
+      console.info(`$ ${command}`)
+    }
+    const child = child_process.spawn(commandSelf, commandArgs, { cwd })
+    let stdout = ''
+    let stderr = ''
+    child.stdout.on('data', (data) => {
+      stdout += data
+      if (verbose) {
+        console.log(data.toString())
+      }
+    })
+    child.stderr.on('data', (data) => {
+      stderr += data
+      if (verbose) {
+        console.error(data.toString())
+      }
+    })
+    child.on('close', (code) => {
+      if (code === 0) {
+        resolve(stdout)
+      } else {
+        reject(stderr)
+      }
+    })
+  })
+}
