@@ -12,8 +12,4 @@ export const installLatest = async ({ cwd }: { cwd: string }) => {
   if (suitableDevPackagesNames.length) {
     await spawn({ cwd, command: `pnpm install -D ${suitableDevPackagesNames.map((p) => `${p}@latest`).join(' ')}` })
   }
-  //   await spawn({ cwd, command: `pnpm install ${suitablePackagesNames.join(' ')}` })
-  // } else {
-  //   console.info('Nothing to install')
-  // }
 }

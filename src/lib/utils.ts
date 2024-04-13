@@ -36,7 +36,15 @@ export const fulfillDistPath = ({ distPath, distLang }: { distPath: string; dist
   return distPath.replace(/\$lang/g, distLang)
 }
 
-export const exec = async ({ cwd, command, verbose = true }: { cwd: string; command: string; verbose?: boolean }) => {
+export const exec = async ({
+  cwd,
+  command,
+  verbose = true,
+}: {
+  cwd: string
+  command: string
+  verbose?: boolean
+}): Promise<string> => {
   return await new Promise((resolve, reject) => {
     child_process.exec(command, { cwd }, (error, stdout, stderr) => {
       if (error) {
@@ -51,16 +59,10 @@ export const exec = async ({ cwd, command, verbose = true }: { cwd: string; comm
         }
         return reject(stderr)
       }
-      if (stdout) {
-        if (verbose) {
-          console.log(stdout)
-        }
-        return resolve(stdout)
-      }
       if (verbose) {
-        console.error('Unknown error')
+        console.log(stdout)
       }
-      reject(new Error('Unknown error'))
+      return resolve(stdout)
     })
   })
 }

@@ -29,6 +29,7 @@
     "fast-glob": "^3.3.2",
     "js-yaml": "^4.1.0",
     "lodash": "^4.17.21",
+    "readline-sync": "^1.4.10",
     "ts-node": "^10.9.2",
     "typescript": "^5.4.5",
     "yargs": "^17.7.2",
@@ -37,9 +38,10 @@
   "devDependencies": {
     "@types/js-yaml": "^4.0.9",
     "@types/lodash": "^4.17.0",
+    "@types/readline-sync": "^1.4.8",
     "@types/yargs": "^17.0.32",
+    "prettier": "^3.2.5",
     "svag-eslint": "^0.0.8",
-    "svag-tsconfig": "^0.0.3",
-    "prettier": "^3.2.5"
+    "svag-tsconfig": "^0.0.3"
   }
 }
