@@ -26,8 +26,20 @@ ${out.trim()}`)
   const message = readlineSync.question('Commit message (default: "Small fix"): ', {
     defaultInput: 'Small fix',
   })
-  await spawn({ cwd, command: `git add -A` })
-  await spawn({ cwd, command: `git commit -m "${message}"` })
+  // await spawn({ cwd, command: `git add -A` })
+  // await spawn({ cwd, command: `git commit -m "${message}"` })
+}
+
+export const bumpPushPublishIfNotActual = async ({ cwd }: { cwd: string }) => {
+  // actual when head is on the latest tag
+  const { packageJsonData } = await getPackageJsonData({ dirPath: cwd })
+  const latestTag = await exec({ cwd, command: `git describe --tags --abbrev=0` })
+  if (latestTag.trim() === packageJsonData.version) {
+    console.info(`Already actual (${packageJsonData.name}): ${cwd}`)
+    return
+  }
+  console.info(`Will be bumpPushPublish (${packageJsonData.name}): ${cwd}`)
+  // await bumpPushPublish({ cwd })
 }
 
 export const commitBumpPushPublishRecursive = async ({ cwd }: { cwd: string }) => {
@@ -38,6 +50,6 @@ export const commitBumpPushPublishRecursive = async ({ cwd }: { cwd: string }) =
   }
   for (const packagePath of packagesPaths) {
     await commitIfSomeChangesWithPrompt({ cwd: packagePath })
-    await bumpPushPublish({ cwd: packagePath })
+    await bumpPushPublishIfNotActual({ cwd: packagePath })
   }
 }
