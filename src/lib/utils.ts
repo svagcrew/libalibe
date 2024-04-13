@@ -3,6 +3,7 @@ import fg from 'fast-glob'
 import { promises as fs } from 'fs'
 import yaml from 'js-yaml'
 import { basename } from 'path'
+import { getConfig, getPackageJsonData } from './config'
 
 export const getPathsByGlobs = async ({ globs, baseDir }: { globs: string[]; baseDir: string }) => {
   const filePaths = await fg(globs, {
@@ -104,4 +105,33 @@ export const spawn = async ({ cwd, command, verbose = true }: { cwd: string; com
       }
     })
   })
+}
+
+export const getSuitableLibPackagesNames = async ({ cwd }: { cwd: string }) => {
+  const { config } = await getConfig({ dirPath: cwd })
+  const { packageJsonData } = await getPackageJsonData({ dirPath: cwd })
+  const include = config.include
+  const exclude = config.exclude
+  const libPackagesNames = include.filter((include) => !exclude.includes(include))
+  const devDependencies = Object.keys(packageJsonData.devDependencies || {})
+  const prodDependencies = Object.keys(packageJsonData.dependencies || {})
+  const allDependencies = [...new Set([...devDependencies, ...prodDependencies])]
+  const suitablePackagesNames = libPackagesNames.filter((libPackageName) => allDependencies.includes(libPackageName))
+  const suitableDevPackagesNames = libPackagesNames.filter((libPackageName) => devDependencies.includes(libPackageName))
+  const suitableProdPackagesNames = libPackagesNames.filter((libPackageName) =>
+    prodDependencies.includes(libPackageName)
+  )
+  const nonsuitablePackagesNames = libPackagesNames.filter(
+    (libPackageName) => !allDependencies.includes(libPackageName)
+  )
+  return { suitablePackagesNames, suitableDevPackagesNames, suitableProdPackagesNames, nonsuitablePackagesNames }
+}
+
+export const getLibPackagePath = async ({ cwd, libPackageName }: { cwd: string; libPackageName: string }) => {
+  const { config } = await getConfig({ dirPath: cwd })
+  const libPackagePath = config.items[libPackageName]
+  if (!libPackagePath) {
+    throw new Error(`Invalid lib package name: "${libPackageName}"`)
+  }
+  return { libPackagePath }
 }

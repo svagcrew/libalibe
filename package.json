@@ -21,11 +21,14 @@
     "lili": "./dist/index.js",
     "lili!": "./src/index.ts"
   },
+  "scripts": {
+    "lint": "eslint --cache --cache-location ./node_modules/.cache/.eslintcache .",
+    "prettify": "prettier --log-level warn --cache --write '{src/**/*,*}.{ts,tsx,js,json,yml,scss}' '!**/{node_modules,dist}/**/*'"
+  },
   "dependencies": {
     "fast-glob": "^3.3.2",
     "js-yaml": "^4.1.0",
     "lodash": "^4.17.21",
-    "svag-tsconfig": "^0.0.3",
     "ts-node": "^10.9.2",
     "typescript": "^5.4.5",
     "yargs": "^17.7.2",
@@ -34,6 +37,9 @@
   "devDependencies": {
     "@types/js-yaml": "^4.0.9",
     "@types/lodash": "^4.17.0",
-    "@types/yargs": "^17.0.32"
+    "@types/yargs": "^17.0.32",
+    "svag-eslint": "^0.0.8",
+    "svag-tsconfig": "^0.0.3",
+    "prettier": "^3.2.5"
   }
 }

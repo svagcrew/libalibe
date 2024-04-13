@@ -2,14 +2,15 @@
 
 import { hideBin } from 'yargs/helpers'
 import yargs from 'yargs/yargs'
-import { getConfig, getPackageJsonData } from './lib/config'
+import { edit } from './lib/edit'
+import { installLatest } from './lib/install'
 import { link } from './lib/link'
 import { bumpPushPublish, commitBumpPushPublish } from './lib/publish'
 
 void (async () => {
   try {
     const argv = await yargs(hideBin(process.argv)).argv
-    const knownCommands = ['link', 'bpp', 'cbpp']
+    const knownCommands = ['link', 'edit', 'bpp', 'cbpp', 'il']
     const { command, args } = (() => {
       if (!argv._.length) return { command: 'link', args: [] }
       if (knownCommands.includes(argv._[0].toString())) {
@@ -19,12 +20,16 @@ void (async () => {
     })()
 
     const cwd = process.cwd()
-    const { config } = await getConfig({ dirPath: cwd })
-    const { packageJsonData } = await getPackageJsonData({ dirPath: cwd })
 
     switch (command) {
       case 'link':
-        await link({ cwd, config, packageJsonData })
+        await link({ cwd })
+        break
+      case 'edit':
+        await edit({ cwd })
+        break
+      case 'il':
+        await installLatest({ cwd })
         break
       case 'bpp':
         await bumpPushPublish({
@@ -39,7 +44,7 @@ void (async () => {
         })
         break
       default:
-        console.info('Unknown command:', command, packageJsonData)
+        console.info('Unknown command:', command)
         break
     }
   } catch (error) {

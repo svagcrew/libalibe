@@ -1,4 +1,4 @@
-import { exec, spawn } from './utils'
+import { spawn } from './utils'
 
 export const bumpPushPublish = async ({ cwd, bump = 'patch' }: { cwd: string; bump?: 'patch' | 'major' | 'minor' }) => {
   await spawn({ cwd, command: `pnpm version ${bump}` })
