@@ -8,3 +8,17 @@ export const link = async ({ cwd }: { cwd: string }) => {
     console.info('Nothing to link')
   }
 }
+
+export const unlink = async ({ cwd }: { cwd: string }) => {
+  const { suitableProdPackagesNames, suitableDevPackagesNames } = await getSuitableLibPackagesNames({ cwd })
+  if (!suitableProdPackagesNames.length && !suitableDevPackagesNames.length) {
+    console.info('Nothing to unlink')
+    return
+  }
+  if (suitableProdPackagesNames.length) {
+    await spawn({ cwd, command: `pnpm install ${suitableProdPackagesNames.join(' ')}` })
+  }
+  if (suitableDevPackagesNames.length) {
+    await spawn({ cwd, command: `pnpm install -D ${suitableDevPackagesNames.join(' ')}` })
+  }
+}

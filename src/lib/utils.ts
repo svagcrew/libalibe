@@ -126,7 +126,19 @@ export const getSuitableLibPackagesNames = async ({ cwd }: { cwd: string }) => {
   const nonsuitablePackagesNames = libPackagesNames.filter(
     (libPackageName) => !allDependencies.includes(libPackageName)
   )
-  return { suitablePackagesNames, suitableDevPackagesNames, suitableProdPackagesNames, nonsuitablePackagesNames }
+  const suitablePackagesData = Object.fromEntries(
+    Object.entries({
+      ...(packageJsonData.devDependencies || {}),
+      ...(packageJsonData.dependencies || {}),
+    }).filter(([key]) => suitablePackagesNames.includes(key))
+  )
+  return {
+    suitablePackagesNames,
+    suitableDevPackagesNames,
+    suitableProdPackagesNames,
+    nonsuitablePackagesNames,
+    suitablePackagesData,
+  }
 }
 
 export const getLibPackagePath = async ({ cwd, libPackageName }: { cwd: string; libPackageName: string }) => {
