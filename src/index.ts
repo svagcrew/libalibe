@@ -33,6 +33,7 @@ void (async () => {
       'bpbp',
       'cbbpp',
       'cbbppr',
+      'bam',
       'csfbbppr',
       'boom',
       'il',
@@ -97,6 +98,9 @@ void (async () => {
       case 'cbbppr':
         await commitBuildBumpPushPublishRecursive({ cwd })
         break
+      case 'bam':
+        await commitBuildBumpPushPublishRecursive({ cwd })
+        break
       case 'csfbbppr':
         await commitSmallFixBuildBumpPushPublishRecursive({ cwd })
         break
@@ -120,6 +124,7 @@ ill — install latest packages and link
 bbpp — bump, push and publish
 cbbpp — commit, bump, push and publish
 cbbppr — commit, bump, push and publish recursive
+bam — same as "cbbppr"
 csfbbppr — commit small fix, bump, push and publish recursive
 boom — same as "csfbbppr"
 pocr — pull or clone recursive
