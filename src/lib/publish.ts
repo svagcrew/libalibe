@@ -1,9 +1,8 @@
 import readlineSync from 'readline-sync'
-import { getConfig } from './config'
 import { exec, spawn } from './exec'
 import { installLatest } from './install'
-import { getOrderedLibPackagesData, getPackageJsonData, isSuitableLibPackagesActual } from './utils'
 import { link } from './link'
+import { getOrderedLibPackagesData, getPackageJsonData, isSuitableLibPackagesActual } from './utils'
 
 // small helpers
 
@@ -25,7 +24,7 @@ const isCommitable = async ({ cwd }: { cwd: string }) => {
 }
 
 const isMasterBaranch = async ({ cwd }: { cwd: string }) => {
-  const out = await exec({ cwd, command: `git branch --show-current` })
+  const out = await exec({ cwd, command: `git -c color.status=always branch --show-current` })
   return {
     masterBaranch: out.trim() === 'master',
     currentBranch: out.trim(),

@@ -6,11 +6,12 @@ import { edit } from './lib/edit'
 import { installLatest } from './lib/install'
 import { link, linkRecursive, unlink } from './lib/link'
 import { bumpPushPublish, commitBumpPushPublish, commitBumpPushPublishRecursive } from './lib/publish'
+import { spawn } from './lib/exec'
 
 void (async () => {
   try {
     const argv = await yargs(hideBin(process.argv)).argv
-    const knownCommands = ['link', 'linkr', 'unlink', 'edit', 'bpp', 'cbpp', 'cbppr', 'il', 'ill']
+    const knownCommands = ['link', 'linkr', 'unlink', 'edit', 'bpp', 'cbpp', 'cbppr', 'il', 'ill', 'ping']
     const { command, args } = (() => {
       if (knownCommands.includes(argv._[0].toString())) {
         return { command: argv._[0].toString(), args: argv._.slice(1) }
@@ -54,6 +55,9 @@ void (async () => {
         break
       case 'cbppr':
         await commitBumpPushPublishRecursive({ cwd })
+        break
+      case 'ping':
+        await spawn({ cwd, command: 'echo pong' })
         break
       default:
         console.info('Unknown command:', command)

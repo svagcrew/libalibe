@@ -1,5 +1,15 @@
 import child_process from 'child_process'
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+const normalizeData = <T>(data: T): T => {
+  return data
+  // const dataString = data.toString()
+  // if (dataString.match(/^\n*$/)) {
+  //   return ''
+  // }
+  // return dataString.replace(/\n{2,}/g, '\n')
+}
+
 export const exec = async ({
   cwd,
   command,
@@ -37,10 +47,12 @@ export const spawn = async ({
   cwd,
   command,
   verbose = true,
+  env = {},
 }: {
   cwd: string
   command: string
   verbose?: boolean
+  env?: Record<string, string>
 }): Promise<string> => {
   return await new Promise((resolve, reject) => {
     // this not work. becouse one of args can be "string inside string"
@@ -58,27 +70,33 @@ export const spawn = async ({
     if (verbose) {
       console.info(`$ ${command}`)
     }
-    const child = child_process.spawn(commandSelf, commandArgs, { cwd })
-    if (!child.stdout) {
-      throw new Error('No stdout')
-    }
-    if (!child.stderr) {
-      throw new Error('No stderr')
-    }
+    const child = child_process.spawn(commandSelf, commandArgs, {
+      cwd,
+      env: {
+        ...process.env,
+        ...env,
+      },
+    })
     let stdout = ''
     let stderr = ''
     child.stdout.on('data', (data) => {
-      stdout += data
+      const normalizedData = normalizeData(data)
+      if (!normalizedData) {
+        return
+      }
+      stdout += normalizedData
       if (verbose) {
-        // console.log(data.toString())
-        process.stdout.write(data)
+        process.stdout.write(normalizedData)
       }
     })
     child.stderr.on('data', (data) => {
-      stderr += data
+      const normalizedData = normalizeData(data)
+      if (!normalizedData) {
+        return
+      }
+      stderr += normalizedData
       if (verbose) {
-        // console.error(data.toString())
-        process.stderr.write(data)
+        process.stderr.write(normalizedData)
       }
     })
     child.on('close', (code) => {
