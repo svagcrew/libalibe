@@ -47,6 +47,19 @@ ${commitableText}`)
   return { commited: true, message }
 }
 
+const commitIfNeededWithMessage = async ({ cwd, message }: { cwd: string; message: string }) => {
+  const { commitable, commitableText } = await isCommitable({ cwd })
+  if (!commitable) {
+    // console.info(`Nothing to commit (${packageJsonData.name}): ${cwd}`)
+    return { commited: false, message: null }
+  }
+  const { packageJsonData } = await getPackageJsonData({ dirPath: cwd })
+  log.green(`Commiting (${packageJsonData.name}): ${cwd}
+${commitableText}`)
+  await addAllAndCommit({ cwd, message })
+  return { commited: true, message }
+}
+
 // actions
 
 export const buildBumpPushPublish = async ({
@@ -101,6 +114,29 @@ export const commitBuildBumpPushPublishRecursive = async ({ cwd }: { cwd: string
       await link({ cwd: libPackagePath })
     }
     const { commited } = await commitIfNeededWithPrompt({ cwd: libPackagePath })
+    const { published } = await buildBumpPushPublishIfNotActual({ cwd: libPackagePath })
+    commitedSome = commitedSome || commited
+    publishedSome = publishedSome || published
+  }
+  if (!commitedSome && !publishedSome) {
+    log.green('Nothing to commit and publish')
+  }
+}
+
+export const commitSmallFixBuildBumpPushPublishRecursive = async ({ cwd }: { cwd: string }) => {
+  const { libPackagesData } = await getOrderedLibPackagesData({ cwd })
+  if (!libPackagesData.length) {
+    throw new Error('No packages found')
+  }
+  let commitedSome = false
+  let publishedSome = false
+  for (const { libPackagePath } of libPackagesData) {
+    const { suitableLibPackagesActual } = await isSuitableLibPackagesActual({ cwd: libPackagePath })
+    if (!suitableLibPackagesActual) {
+      await installLatest({ cwd: libPackagePath })
+      await link({ cwd: libPackagePath })
+    }
+    const { commited } = await commitIfNeededWithMessage({ cwd: libPackagePath, message: 'Small fix' })
     const { published } = await buildBumpPushPublishIfNotActual({ cwd: libPackagePath })
     commitedSome = commitedSome || commited
     publishedSome = publishedSome || published

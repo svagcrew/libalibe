@@ -7,8 +7,13 @@ import { edit } from './lib/edit'
 import { spawn } from './lib/exec'
 import { installLatest } from './lib/install'
 import { link, linkRecursive, unlink } from './lib/link'
-import { lintRecursive } from './lib/lint'
-import { buildBumpPushPublish, commitBuildBumpPushPublish, commitBuildBumpPushPublishRecursive } from './lib/publish'
+import { lintFixRecursive, lintRecursive } from './lib/lint'
+import {
+  buildBumpPushPublish,
+  commitBuildBumpPushPublish,
+  commitBuildBumpPushPublishRecursive,
+  commitSmallFixBuildBumpPushPublishRecursive,
+} from './lib/publish'
 import { pullOrCloneRecursive } from './lib/pull'
 import { typecheckRecursive } from './lib/types'
 import { log } from './lib/utils'
@@ -23,10 +28,13 @@ void (async () => {
       'buildr',
       'typesr',
       'lintr',
+      'lintfixr',
       'edit',
       'bpbp',
       'cbbpp',
       'cbbppr',
+      'csfbbppr',
+      'boom',
       'il',
       'ill',
       'pocr',
@@ -61,6 +69,9 @@ void (async () => {
       case 'lintr':
         await lintRecursive({ cwd })
         break
+      case 'lintfixr':
+        await lintFixRecursive({ cwd })
+        break
       case 'edit':
         await edit({ cwd })
         break
@@ -86,6 +97,12 @@ void (async () => {
       case 'cbbppr':
         await commitBuildBumpPushPublishRecursive({ cwd })
         break
+      case 'csfbbppr':
+        await commitSmallFixBuildBumpPushPublishRecursive({ cwd })
+        break
+      case 'boom':
+        await commitSmallFixBuildBumpPushPublishRecursive({ cwd })
+        break
       case 'pocr':
         await pullOrCloneRecursive({ cwd })
         break
@@ -103,6 +120,8 @@ ill — install latest packages and link
 bbpp — bump, push and publish
 cbbpp — commit, bump, push and publish
 cbbppr — commit, bump, push and publish recursive
+csfbbppr — commit small fix, bump, push and publish recursive
+boom — same as "csfbbppr"
 pocr — pull or clone recursive
 h — show help
 ping — pong`)
