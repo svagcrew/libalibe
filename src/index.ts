@@ -4,15 +4,14 @@ import { hideBin } from 'yargs/helpers'
 import yargs from 'yargs/yargs'
 import { edit } from './lib/edit'
 import { installLatest } from './lib/install'
-import { link, unlink } from './lib/link'
+import { link, linkRecursive, unlink } from './lib/link'
 import { bumpPushPublish, commitBumpPushPublish, commitBumpPushPublishRecursive } from './lib/publish'
 
 void (async () => {
   try {
     const argv = await yargs(hideBin(process.argv)).argv
-    const knownCommands = ['link', 'unlink', 'edit', 'bpp', 'cbpp', 'cbppr', 'il', 'ill']
+    const knownCommands = ['link', 'linkr', 'unlink', 'edit', 'bpp', 'cbpp', 'cbppr', 'il', 'ill']
     const { command, args } = (() => {
-      if (!argv._.length) return { command: 'link', args: [] }
       if (knownCommands.includes(argv._[0].toString())) {
         return { command: argv._[0].toString(), args: argv._.slice(1) }
       }
@@ -24,6 +23,9 @@ void (async () => {
     switch (command) {
       case 'link':
         await link({ cwd })
+        break
+      case 'linkr':
+        await linkRecursive({ cwd })
         break
       case 'unlink':
         await unlink({ cwd })

@@ -1,5 +1,5 @@
 import { spawn } from './exec'
-import { getSuitableLibPackages } from './utils'
+import { getOrderedLibPackagesData, getSuitableLibPackages } from './utils'
 
 export const link = async ({ cwd }: { cwd: string }) => {
   const { suitablePackagesNames } = await getSuitableLibPackages({ cwd })
@@ -7,6 +7,16 @@ export const link = async ({ cwd }: { cwd: string }) => {
     await spawn({ cwd, command: `pnpm link -g ${suitablePackagesNames.join(' ')}` })
   } else {
     console.info('Nothing to link')
+  }
+}
+
+export const linkRecursive = async ({ cwd }: { cwd: string }) => {
+  const { libPackagesData } = await getOrderedLibPackagesData({ cwd })
+  if (!libPackagesData.length) {
+    throw new Error('No packages found')
+  }
+  for (const { libPackagePath } of libPackagesData) {
+    await link({ cwd: libPackagePath })
   }
 }
 

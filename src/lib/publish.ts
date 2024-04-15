@@ -3,6 +3,7 @@ import { getConfig } from './config'
 import { exec, spawn } from './exec'
 import { installLatest } from './install'
 import { getOrderedLibPackagesData, getPackageJsonData, isSuitableLibPackagesActual } from './utils'
+import { link } from './link'
 
 // small helpers
 
@@ -111,6 +112,7 @@ export const commitBumpPushPublishRecursive = async ({ cwd }: { cwd: string }) =
     const { suitableLibPackagesActual } = await isSuitableLibPackagesActual({ cwd: libPackagePath })
     if (!suitableLibPackagesActual) {
       await installLatest({ cwd: libPackagePath })
+      await link({ cwd: libPackagePath })
     }
     const { commited } = await commitIfNeededWithPrompt({ cwd: libPackagePath })
     const { published } = await bumpPushPublishIfNotActual({ cwd: libPackagePath })
