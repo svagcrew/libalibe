@@ -2,13 +2,15 @@
 
 import { hideBin } from 'yargs/helpers'
 import yargs from 'yargs/yargs'
+import { buildRecursive } from './lib/build'
 import { edit } from './lib/edit'
+import { spawn } from './lib/exec'
 import { installLatest } from './lib/install'
 import { link, linkRecursive, unlink } from './lib/link'
+import { lintRecursive } from './lib/lint'
 import { buildBumpPushPublish, commitBuildBumpPushPublish, commitBuildBumpPushPublishRecursive } from './lib/publish'
-import { spawn } from './lib/exec'
 import { pullOrCloneRecursive } from './lib/pull'
-import { buildRecursive } from './lib/build'
+import { typecheckRecursive } from './lib/types'
 import { log } from './lib/utils'
 
 void (async () => {
@@ -19,6 +21,8 @@ void (async () => {
       'linkr',
       'unlink',
       'buildr',
+      'typesr',
+      'lintr',
       'edit',
       'bpbp',
       'cbbpp',
@@ -50,6 +54,12 @@ void (async () => {
         break
       case 'buildr':
         await buildRecursive({ cwd })
+        break
+      case 'typesr':
+        await typecheckRecursive({ cwd })
+        break
+      case 'lintr':
+        await lintRecursive({ cwd })
         break
       case 'edit':
         await edit({ cwd })
@@ -85,6 +95,8 @@ link — link packages
 linkr — link packages recursive
 unlink — unlink packages
 buildr — build packages recursive
+typesr — typecheck packages recursive
+lintr — lint packages recursive
 edit — edit package.json
 il — install latest packages
 ill — install latest packages and link

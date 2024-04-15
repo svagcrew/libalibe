@@ -20,6 +20,10 @@ export const exec = async ({
   verbose?: boolean
 }): Promise<string> => {
   return await new Promise((resolve, reject) => {
+    if (verbose) {
+      log.blue(`$ cd ${cwd}`)
+      log.blue(`$ ${command}`)
+    }
     child_process.exec(command, { cwd }, (error, stdout, stderr) => {
       if (error) {
         if (verbose) {
@@ -29,14 +33,14 @@ export const exec = async ({
       }
       if (stderr) {
         if (verbose) {
-          // process.stderr.write(stderr)
-          log.gray(stderr)
+          process.stderr.write(stderr)
+          // log.gray(stderr)
         }
         return reject(stderr)
       }
       if (verbose) {
-        // process.stdout.write(stdout)
-        log.gray(stdout)
+        process.stdout.write(stdout)
+        // log.gray(stdout)
       }
       return resolve(stdout)
     })
@@ -68,6 +72,7 @@ export const spawn = async ({
       }
     })()
     if (verbose) {
+      log.blue(`$ cd ${cwd}`)
       log.blue(`$ ${command}`)
     }
     const child = child_process.spawn(commandSelf, commandArgs, {
@@ -86,8 +91,8 @@ export const spawn = async ({
       }
       stdout += normalizedData
       if (verbose) {
-        // process.stdout.write(normalizedData)
-        log.gray(normalizedData)
+        process.stdout.write(normalizedData)
+        // log.gray(normalizedData)
       }
     })
     child.stderr.on('data', (data) => {
@@ -97,8 +102,8 @@ export const spawn = async ({
       }
       stderr += normalizedData
       if (verbose) {
-        // process.stderr.write(normalizedData)
-        log.gray(normalizedData)
+        process.stderr.write(normalizedData)
+        // log.gray(normalizedData)
       }
     })
     child.on('close', (code) => {
