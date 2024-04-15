@@ -5,14 +5,30 @@ import yargs from 'yargs/yargs'
 import { edit } from './lib/edit'
 import { installLatest } from './lib/install'
 import { link, linkRecursive, unlink } from './lib/link'
-import { bumpPushPublish, commitBumpPushPublish, commitBumpPushPublishRecursive } from './lib/publish'
+import { buildBumpPushPublish, commitBuildBumpPushPublish, commitBuildBumpPushPublishRecursive } from './lib/publish'
 import { spawn } from './lib/exec'
 import { pullOrCloneRecursive } from './lib/pull'
+import { buildRecursive } from './lib/build'
+import { log } from './lib/utils'
 
 void (async () => {
   try {
     const argv = await yargs(hideBin(process.argv)).argv
-    const knownCommands = ['link', 'linkr', 'unlink', 'edit', 'bpp', 'cbpp', 'cbppr', 'il', 'ill', 'pocr', 'h', 'ping']
+    const knownCommands = [
+      'link',
+      'linkr',
+      'unlink',
+      'buildr',
+      'edit',
+      'bpbp',
+      'cbbpp',
+      'cbbppr',
+      'il',
+      'ill',
+      'pocr',
+      'h',
+      'ping',
+    ]
     const { command, args } = (() => {
       if (knownCommands.includes(argv._[0].toString())) {
         return { command: argv._[0].toString(), args: argv._.slice(1) }
@@ -32,6 +48,9 @@ void (async () => {
       case 'unlink':
         await unlink({ cwd })
         break
+      case 'buildr':
+        await buildRecursive({ cwd })
+        break
       case 'edit':
         await edit({ cwd })
         break
@@ -42,35 +61,36 @@ void (async () => {
         await installLatest({ cwd })
         await link({ cwd })
         break
-      case 'bpp':
-        await bumpPushPublish({
+      case 'bbpp':
+        await buildBumpPushPublish({
           cwd,
           bump: args[0] === 'major' ? 'major' : args[0] === 'minor' ? 'minor' : args[0] === 'patch' ? 'patch' : 'patch',
         })
         break
-      case 'cbpp':
-        await commitBumpPushPublish({
+      case 'cbbpp':
+        await commitBuildBumpPushPublish({
           cwd,
           message: args[0] ? args[0].toString() : 'Small fix',
         })
         break
-      case 'cbppr':
-        await commitBumpPushPublishRecursive({ cwd })
+      case 'cbbppr':
+        await commitBuildBumpPushPublishRecursive({ cwd })
         break
       case 'pocr':
         await pullOrCloneRecursive({ cwd })
         break
       case 'h':
-        console.info(`Commands:
+        log.black(`Commands:
 link — link packages
 linkr — link packages recursive
 unlink — unlink packages
+buildr — build packages recursive
 edit — edit package.json
 il — install latest packages
 ill — install latest packages and link
-bpp — bump, push and publish
-cbpp — commit, bump, push and publish
-cbppr — commit, bump, push and publish recursive
+bbpp — bump, push and publish
+cbbpp — commit, bump, push and publish
+cbbppr — commit, bump, push and publish recursive
 pocr — pull or clone recursive
 h — show help
 ping — pong`)
@@ -79,10 +99,10 @@ ping — pong`)
         await spawn({ cwd, command: 'echo pong' })
         break
       default:
-        console.info('Unknown command:', command)
+        log.red('Unknown command:', command)
         break
     }
   } catch (error) {
-    console.error(error)
+    log.error(error)
   }
 })()

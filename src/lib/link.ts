@@ -1,12 +1,12 @@
 import { spawn } from './exec'
-import { getOrderedLibPackagesData, getSuitableLibPackages } from './utils'
+import { getOrderedLibPackagesData, getSuitableLibPackages, log } from './utils'
 
 export const link = async ({ cwd }: { cwd: string }) => {
   const { suitablePackagesNames } = await getSuitableLibPackages({ cwd })
   if (suitablePackagesNames.length) {
     await spawn({ cwd, command: `pnpm link -g ${suitablePackagesNames.join(' ')}` })
   } else {
-    console.info('Nothing to link')
+    log.red('Nothing to link')
   }
 }
 
@@ -23,7 +23,7 @@ export const linkRecursive = async ({ cwd }: { cwd: string }) => {
 export const unlink = async ({ cwd }: { cwd: string }) => {
   const { suitableProdPackagesNames, suitableDevPackagesNames } = await getSuitableLibPackages({ cwd })
   if (!suitableProdPackagesNames.length && !suitableDevPackagesNames.length) {
-    console.info('Nothing to unlink')
+    log.red('Nothing to unlink')
     return
   }
   if (suitableProdPackagesNames.length) {

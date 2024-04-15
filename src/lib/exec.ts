@@ -1,4 +1,5 @@
 import child_process from 'child_process'
+import { log } from './utils'
 
 const normalizeData = <T>(data: T): T => {
   return data
@@ -22,20 +23,20 @@ export const exec = async ({
     child_process.exec(command, { cwd }, (error, stdout, stderr) => {
       if (error) {
         if (verbose) {
-          console.error(error)
+          log.error(error)
         }
         return reject(error)
       }
       if (stderr) {
         if (verbose) {
-          // console.error(stderr)
-          process.stderr.write(stderr)
+          // process.stderr.write(stderr)
+          log.red(stderr)
         }
         return reject(stderr)
       }
       if (verbose) {
-        console.log(stdout)
-        process.stdout.write(stdout)
+        // process.stdout.write(stdout)
+        log.gray(stdout)
       }
       return resolve(stdout)
     })
@@ -67,7 +68,7 @@ export const spawn = async ({
       }
     })()
     if (verbose) {
-      console.info(`$ ${command}`)
+      log.blue(`$ ${command}`)
     }
     const child = child_process.spawn(commandSelf, commandArgs, {
       cwd,
@@ -85,7 +86,8 @@ export const spawn = async ({
       }
       stdout += normalizedData
       if (verbose) {
-        process.stdout.write(normalizedData)
+        // process.stdout.write(normalizedData)
+        log.gray(normalizedData)
       }
     })
     child.stderr.on('data', (data) => {
@@ -95,7 +97,8 @@ export const spawn = async ({
       }
       stderr += normalizedData
       if (verbose) {
-        process.stderr.write(normalizedData)
+        // process.stderr.write(normalizedData)
+        log.red(normalizedData)
       }
     })
     child.on('close', (code) => {

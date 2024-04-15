@@ -2,6 +2,7 @@ import fg from 'fast-glob'
 import { promises as fs } from 'fs'
 import yaml from 'js-yaml'
 import path from 'path'
+import pc from 'picocolors'
 import semver from 'semver'
 import { getConfig } from './config'
 import { exec, spawn } from './exec'
@@ -255,4 +256,29 @@ export const throwIfNotMasterBaranch = async ({ cwd }: { cwd: string }) => {
   if (!masterBaranch) {
     throw new Error(`Not on master branch (${currentBranch}): ${cwd}`)
   }
+}
+
+const logColored = async ({
+  message,
+  color,
+}: {
+  message: string | string[]
+  color: 'red' | 'blue' | 'green' | 'gray' | 'black'
+}) => {
+  const messages = Array.isArray(message) ? message : [message]
+  // eslint-disable-next-line no-console
+  console.log(pc[color](messages.join('\n')))
+}
+
+export const log = {
+  it: logColored,
+  red: (...message: string[]) => logColored({ message, color: 'red' }),
+  blue: (...message: string[]) => logColored({ message, color: 'blue' }),
+  green: (...message: string[]) => logColored({ message, color: 'green' }),
+  gray: (...message: string[]) => logColored({ message, color: 'gray' }),
+  black: (...message: string[]) => logColored({ message, color: 'black' }),
+  // eslint-disable-next-line no-console
+  error: console.error,
+  // eslint-disable-next-line no-console
+  info: console.info,
 }

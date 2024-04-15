@@ -1,4 +1,4 @@
-const svagEslintNodeConfigs = require('svag-lint/node')
+const svagEslintNodeConfigs = require('svag-lint/configs/node')
 
 /** @type {import('eslint').Linter.FlatConfig[]} */
 module.exports = [...svagEslintNodeConfigs]

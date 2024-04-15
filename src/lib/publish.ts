@@ -1,4 +1,5 @@
 import readlineSync from 'readline-sync'
+import { build, isBuildable } from './build'
 import { exec, spawn } from './exec'
 import { installLatest } from './install'
 import { link } from './link'
@@ -7,6 +8,7 @@ import {
   getPackageJsonData,
   isCommitable,
   isSuitableLibPackagesActual,
+  log,
   throwIfNotMasterBaranch,
 } from './utils'
 
@@ -36,7 +38,7 @@ const commitIfNeededWithPrompt = async ({ cwd }: { cwd: string }) => {
     return { commited: false, message: null }
   }
   const { packageJsonData } = await getPackageJsonData({ dirPath: cwd })
-  console.info(`Commiting (${packageJsonData.name}): ${cwd}
+  log.green(`Commiting (${packageJsonData.name}): ${cwd}
 ${commitableText}`)
   const message = readlineSync.question('Commit message (default: "Small fix"): ', {
     defaultInput: 'Small fix',
@@ -47,21 +49,32 @@ ${commitableText}`)
 
 // actions
 
-export const bumpPushPublish = async ({ cwd, bump = 'patch' }: { cwd: string; bump?: 'patch' | 'major' | 'minor' }) => {
+export const buildBumpPushPublish = async ({
+  cwd,
+  bump = 'patch',
+}: {
+  cwd: string
+  bump?: 'patch' | 'major' | 'minor'
+}) => {
   await throwIfNotMasterBaranch({ cwd })
+  const { buildable } = await isBuildable({ cwd })
+  if (buildable) {
+    log.green(`Building ${cwd}`)
+    await build({ cwd })
+  }
   await spawn({ cwd, command: `pnpm version ${bump}` })
   await spawn({ cwd, command: `git push origin master` })
   await spawn({ cwd, command: `pnpm publish` })
 }
 
-export const commitBumpPushPublish = async ({ cwd, message }: { cwd: string; message: string }) => {
+export const commitBuildBumpPushPublish = async ({ cwd, message }: { cwd: string; message: string }) => {
   await throwIfNotMasterBaranch({ cwd })
   await spawn({ cwd, command: `git add -A` })
   await spawn({ cwd, command: `git commit -m "${message}"` })
-  await bumpPushPublish({ cwd })
+  await buildBumpPushPublish({ cwd })
 }
 
-export const bumpPushPublishIfNotActual = async ({ cwd }: { cwd: string }) => {
+export const buildBumpPushPublishIfNotActual = async ({ cwd }: { cwd: string }) => {
   await throwIfNotMasterBaranch({ cwd })
   const { lastCommitSetVersionSameToLatestTag } = await isLastCommitSetVersionSameToLatestTag({ cwd })
   if (lastCommitSetVersionSameToLatestTag) {
@@ -69,12 +82,12 @@ export const bumpPushPublishIfNotActual = async ({ cwd }: { cwd: string }) => {
     return { published: false }
   }
   const { packageJsonData } = await getPackageJsonData({ dirPath: cwd })
-  console.info(`Publishing (${packageJsonData.name}): ${cwd}`)
-  await bumpPushPublish({ cwd })
+  log.green(`Publishing (${packageJsonData.name}): ${cwd}`)
+  await buildBumpPushPublish({ cwd })
   return { published: true }
 }
 
-export const commitBumpPushPublishRecursive = async ({ cwd }: { cwd: string }) => {
+export const commitBuildBumpPushPublishRecursive = async ({ cwd }: { cwd: string }) => {
   const { libPackagesData } = await getOrderedLibPackagesData({ cwd })
   if (!libPackagesData.length) {
     throw new Error('No packages found')
@@ -88,11 +101,11 @@ export const commitBumpPushPublishRecursive = async ({ cwd }: { cwd: string }) =
       await link({ cwd: libPackagePath })
     }
     const { commited } = await commitIfNeededWithPrompt({ cwd: libPackagePath })
-    const { published } = await bumpPushPublishIfNotActual({ cwd: libPackagePath })
+    const { published } = await buildBumpPushPublishIfNotActual({ cwd: libPackagePath })
     commitedSome = commitedSome || commited
     publishedSome = publishedSome || published
   }
   if (!commitedSome && !publishedSome) {
-    console.info('Nothing to commit and publish')
+    log.red('Nothing to commit and publish')
   }
 }
