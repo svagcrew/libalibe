@@ -4,7 +4,7 @@ import { getSuitableLibPackages, log } from './utils'
 export const installLatest = async ({ cwd }: { cwd: string }) => {
   const { suitableProdPackagesNames, suitableDevPackagesNames } = await getSuitableLibPackages({ cwd })
   if (!suitableProdPackagesNames.length && !suitableDevPackagesNames.length) {
-    log.red('Nothing to install')
+    log.green('Nothing to install')
     return
   }
   if (suitableProdPackagesNames.length) {

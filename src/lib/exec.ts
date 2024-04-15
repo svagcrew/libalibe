@@ -30,7 +30,7 @@ export const exec = async ({
       if (stderr) {
         if (verbose) {
           // process.stderr.write(stderr)
-          log.red(stderr)
+          log.gray(stderr)
         }
         return reject(stderr)
       }
@@ -98,7 +98,7 @@ export const spawn = async ({
       stderr += normalizedData
       if (verbose) {
         // process.stderr.write(normalizedData)
-        log.red(normalizedData)
+        log.gray(normalizedData)
       }
     })
     child.on('close', (code) => {

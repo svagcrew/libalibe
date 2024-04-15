@@ -106,6 +106,6 @@ export const commitBuildBumpPushPublishRecursive = async ({ cwd }: { cwd: string
     publishedSome = publishedSome || published
   }
   if (!commitedSome && !publishedSome) {
-    log.red('Nothing to commit and publish')
+    log.green('Nothing to commit and publish')
   }
 }

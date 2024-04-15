@@ -6,7 +6,7 @@ export const link = async ({ cwd }: { cwd: string }) => {
   if (suitablePackagesNames.length) {
     await spawn({ cwd, command: `pnpm link -g ${suitablePackagesNames.join(' ')}` })
   } else {
-    log.red('Nothing to link')
+    log.green('Nothing to link')
   }
 }
 
@@ -23,7 +23,7 @@ export const linkRecursive = async ({ cwd }: { cwd: string }) => {
 export const unlink = async ({ cwd }: { cwd: string }) => {
   const { suitableProdPackagesNames, suitableDevPackagesNames } = await getSuitableLibPackages({ cwd })
   if (!suitableProdPackagesNames.length && !suitableDevPackagesNames.length) {
-    log.red('Nothing to unlink')
+    log.green('Nothing to unlink')
     return
   }
   if (suitableProdPackagesNames.length) {
