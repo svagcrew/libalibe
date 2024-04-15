@@ -1,7 +1,8 @@
-import { getSuitableLibPackagesNames, spawn } from './utils'
+import { spawn } from './exec'
+import { getSuitableLibPackages } from './utils'
 
 export const link = async ({ cwd }: { cwd: string }) => {
-  const { suitablePackagesNames } = await getSuitableLibPackagesNames({ cwd })
+  const { suitablePackagesNames } = await getSuitableLibPackages({ cwd })
   if (suitablePackagesNames.length) {
     await spawn({ cwd, command: `pnpm link -g ${suitablePackagesNames.join(' ')}` })
   } else {
@@ -10,7 +11,7 @@ export const link = async ({ cwd }: { cwd: string }) => {
 }
 
 export const unlink = async ({ cwd }: { cwd: string }) => {
-  const { suitableProdPackagesNames, suitableDevPackagesNames } = await getSuitableLibPackagesNames({ cwd })
+  const { suitableProdPackagesNames, suitableDevPackagesNames } = await getSuitableLibPackages({ cwd })
   if (!suitableProdPackagesNames.length && !suitableDevPackagesNames.length) {
     console.info('Nothing to unlink')
     return

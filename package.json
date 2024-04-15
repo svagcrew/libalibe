@@ -23,13 +23,15 @@
   },
   "scripts": {
     "lint": "eslint --cache --cache-location ./node_modules/.cache/.eslintcache .",
-    "prettify": "prettier --log-level warn --cache --write '{src/**/*,*}.{ts,tsx,js,json,yml,scss}' '!**/{node_modules,dist}/**/*'"
+    "prettify": "prettier --log-level warn --cache --write '{src/**/*,*}.{ts,tsx,js,json,yml,scss}' '!**/{node_modules,dist}/**/*'",
+    "types": "tsc --noEmit"
   },
   "dependencies": {
     "fast-glob": "^3.3.2",
     "js-yaml": "^4.1.0",
     "lodash": "^4.17.21",
     "readline-sync": "^1.4.10",
+    "semver": "^7.6.0",
     "ts-node": "^10.9.2",
     "typescript": "^5.4.5",
     "yargs": "^17.7.2",
@@ -39,9 +41,10 @@
     "@types/js-yaml": "^4.0.9",
     "@types/lodash": "^4.17.0",
     "@types/readline-sync": "^1.4.8",
+    "@types/semver": "^7.5.8",
     "@types/yargs": "^17.0.32",
     "prettier": "^3.2.5",
-    "svag-eslint": "^0.0.8",
-    "svag-tsconfig": "^0.0.3"
+    "svag-eslint": "^0.0.12",
+    "svag-tsconfig": "^0.0.10"
   }
 }

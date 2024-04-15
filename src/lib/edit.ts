@@ -1,5 +1,5 @@
 import { findAllConfigsPaths } from './config'
-import { spawn } from './utils'
+import { spawn } from './exec'
 
 export const edit = async ({ cwd }: { cwd: string }) => {
   const { configPaths } = await findAllConfigsPaths({ dirPath: cwd })

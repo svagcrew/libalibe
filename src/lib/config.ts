@@ -4,12 +4,13 @@ import path from 'path'
 import { z } from 'zod'
 import { getDataFromFile, stringsToLikeArrayString } from './utils'
 
-const zConfig = z.object({
+const zConfigInput = z.object({
   items: z.record(z.string(), z.string()).optional().default({}),
   include: z.array(z.string()).optional().default([]),
   exclude: z.array(z.string()).optional().default([]),
 })
-export type Config = z.infer<typeof zConfig>
+export type ConfigInput = z.input<typeof zConfigInput>
+export type Config = z.infer<typeof zConfigInput>
 const defaultConfig: Config = {
   items: {},
   include: [],
@@ -39,7 +40,7 @@ export const findAllConfigsPaths = async ({ dirPath }: { dirPath: string }) => {
   return { configPaths: configPaths }
 }
 
-export const getConfig = async ({ dirPath }: { dirPath: string }) => {
+export const getConfig = async ({ dirPath }: { dirPath: string }): Promise<{ config: Config }> => {
   const { configPaths } = await findAllConfigsPaths({ dirPath })
   if (configPaths.length === 0) {
     throw new Error('Config file not found')
@@ -58,34 +59,9 @@ export const getConfig = async ({ dirPath }: { dirPath: string }) => {
   if (!configMerged.include.length) {
     configMerged.include = Object.keys(configMerged.items)
   }
-  const configMergedValidated = zConfig.safeParse(configMerged)
+  const configMergedValidated = zConfigInput.safeParse(configMerged)
   if (!configMergedValidated.success) {
     throw new Error(`Invalid config files: "${stringsToLikeArrayString(configPaths)}"`)
   }
   return { config: configMergedValidated.data }
-}
-
-export const getPackageJsonData = async ({ dirPath }: { dirPath: string }) => {
-  let dirPathHere = path.resolve('/', dirPath)
-  for (let i = 0; i < 777; i++) {
-    const maybePackageJsonGlobs = [`${dirPathHere}/package.json`]
-    const maybePackageJsonPath = (
-      await fg(maybePackageJsonGlobs, {
-        onlyFiles: true,
-        absolute: true,
-      })
-    )[0]
-    if (maybePackageJsonPath) {
-      const packageJsonData = await getDataFromFile({
-        filePath: maybePackageJsonPath,
-      })
-      return { packageJsonData }
-    }
-    const parentDirPath = path.resolve(dirPathHere, '..')
-    if (dirPathHere === parentDirPath) {
-      throw new Error('package.json not found')
-    }
-    dirPathHere = parentDirPath
-  }
-  throw new Error('package.json not found')
 }

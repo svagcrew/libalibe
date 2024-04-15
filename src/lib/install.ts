@@ -1,7 +1,8 @@
-import { getSuitableLibPackagesNames, spawn } from './utils'
+import { spawn } from './exec'
+import { getSuitableLibPackages } from './utils'
 
 export const installLatest = async ({ cwd }: { cwd: string }) => {
-  const { suitableProdPackagesNames, suitableDevPackagesNames } = await getSuitableLibPackagesNames({ cwd })
+  const { suitableProdPackagesNames, suitableDevPackagesNames } = await getSuitableLibPackages({ cwd })
   if (!suitableProdPackagesNames.length && !suitableDevPackagesNames.length) {
     console.info('Nothing to install')
     return
