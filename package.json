@@ -44,7 +44,7 @@
     "@types/semver": "^7.5.8",
     "@types/yargs": "^17.0.32",
     "prettier": "^3.2.5",
-    "svag-eslint": "^0.0.12",
-    "svag-tsconfig": "^0.0.10"
+    "svag-lint": "^0.0.13",
+    "svag-ts": "^0.0.11"
   }
 }

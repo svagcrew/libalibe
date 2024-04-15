@@ -10,13 +10,13 @@ export const installLatest = async ({ cwd }: { cwd: string }) => {
   if (suitableProdPackagesNames.length) {
     await spawn({
       cwd,
-      command: `FORCE_COLOR=1 pnpm install ${suitableProdPackagesNames.map((p) => `${p}@latest`).join(' ')}`,
+      command: `pnpm install ${suitableProdPackagesNames.map((p) => `${p}@latest`).join(' ')}`,
     })
   }
   if (suitableDevPackagesNames.length) {
     await spawn({
       cwd,
-      command: `FORCE_COLOR=1 pnpm install -D ${suitableDevPackagesNames.map((p) => `${p}@latest`).join(' ')}`,
+      command: `pnpm install -D ${suitableDevPackagesNames.map((p) => `${p}@latest`).join(' ')}`,
     })
   }
 }

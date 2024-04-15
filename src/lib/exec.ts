@@ -1,6 +1,5 @@
 import child_process from 'child_process'
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
 const normalizeData = <T>(data: T): T => {
   return data
   // const dataString = data.toString()

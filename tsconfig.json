@@ -1,4 +1,4 @@
 {
-  "extends": "svag-tsconfig/universal.json",
+  "extends": "svag-ts/universal.json",
   "include": ["src"]
 }
