@@ -2,41 +2,15 @@ import readlineSync from 'readline-sync'
 import { exec, spawn } from './exec'
 import { installLatest } from './install'
 import { link } from './link'
-import { getOrderedLibPackagesData, getPackageJsonData, isSuitableLibPackagesActual } from './utils'
+import {
+  getOrderedLibPackagesData,
+  getPackageJsonData,
+  isCommitable,
+  isSuitableLibPackagesActual,
+  throwIfNotMasterBaranch,
+} from './utils'
 
 // small helpers
-
-// const isGitRepo = async ({ cwd }: { cwd: string }) => {
-//   try {
-//     await spawn({ cwd, command: `git status --porcelain`, verbose: false })
-//     return true
-//   } catch (error) {
-//     return false
-//   }
-// }
-
-const isCommitable = async ({ cwd }: { cwd: string }) => {
-  const out = await spawn({ cwd, command: `git status --porcelain`, verbose: false })
-  return {
-    commitable: Boolean(out.trim()),
-    commitableText: out.trim(),
-  }
-}
-
-const isMasterBaranch = async ({ cwd }: { cwd: string }) => {
-  const out = await exec({ cwd, command: `git -c color.status=always branch --show-current` })
-  return {
-    masterBaranch: out.trim() === 'master',
-    currentBranch: out.trim(),
-  }
-}
-
-const throwIfNotMasterBaranch = async ({ cwd }: { cwd: string }) => {
-  const { masterBaranch, currentBranch } = await isMasterBaranch({ cwd })
-  if (!masterBaranch) {
-    throw new Error(`Not on master branch (${currentBranch}): ${cwd}`)
-  }
-}
 
 const isLastCommitSetVersionSameToLatestTag = async ({ cwd }: { cwd: string }) => {
   const lastCommitMessageRaw = await exec({ cwd, command: `git log -1 --pretty=%B` })

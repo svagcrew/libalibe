@@ -4,6 +4,7 @@ import yaml from 'js-yaml'
 import path from 'path'
 import semver from 'semver'
 import { getConfig } from './config'
+import { exec, spawn } from './exec'
 
 export type PackageJsonData = {
   name: string
@@ -11,6 +12,9 @@ export type PackageJsonData = {
   devDependencies?: Record<string, string>
   dependencies?: Record<string, string>
   scripts?: Record<string, string>
+  repository: {
+    url: string
+  }
 }
 type LibPackageData = { libPackageName: string; libPackagePath: string; libPackageJsonData: PackageJsonData }
 
@@ -194,4 +198,61 @@ export const isSuitableLibPackagesActual = async ({ cwd }: { cwd: string }) => {
     }
   }
   return { suitableLibPackagesActual: true }
+}
+
+export const isDirExists = async ({ cwd }: { cwd: string }) => {
+  try {
+    await fs.access(cwd)
+    return { dirExists: true }
+  } catch (error) {
+    return { dirExists: false }
+  }
+}
+
+export const isDirEmpty = async ({ cwd }: { cwd: string }) => {
+  const files = await fs.readdir(cwd)
+  return { dirEmpty: !files.length }
+}
+
+export const createDir = async ({ cwd }: { cwd: string }) => {
+  await fs.mkdir(cwd, { recursive: true })
+}
+
+export const createDirIfNotExists = async ({ cwd }: { cwd: string }) => {
+  const { dirExists } = await isDirExists({ cwd })
+  if (!dirExists) {
+    await createDir({ cwd })
+  }
+}
+
+export const isGitRepo = async ({ cwd }: { cwd: string }) => {
+  try {
+    await spawn({ cwd, command: `git status --porcelain`, verbose: false })
+    return { gitRepo: true }
+  } catch (error) {
+    return { gitRepo: false }
+  }
+}
+
+export const isCommitable = async ({ cwd }: { cwd: string }) => {
+  const out = await spawn({ cwd, command: `git status --porcelain`, verbose: false })
+  return {
+    commitable: Boolean(out.trim()),
+    commitableText: out.trim(),
+  }
+}
+
+export const isMasterBaranch = async ({ cwd }: { cwd: string }) => {
+  const out = await exec({ cwd, command: `git -c color.status=always branch --show-current` })
+  return {
+    masterBaranch: out.trim() === 'master',
+    currentBranch: out.trim(),
+  }
+}
+
+export const throwIfNotMasterBaranch = async ({ cwd }: { cwd: string }) => {
+  const { masterBaranch, currentBranch } = await isMasterBaranch({ cwd })
+  if (!masterBaranch) {
+    throw new Error(`Not on master branch (${currentBranch}): ${cwd}`)
+  }
 }

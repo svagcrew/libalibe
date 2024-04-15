@@ -7,11 +7,12 @@ import { installLatest } from './lib/install'
 import { link, linkRecursive, unlink } from './lib/link'
 import { bumpPushPublish, commitBumpPushPublish, commitBumpPushPublishRecursive } from './lib/publish'
 import { spawn } from './lib/exec'
+import { pullOrCloneRecursive } from './lib/pull'
 
 void (async () => {
   try {
     const argv = await yargs(hideBin(process.argv)).argv
-    const knownCommands = ['link', 'linkr', 'unlink', 'edit', 'bpp', 'cbpp', 'cbppr', 'il', 'ill', 'ping']
+    const knownCommands = ['link', 'linkr', 'unlink', 'edit', 'bpp', 'cbpp', 'cbppr', 'il', 'ill', 'pocr', 'h', 'ping']
     const { command, args } = (() => {
       if (knownCommands.includes(argv._[0].toString())) {
         return { command: argv._[0].toString(), args: argv._.slice(1) }
@@ -55,6 +56,24 @@ void (async () => {
         break
       case 'cbppr':
         await commitBumpPushPublishRecursive({ cwd })
+        break
+      case 'pocr':
+        await pullOrCloneRecursive({ cwd })
+        break
+      case 'h':
+        console.info(`Commands:
+link — link packages
+linkr — link packages recursive
+unlink — unlink packages
+edit — edit package.json
+il — install latest packages
+ill — install latest packages and link
+bpp — bump, push and publish
+cbpp — commit, bump, push and publish
+cbppr — commit, bump, push and publish recursive
+pocr — pull or clone recursive
+h — show help
+ping — pong`)
         break
       case 'ping':
         await spawn({ cwd, command: 'echo pong' })
