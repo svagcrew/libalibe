@@ -30,7 +30,7 @@ void (async () => {
       'lintr',
       'lintfixr',
       'edit',
-      'bpbp',
+      'bbpp',
       'cbbpp',
       'cbbppr',
       'bam',
@@ -121,11 +121,11 @@ lintr — lint packages recursive
 edit — edit package.json
 il — install latest packages
 ill — install latest packages and link
-bbpp — bump, push and publish
-cbbpp — commit, bump, push and publish
-cbbppr — commit, bump, push and publish recursive
+bbpp — build, bump, push, publish
+cbbpp — commit, build, bump, push, publish
+cbbppr — commit, build, bump, push, publish, recursive
 bam — same as "cbbppr"
-csfbbppr — commit small fix, bump, push and publish recursive
+csfbbppr — commit small fix, build, bump, push, publish, recursive
 boom — same as "csfbbppr"
 pocr — pull or clone recursive
 h — show help

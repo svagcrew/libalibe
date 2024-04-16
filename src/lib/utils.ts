@@ -6,6 +6,7 @@ import pc from 'picocolors'
 import semver from 'semver'
 import { getConfig } from './config'
 import { exec, spawn } from './exec'
+import _ from 'lodash'
 
 export type PackageJsonData = {
   name: string
@@ -156,10 +157,11 @@ const isThisLibPackageDependsOnThatLibPackage = ({
 }
 
 const orderLibPackagesFromDependsOnToDependent = ({ libPackagesData }: { libPackagesData: LibPackageData[] }) => {
-  const libPackagesDataOrdered: LibPackageData[] = []
-  for (const libPackageData of libPackagesData) {
-    libPackagesDataOrdered.push(libPackageData)
+  const libPackagesDataOrdered = _.cloneDeep(libPackagesData)
+  const getOrderString = (libPackagesData: LibPackageData[]) => {
+    return libPackagesData.map(({ libPackageName }) => libPackageName).join('|')
   }
+  const knownOrders = [getOrderString(libPackagesDataOrdered)]
   for (let i = 0; i < libPackagesDataOrdered.length; i++) {
     for (let j = i + 1; j < libPackagesDataOrdered.length; j++) {
       const { thisLibPackageDependsOnThatLibPackage } = isThisLibPackageDependsOnThatLibPackage({
@@ -169,7 +171,10 @@ const orderLibPackagesFromDependsOnToDependent = ({ libPackagesData }: { libPack
       if (thisLibPackageDependsOnThatLibPackage) {
         const libPackageData = libPackagesDataOrdered.splice(j, 1)[0]
         libPackagesDataOrdered.splice(i, 0, libPackageData)
-        i--
+        if (!knownOrders.includes(getOrderString(libPackagesDataOrdered))) {
+          i--
+          knownOrders.push(getOrderString(libPackagesDataOrdered))
+        }
         break
       }
     }
