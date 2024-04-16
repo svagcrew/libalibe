@@ -207,14 +207,19 @@ export const getOrderedLibPackagesData = async ({ cwd }: { cwd: string }) => {
 }
 
 export const isSuitableLibPackagesActual = async ({ cwd }: { cwd: string }) => {
+  const result = {
+    suitableLibPackagesActual: true,
+    notSuitableLibPackagesName: [] as string[],
+  }
   const { suitablePackagesNames } = await getSuitableLibPackages({ cwd })
   for (const packageName of suitablePackagesNames) {
     const { suitableLibPackageActual } = await isSuitableLibPackageActual({ cwd, libPackageName: packageName })
     if (!suitableLibPackageActual) {
-      return { suitableLibPackagesActual: false }
+      result.suitableLibPackagesActual = false
+      result.notSuitableLibPackagesName.push(packageName)
     }
   }
-  return { suitableLibPackagesActual: true }
+  return result
 }
 
 export const isDirExists = async ({ cwd }: { cwd: string }) => {

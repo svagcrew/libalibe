@@ -11,6 +11,7 @@ import { lintFixRecursive, lintRecursive } from './lib/lint'
 import {
   buildBumpPushPublish,
   commitBuildBumpPushPublish,
+  prepareUpdateCommitSmallFixBuildBumpPushPublishRecursive,
   updateCommitBuildBumpPushPublish,
   updateCommitBuildBumpPushPublishRecursive,
   updateCommitSmallFixBuildBumpPushPublishRecursive,
@@ -40,6 +41,8 @@ void (async () => {
       'bam',
       'ucsfbbppr',
       'boom',
+      'pucsfbbppr',
+      'pboom',
       'il',
       'ill',
       'pocr',
@@ -116,6 +119,12 @@ void (async () => {
         break
       case 'boom':
         await updateCommitSmallFixBuildBumpPushPublishRecursive({ cwd })
+        break
+      case 'pucsfbbppr':
+        await prepareUpdateCommitSmallFixBuildBumpPushPublishRecursive({ cwd })
+        break
+      case 'pboom':
+        await prepareUpdateCommitSmallFixBuildBumpPushPublishRecursive({ cwd })
         break
       case 'pocr':
         await pullOrCloneRecursive({ cwd })

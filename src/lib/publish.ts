@@ -154,3 +154,22 @@ export const updateCommitSmallFixBuildBumpPushPublishRecursive = async ({ cwd }:
     log.green(`${cwd}: nothing to commit and publish`)
   }
 }
+
+export const prepareUpdateCommitSmallFixBuildBumpPushPublishRecursive = async ({ cwd }: { cwd: string }) => {
+  const { libPackagesData } = await getOrderedLibPackagesData({ cwd })
+  if (!libPackagesData.length) {
+    throw new Error('No packages found')
+  }
+  for (const { libPackagePath } of libPackagesData) {
+    const { suitableLibPackagesActual, notSuitableLibPackagesName } = await isSuitableLibPackagesActual({
+      cwd: libPackagePath,
+    })
+    if (!suitableLibPackagesActual) {
+      log.green(`${libPackagePath}: not suitable packages found: ${notSuitableLibPackagesName.join(', ')}`)
+    }
+    const { commitable } = await isCommitable({ cwd: libPackagePath })
+    if (commitable) {
+      log.green(`${libPackagePath}: commitable`)
+    }
+  }
+}
