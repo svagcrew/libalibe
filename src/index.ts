@@ -138,6 +138,10 @@ ping — pong`)
         log.red('Unknown command:', command)
         break
     }
+    if (log.isMemoryNotEmpty()) {
+      log.green('Result:')
+      log.fromMemory()
+    }
   } catch (error) {
     log.error(error)
   }

@@ -274,7 +274,7 @@ export const throwIfNotMasterBaranch = async ({ cwd }: { cwd: string }) => {
   }
 }
 
-const logColored = async ({
+const logColored = ({
   message,
   color,
 }: {
@@ -284,6 +284,22 @@ const logColored = async ({
   const messages = Array.isArray(message) ? message : [message]
   // eslint-disable-next-line no-console
   console.log(pc[color](messages.join('\n')))
+}
+
+const logMemory: Record<string, string[]> = {
+  default: [],
+}
+export const logToMemeoryColored = ({
+  message,
+  color,
+  memoryKey = 'default',
+}: {
+  message: string | string[]
+  color: 'red' | 'blue' | 'green' | 'gray' | 'black'
+  memoryKey?: string
+}) => {
+  const messages = (Array.isArray(message) ? message : [message]).map((message) => pc[color](message))
+  logMemory[memoryKey] = [...logMemory[memoryKey], ...messages]
 }
 
 export const log = {
@@ -297,4 +313,21 @@ export const log = {
   error: console.error,
   // eslint-disable-next-line no-console
   info: console.info,
+  toMemory: {
+    it: logToMemeoryColored,
+    red: (...message: string[]) => logToMemeoryColored({ message, color: 'red' }),
+    blue: (...message: string[]) => logToMemeoryColored({ message, color: 'blue' }),
+    green: (...message: string[]) => logToMemeoryColored({ message, color: 'green' }),
+    gray: (...message: string[]) => logToMemeoryColored({ message, color: 'gray' }),
+    black: (...message: string[]) => logToMemeoryColored({ message, color: 'black' }),
+  },
+  fromMemory: (memoryKey = 'default') => {
+    for (const message of logMemory[memoryKey] || []) {
+      // eslint-disable-next-line no-console
+      console.log(message)
+    }
+  },
+  isMemoryNotEmpty: (memoryKey = 'default') => {
+    return !!(logMemory[memoryKey]?.length > 0)
+  },
 }

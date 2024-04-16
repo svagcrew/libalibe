@@ -29,6 +29,7 @@ export const typecheckRecursive = async ({ cwd }: { cwd: string }) => {
     if (typecheckable) {
       log.green(`Typechecking ${libPackagePath}`)
       await typecheck({ cwd: libPackagePath })
+      log.toMemory.green(`Typechecked ${libPackagePath}`)
     }
   }
 }

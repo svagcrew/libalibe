@@ -44,6 +44,7 @@ ${commitableText}`)
     defaultInput: 'Small fix',
   })
   await addAllAndCommit({ cwd, message })
+  log.toMemory.green(`Commited (${packageJsonData.name}): ${cwd}`)
   return { commited: true, message }
 }
 
@@ -57,6 +58,7 @@ const commitIfNeededWithMessage = async ({ cwd, message }: { cwd: string; messag
   log.green(`Commiting (${packageJsonData.name}): ${cwd}
 ${commitableText}`)
   await addAllAndCommit({ cwd, message })
+  log.toMemory.green(`Commited (${packageJsonData.name}): ${cwd}`)
   return { commited: true, message }
 }
 
@@ -74,10 +76,17 @@ export const buildBumpPushPublish = async ({
   if (buildable) {
     log.green(`Building ${cwd}`)
     await build({ cwd })
+    log.toMemory.green(`Built ${cwd}`)
   }
+  const { packageJsonData: pjd1 } = await getPackageJsonData({ dirPath: cwd })
   await spawn({ cwd, command: `pnpm version ${bump}` })
+  const { packageJsonData: pjd2 } = await getPackageJsonData({ dirPath: cwd })
+  const oldVersion = pjd1.version
+  const newVersion = pjd2.version
+  log.toMemory.green(`Bumped version from ${oldVersion} to ${newVersion} in ${cwd}`)
   await spawn({ cwd, command: `git push origin master` })
   await spawn({ cwd, command: `pnpm publish` })
+  log.toMemory.green(`Published ${newVersion} in ${cwd}`)
 }
 
 export const commitBuildBumpPushPublish = async ({ cwd, message }: { cwd: string; message: string }) => {
@@ -97,6 +106,7 @@ export const buildBumpPushPublishIfNotActual = async ({ cwd }: { cwd: string }) 
   const { packageJsonData } = await getPackageJsonData({ dirPath: cwd })
   log.green(`Publishing (${packageJsonData.name}): ${cwd}`)
   await buildBumpPushPublish({ cwd })
+  log.toMemory.green(`Published (${packageJsonData.name}): ${cwd}`)
   return { published: true }
 }
 
