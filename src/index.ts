@@ -18,6 +18,7 @@ import {
 import { pullOrCloneRecursive } from './lib/pull'
 import { typecheckRecursive } from './lib/types'
 import { log } from './lib/utils'
+import { watchRecursiveConcurrently } from './lib/watch'
 
 void (async () => {
   try {
@@ -27,6 +28,7 @@ void (async () => {
       'linkr',
       'unlink',
       'buildr',
+      'watchr',
       'typesr',
       'lintr',
       'lintfixr',
@@ -65,6 +67,9 @@ void (async () => {
         break
       case 'buildr':
         await buildRecursive({ cwd })
+        break
+      case 'watchr':
+        await watchRecursiveConcurrently({ cwd })
         break
       case 'typesr':
         await typecheckRecursive({ cwd })
@@ -145,7 +150,7 @@ ping — pong`)
         break
     }
     if (log.isMemoryNotEmpty()) {
-      log.black('=====Result=====')
+      log.black('\n=====Result=====')
       log.fromMemory()
     }
   } catch (error) {

@@ -22,7 +22,7 @@ export type PackageJsonData = {
     depsVersionAccuracyNotMatter?: string[]
   }
 }
-type LibPackageData = { libPackageName: string; libPackagePath: string; libPackageJsonData: PackageJsonData }
+export type LibPackageData = { libPackageName: string; libPackagePath: string; libPackageJsonData: PackageJsonData }
 
 export const getPathsByGlobs = async ({ globs, baseDir }: { globs: string[]; baseDir: string }) => {
   const filePaths = await fg(globs, {
