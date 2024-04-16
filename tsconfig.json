@@ -2,7 +2,6 @@
   "extends": "svag-ts/configs/universal.json",
   "include": ["src"],
   "compilerOptions": {
-    "outDir": "./dist",
-    "declaration": false
+    "outDir": "./dist"
   }
 }

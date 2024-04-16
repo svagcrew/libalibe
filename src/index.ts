@@ -11,6 +11,7 @@ import { lintFixRecursive, lintRecursive } from './lib/lint'
 import {
   buildBumpPushPublish,
   commitBuildBumpPushPublish,
+  updateCommitBuildBumpPushPublish,
   updateCommitBuildBumpPushPublishRecursive,
   updateCommitSmallFixBuildBumpPushPublishRecursive,
 } from './lib/publish'
@@ -32,9 +33,10 @@ void (async () => {
       'edit',
       'bbpp',
       'cbbpp',
-      'cbbppr',
+      'ucbbpp',
+      'ucbbppr',
       'bam',
-      'csfbbppr',
+      'ucsfbbppr',
       'boom',
       'il',
       'ill',
