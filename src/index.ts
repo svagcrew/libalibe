@@ -75,22 +75,46 @@ defineCliApp(async ({ args, command, cwd, flags }) => {
       await updateCommitBuildBumpPushPublish({ cwd })
       break
     case 'ucbbppr':
-      await updateCommitBuildBumpPushPublishRecursive({ cwd })
+      await updateCommitBuildBumpPushPublishRecursive({
+        cwd,
+        include: typeof flags.i === 'string' ? flags.i.split(',') : undefined,
+        forceAccuracy: !!flags.a || !!flags.forceAccuracy,
+      })
       break
     case 'bam':
-      await updateCommitBuildBumpPushPublishRecursive({ cwd })
+      await updateCommitBuildBumpPushPublishRecursive({
+        cwd,
+        include: typeof flags.i === 'string' ? flags.i.split(',') : undefined,
+        forceAccuracy: !!flags.a || !!flags.forceAccuracy,
+      })
       break
     case 'ucsfbbppr':
-      await updateCommitSmallFixBuildBumpPushPublishRecursive({ cwd })
+      await updateCommitSmallFixBuildBumpPushPublishRecursive({
+        cwd,
+        include: typeof flags.i === 'string' ? flags.i.split(',') : undefined,
+        forceAccuracy: !!flags.a || !!flags.forceAccuracy,
+      })
       break
     case 'boom':
-      await updateCommitSmallFixBuildBumpPushPublishRecursive({ cwd })
+      await updateCommitSmallFixBuildBumpPushPublishRecursive({
+        cwd,
+        include: typeof flags.i === 'string' ? flags.i.split(',') : undefined,
+        forceAccuracy: !!flags.a || !!flags.forceAccuracy,
+      })
       break
     case 'pucsfbbppr':
-      await prepareUpdateCommitSmallFixBuildBumpPushPublishRecursive({ cwd })
+      await prepareUpdateCommitSmallFixBuildBumpPushPublishRecursive({
+        cwd,
+        include: typeof flags.i === 'string' ? flags.i.split(',') : undefined,
+        forceAccuracy: !!flags.a || !!flags.forceAccuracy,
+      })
       break
     case 'pboom':
-      await prepareUpdateCommitSmallFixBuildBumpPushPublishRecursive({ cwd })
+      await prepareUpdateCommitSmallFixBuildBumpPushPublishRecursive({
+        cwd,
+        include: typeof flags.i === 'string' ? flags.i.split(',') : undefined,
+        forceAccuracy: !!flags.a || !!flags.forceAccuracy,
+      })
       break
     case 'pocr':
       await pullOrCloneRecursive({ cwd })

@@ -16,9 +16,7 @@ export type LibPackageData = { libPackageName: string; libPackagePath: string; l
 export const getSuitableLibPackages = async ({ cwd }: { cwd: string }) => {
   const { config } = await getConfig({ cwd })
   const { packageJsonData: projectPackageJsonData } = await getPackageJson({ cwd })
-  const include = config.include
-  const exclude = config.exclude
-  const libPackagesNames = include.filter((include) => !exclude.includes(include))
+  const libPackagesNames = Object.keys(config.items)
   const devDependencies = Object.keys(projectPackageJsonData.devDependencies || {})
   const prodDependencies = Object.keys(projectPackageJsonData.dependencies || {})
   const allDependencies = [...new Set([...devDependencies, ...prodDependencies])]
@@ -60,7 +58,15 @@ export const getLibPackageJsonData = async ({ cwd, libPackageName }: { cwd: stri
   return { libPackageJsonData }
 }
 
-export const isSuitableLibPackageActual = async ({ cwd, libPackageName }: { cwd: string; libPackageName: string }) => {
+export const isSuitableLibPackageActual = async ({
+  cwd,
+  libPackageName,
+  forceAccuracy,
+}: {
+  cwd: string
+  libPackageName: string
+  forceAccuracy?: boolean
+}) => {
   const { packageJsonData: projectPackageJsonData } = await getPackageJson({ cwd })
   const { suitablePackagesWithVersion } = await getSuitableLibPackages({
     cwd,
@@ -69,7 +75,6 @@ export const isSuitableLibPackageActual = async ({ cwd, libPackageName }: { cwd:
   if (!projectLibPackageVersionRaw) {
     throw new Error(`${cwd}: version not found "${libPackageName}"`)
   }
-  // TODO:ASAP get execat not min
   const projectLibPackageVersionExact = projectLibPackageVersionRaw.match(/(\d+\.\d+\.\d+)/)?.[0]
   const { libPackageJsonData } = await getLibPackageJsonData({ cwd, libPackageName })
   if (!projectLibPackageVersionExact) {
@@ -81,8 +86,9 @@ export const isSuitableLibPackageActual = async ({ cwd, libPackageName }: { cwd:
   const projectPackageJsonDataLibalibe = projectPackageJsonData.libalibe as PackageJsonDataLibalibe
   const libPackageJsonDataLibalibe = libPackageJsonData.libalibe as PackageJsonDataLibalibe
   if (
-    projectPackageJsonDataLibalibe?.depsVersionAccuracyNotMatter?.includes(libPackageName) ||
-    libPackageJsonDataLibalibe?.selfVersionAccuracyNotMatter
+    !forceAccuracy &&
+    (projectPackageJsonDataLibalibe?.depsVersionAccuracyNotMatter?.includes(libPackageName) ||
+      libPackageJsonDataLibalibe?.selfVersionAccuracyNotMatter)
   ) {
     return { suitableLibPackageActual: semver.satisfies(libPackageJsonData.version, projectLibPackageVersionRaw) }
   }
@@ -134,12 +140,14 @@ const orderLibPackagesFromDependsOnToDependent = ({ libPackagesData }: { libPack
   return { libPackagesDataOrdered }
 }
 
-export const getOrderedLibPackagesData = async ({ cwd }: { cwd: string }) => {
+export const getOrderedLibPackagesData = async ({ cwd, include }: { cwd: string; include?: string[] }) => {
   const { config } = await getConfig({ cwd })
   const libPackagesDataNonOrdered: LibPackageData[] = []
   for (const [libPackageName, libPackagePath] of Object.entries(config.items)) {
     const { packageJsonData: libPackageJsonData } = await getPackageJson({ cwd: libPackagePath })
-    libPackagesDataNonOrdered.push({ libPackageName, libPackagePath, libPackageJsonData })
+    if (!include || include.includes(libPackageName)) {
+      libPackagesDataNonOrdered.push({ libPackageName, libPackagePath, libPackageJsonData })
+    }
   }
   const { libPackagesDataOrdered } = orderLibPackagesFromDependsOnToDependent({
     libPackagesData: libPackagesDataNonOrdered,
@@ -147,14 +155,18 @@ export const getOrderedLibPackagesData = async ({ cwd }: { cwd: string }) => {
   return { libPackagesData: libPackagesDataOrdered }
 }
 
-export const isSuitableLibPackagesActual = async ({ cwd }: { cwd: string }) => {
+export const isSuitableLibPackagesActual = async ({ cwd, forceAccuracy }: { cwd: string; forceAccuracy?: boolean }) => {
   const result = {
     suitableLibPackagesActual: true,
     notSuitableLibPackagesName: [] as string[],
   }
   const { suitablePackagesNames } = await getSuitableLibPackages({ cwd })
   for (const packageName of suitablePackagesNames) {
-    const { suitableLibPackageActual } = await isSuitableLibPackageActual({ cwd, libPackageName: packageName })
+    const { suitableLibPackageActual } = await isSuitableLibPackageActual({
+      cwd,
+      libPackageName: packageName,
+      forceAccuracy,
+    })
     if (!suitableLibPackageActual) {
       result.suitableLibPackagesActual = false
       result.notSuitableLibPackagesName.push(packageName)

@@ -97,8 +97,14 @@ export const buildBumpPushPublishIfNotActual = async ({ cwd }: { cwd: string }) 
   return { published: true }
 }
 
-export const updateCommitBuildBumpPushPublish = async ({ cwd }: { cwd: string }) => {
-  const { suitableLibPackagesActual } = await isSuitableLibPackagesActual({ cwd })
+export const updateCommitBuildBumpPushPublish = async ({
+  cwd,
+  forceAccuracy,
+}: {
+  cwd: string
+  forceAccuracy?: boolean
+}) => {
+  const { suitableLibPackagesActual } = await isSuitableLibPackagesActual({ cwd, forceAccuracy })
   if (!suitableLibPackagesActual) {
     await installLatest({ cwd })
     await link({ cwd })
@@ -108,15 +114,23 @@ export const updateCommitBuildBumpPushPublish = async ({ cwd }: { cwd: string })
   return { commited, published }
 }
 
-export const updateCommitBuildBumpPushPublishRecursive = async ({ cwd }: { cwd: string }) => {
-  const { libPackagesData } = await getOrderedLibPackagesData({ cwd })
+export const updateCommitBuildBumpPushPublishRecursive = async ({
+  cwd,
+  include,
+  forceAccuracy,
+}: {
+  cwd: string
+  include?: string[]
+  forceAccuracy?: boolean
+}) => {
+  const { libPackagesData } = await getOrderedLibPackagesData({ cwd, include })
   if (!libPackagesData.length) {
     throw new Error('No packages found')
   }
   let commitedSome = false
   let publishedSome = false
   for (const { libPackagePath } of libPackagesData) {
-    const { commited, published } = await updateCommitBuildBumpPushPublish({ cwd: libPackagePath })
+    const { commited, published } = await updateCommitBuildBumpPushPublish({ cwd: libPackagePath, forceAccuracy })
     commitedSome = commitedSome || commited
     publishedSome = publishedSome || published
   }
@@ -125,15 +139,23 @@ export const updateCommitBuildBumpPushPublishRecursive = async ({ cwd }: { cwd: 
   }
 }
 
-export const updateCommitSmallFixBuildBumpPushPublishRecursive = async ({ cwd }: { cwd: string }) => {
-  const { libPackagesData } = await getOrderedLibPackagesData({ cwd })
+export const updateCommitSmallFixBuildBumpPushPublishRecursive = async ({
+  cwd,
+  include,
+  forceAccuracy,
+}: {
+  cwd: string
+  include?: string[]
+  forceAccuracy?: boolean
+}) => {
+  const { libPackagesData } = await getOrderedLibPackagesData({ cwd, include })
   if (!libPackagesData.length) {
     throw new Error('No packages found')
   }
   let commitedSome = false
   let publishedSome = false
   for (const { libPackagePath } of libPackagesData) {
-    const { suitableLibPackagesActual } = await isSuitableLibPackagesActual({ cwd: libPackagePath })
+    const { suitableLibPackagesActual } = await isSuitableLibPackagesActual({ cwd: libPackagePath, forceAccuracy })
     if (!suitableLibPackagesActual) {
       await installLatest({ cwd: libPackagePath })
       await link({ cwd: libPackagePath })
@@ -148,8 +170,16 @@ export const updateCommitSmallFixBuildBumpPushPublishRecursive = async ({ cwd }:
   }
 }
 
-export const prepareUpdateCommitSmallFixBuildBumpPushPublishRecursive = async ({ cwd }: { cwd: string }) => {
-  const { libPackagesData } = await getOrderedLibPackagesData({ cwd })
+export const prepareUpdateCommitSmallFixBuildBumpPushPublishRecursive = async ({
+  cwd,
+  include,
+  forceAccuracy,
+}: {
+  cwd: string
+  include?: string[]
+  forceAccuracy?: boolean
+}) => {
+  const { libPackagesData } = await getOrderedLibPackagesData({ cwd, include })
   if (!libPackagesData.length) {
     throw new Error('No packages found')
   }
@@ -157,6 +187,7 @@ export const prepareUpdateCommitSmallFixBuildBumpPushPublishRecursive = async ({
   for (const { libPackagePath } of libPackagesData) {
     const { suitableLibPackagesActual, notSuitableLibPackagesName } = await isSuitableLibPackagesActual({
       cwd: libPackagePath,
+      forceAccuracy,
     })
     if (!suitableLibPackagesActual) {
       nothingToCommitAndPublish = false

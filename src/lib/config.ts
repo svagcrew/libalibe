@@ -6,15 +6,11 @@ import { z } from 'zod'
 
 const zConfigInput = z.object({
   items: z.record(z.string(), z.string()).optional().default({}),
-  include: z.array(z.string()).optional().default([]),
-  exclude: z.array(z.string()).optional().default([]),
 })
 export type ConfigInput = z.input<typeof zConfigInput>
 export type Config = z.infer<typeof zConfigInput>
 const defaultConfig: Config = {
   items: {},
-  include: [],
-  exclude: [],
 }
 
 export const findAllConfigsPaths = async ({ cwd }: { cwd: string }) => {
@@ -48,16 +44,7 @@ export const getConfig = async ({ cwd }: { cwd: string }): Promise<{ config: Con
   const configMerged = _.cloneDeep(defaultConfig)
   for (const configPath of configPaths) {
     const configData = await getDataFromFile({ filePath: configPath })
-    configMerged.include = [
-      ...new Set([...configMerged.include, ...(Array.isArray(configData.include) ? configData.include : [])]),
-    ]
-    configMerged.exclude = [
-      ...new Set([...configMerged.exclude, ...(Array.isArray(configData.exclude) ? configData.exclude : [])]),
-    ]
     configMerged.items = { ...configMerged.items, ...configData.items }
-  }
-  if (!configMerged.include.length) {
-    configMerged.include = Object.keys(configMerged.items)
   }
   const configMergedValidated = zConfigInput.safeParse(configMerged)
   if (!configMergedValidated.success) {
