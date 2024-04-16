@@ -270,7 +270,7 @@ export const isMasterBaranch = async ({ cwd }: { cwd: string }) => {
 export const throwIfNotMasterBaranch = async ({ cwd }: { cwd: string }) => {
   const { masterBaranch, currentBranch } = await isMasterBaranch({ cwd })
   if (!masterBaranch) {
-    throw new Error(`Not on master branch (${currentBranch}): ${cwd}`)
+    throw new Error(`${cwd}: not on master branch (${currentBranch})`)
   }
 }
 

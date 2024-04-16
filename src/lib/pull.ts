@@ -5,15 +5,15 @@ import { createDirIfNotExists, isCommitable, isDirEmpty, isDirExists, isGitRepo 
 const pull = async ({ cwd }: { cwd: string }) => {
   const { dirExists } = await isDirExists({ cwd })
   if (!dirExists) {
-    throw new Error(`No such directory: ${cwd}`)
+    throw new Error(`${cwd}: no such directory`)
   }
   const { gitRepo } = await isGitRepo({ cwd })
   if (!gitRepo) {
-    throw new Error(`Not a git repo in ${cwd}`)
+    throw new Error(`${cwd}: not a git repo`)
   }
   const { commitable } = await isCommitable({ cwd })
   if (commitable) {
-    throw new Error(`Uncommited changes in ${cwd}`)
+    throw new Error(`${cwd}: uncommited changes`)
   }
   await spawn({ cwd, command: `git pull origin master` })
 }
@@ -22,7 +22,7 @@ const clone = async ({ cwd, libPackageName }: { cwd: string; libPackageName: str
   const { dirExists } = await isDirExists({ cwd })
   const { dirEmpty } = dirExists ? await isDirEmpty({ cwd }) : { dirEmpty: true }
   if (dirExists && !dirEmpty) {
-    throw new Error(`Directory is not empty: ${cwd}`)
+    throw new Error(`${cwd}: directory is not empty`)
   }
   await createDirIfNotExists({ cwd })
   const url = (await exec({ cwd, command: `npm view ${libPackageName} repository.url` })).trim()

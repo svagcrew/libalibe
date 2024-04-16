@@ -95,6 +95,9 @@ void (async () => {
           message: args[0] ? args[0].toString() : 'Small fix',
         })
         break
+      case 'ucbbpp':
+        await updateCommitBuildBumpPushPublish({ cwd })
+        break
       case 'ucbbppr':
         await updateCommitBuildBumpPushPublishRecursive({ cwd })
         break
@@ -123,6 +126,7 @@ il — install latest packages
 ill — install latest packages and link
 bbpp — build, bump, push, publish
 cbbpp — commit, build, bump, push, publish
+ucbbpp — update, commit, build, bump, push, publish
 ucbbppr — update, commit, build, bump, push, publish, recursive
 bam — same as "cbbppr"
 ucsfbbppr — commit small fix, build, bump, push, publish, recursive

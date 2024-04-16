@@ -34,7 +34,6 @@ const addAllAndCommit = async ({ cwd, message }: { cwd: string; message: string 
 const commitIfNeededWithPrompt = async ({ cwd }: { cwd: string }) => {
   const { commitable, commitableText } = await isCommitable({ cwd })
   if (!commitable) {
-    // console.info(`Nothing to commit (${packageJsonData.name}): ${cwd}`)
     return { commited: false, message: null }
   }
   const { packageJsonData } = await getPackageJsonData({ dirPath: cwd })
@@ -44,21 +43,20 @@ ${commitableText}`)
     defaultInput: 'Small fix',
   })
   await addAllAndCommit({ cwd, message })
-  log.toMemory.green(`Commited (${packageJsonData.name}): ${cwd}`)
+  log.toMemory.green(`${cwd}: commited (${packageJsonData.name})`)
   return { commited: true, message }
 }
 
 const commitIfNeededWithMessage = async ({ cwd, message }: { cwd: string; message: string }) => {
   const { commitable, commitableText } = await isCommitable({ cwd })
   if (!commitable) {
-    // console.info(`Nothing to commit (${packageJsonData.name}): ${cwd}`)
     return { commited: false, message: null }
   }
   const { packageJsonData } = await getPackageJsonData({ dirPath: cwd })
-  log.green(`Commiting (${packageJsonData.name}): ${cwd}
+  log.green(`${cwd}: commiting (${packageJsonData.name})
 ${commitableText}`)
   await addAllAndCommit({ cwd, message })
-  log.toMemory.green(`Commited (${packageJsonData.name}): ${cwd}`)
+  log.toMemory.green(`${cwd}: commited (${packageJsonData.name})`)
   return { commited: true, message }
 }
 
@@ -74,25 +72,27 @@ export const buildBumpPushPublish = async ({
   await throwIfNotMasterBaranch({ cwd })
   const { buildable } = await isBuildable({ cwd })
   if (buildable) {
-    log.green(`Building ${cwd}`)
+    log.green(`${cwd}: building`)
     await build({ cwd })
-    log.toMemory.green(`Built ${cwd}`)
   }
   const { packageJsonData: pjd1 } = await getPackageJsonData({ dirPath: cwd })
   await spawn({ cwd, command: `pnpm version ${bump}` })
   const { packageJsonData: pjd2 } = await getPackageJsonData({ dirPath: cwd })
   const oldVersion = pjd1.version
   const newVersion = pjd2.version
-  log.toMemory.green(`Bumped version from ${oldVersion} to ${newVersion} in ${cwd}`)
+  log.green(`${cwd}: pushing`)
   await spawn({ cwd, command: `git push origin master` })
+  log.green(`${cwd}: publishing`)
   await spawn({ cwd, command: `pnpm publish` })
-  log.toMemory.green(`Published ${newVersion} in ${cwd}`)
+  log.toMemory.green(`${cwd}: published ${oldVersion}→${newVersion}`)
 }
 
 export const commitBuildBumpPushPublish = async ({ cwd, message }: { cwd: string; message: string }) => {
   await throwIfNotMasterBaranch({ cwd })
+  log.green(`${cwd}: commiting (${message})`)
   await spawn({ cwd, command: `git add -A` })
   await spawn({ cwd, command: `git commit -m "${message}"` })
+  log.toMemory.green(`${cwd}: Ccmmited (${message})`)
   await buildBumpPushPublish({ cwd })
 }
 
@@ -100,14 +100,21 @@ export const buildBumpPushPublishIfNotActual = async ({ cwd }: { cwd: string }) 
   await throwIfNotMasterBaranch({ cwd })
   const { lastCommitSetVersionSameToLatestTag } = await isLastCommitSetVersionSameToLatestTag({ cwd })
   if (lastCommitSetVersionSameToLatestTag) {
-    // console.info(`Already actual (${packageJsonData.name}): ${cwd}`)
     return { published: false }
   }
-  const { packageJsonData } = await getPackageJsonData({ dirPath: cwd })
-  log.green(`Publishing (${packageJsonData.name}): ${cwd}`)
   await buildBumpPushPublish({ cwd })
-  log.toMemory.green(`Published (${packageJsonData.name}): ${cwd}`)
   return { published: true }
+}
+
+export const updateCommitBuildBumpPushPublish = async ({ cwd }: { cwd: string }) => {
+  const { suitableLibPackagesActual } = await isSuitableLibPackagesActual({ cwd })
+  if (!suitableLibPackagesActual) {
+    await installLatest({ cwd })
+    await link({ cwd })
+  }
+  const { commited } = await commitIfNeededWithPrompt({ cwd })
+  const { published } = await buildBumpPushPublishIfNotActual({ cwd })
+  return { commited, published }
 }
 
 export const updateCommitBuildBumpPushPublishRecursive = async ({ cwd }: { cwd: string }) => {
@@ -118,18 +125,12 @@ export const updateCommitBuildBumpPushPublishRecursive = async ({ cwd }: { cwd: 
   let commitedSome = false
   let publishedSome = false
   for (const { libPackagePath } of libPackagesData) {
-    const { suitableLibPackagesActual } = await isSuitableLibPackagesActual({ cwd: libPackagePath })
-    if (!suitableLibPackagesActual) {
-      await installLatest({ cwd: libPackagePath })
-      await link({ cwd: libPackagePath })
-    }
-    const { commited } = await commitIfNeededWithPrompt({ cwd: libPackagePath })
-    const { published } = await buildBumpPushPublishIfNotActual({ cwd: libPackagePath })
+    const { commited, published } = await updateCommitBuildBumpPushPublish({ cwd: libPackagePath })
     commitedSome = commitedSome || commited
     publishedSome = publishedSome || published
   }
   if (!commitedSome && !publishedSome) {
-    log.green(`Nothing to commit and publish in ${cwd}`)
+    log.green(`${cwd}: nothing to commit and publish`)
   }
 }
 
@@ -152,6 +153,6 @@ export const updateCommitSmallFixBuildBumpPushPublishRecursive = async ({ cwd }:
     publishedSome = publishedSome || published
   }
   if (!commitedSome && !publishedSome) {
-    log.green(`Nothing to commit and publish in ${cwd}`)
+    log.green(`${cwd}: nothing to commit and publish`)
   }
 }
