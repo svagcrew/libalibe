@@ -150,7 +150,7 @@ export const updateCommitSmallFixBuildBumpPushPublishRecursive = async ({ cwd }:
     publishedSome = publishedSome || published
   }
   if (!commitedSome && !publishedSome) {
-    log.green(`${cwd}: nothing to commit and publish`)
+    log.green(`nothing to commit and publish`)
   }
 }
 
@@ -175,7 +175,7 @@ export const prepareUpdateCommitSmallFixBuildBumpPushPublishRecursive = async ({
     }
   }
   if (nothingToCommitAndPublish) {
-    log.green(`${cwd}: nothing to commit and publish`)
+    log.green(`nothing to commit and publish`)
     return
   }
 }
