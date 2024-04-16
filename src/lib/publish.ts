@@ -36,14 +36,13 @@ const commitIfNeededWithPrompt = async ({ cwd }: { cwd: string }) => {
   if (!commitable) {
     return { commited: false, message: null }
   }
-  const { packageJsonData } = await getPackageJsonData({ dirPath: cwd })
-  log.green(`Commiting (${packageJsonData.name}): ${cwd}
+  log.green(`${cwd}: commiting
 ${commitableText}`)
   const message = readlineSync.question('Commit message (default: "Small fix"): ', {
     defaultInput: 'Small fix',
   })
   await addAllAndCommit({ cwd, message })
-  log.toMemory.green(`${cwd}: commited (${packageJsonData.name})`)
+  log.toMemory.green(`${cwd}: commited (${message})`)
   return { commited: true, message }
 }
 
@@ -52,11 +51,10 @@ const commitIfNeededWithMessage = async ({ cwd, message }: { cwd: string; messag
   if (!commitable) {
     return { commited: false, message: null }
   }
-  const { packageJsonData } = await getPackageJsonData({ dirPath: cwd })
-  log.green(`${cwd}: commiting (${packageJsonData.name})
+  log.green(`${cwd}: commiting (${message})
 ${commitableText}`)
   await addAllAndCommit({ cwd, message })
-  log.toMemory.green(`${cwd}: commited (${packageJsonData.name})`)
+  log.toMemory.green(`${cwd}: commited (${message})`)
   return { commited: true, message }
 }
 

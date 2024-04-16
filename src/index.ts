@@ -145,7 +145,7 @@ ping — pong`)
         break
     }
     if (log.isMemoryNotEmpty()) {
-      log.green('Result:')
+      log.black('=====Result=====')
       log.fromMemory()
     }
   } catch (error) {
