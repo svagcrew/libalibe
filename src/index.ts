@@ -8,7 +8,7 @@ import { lintFixRecursive, lintRecursive } from './lib/lint'
 import {
   buildBumpPushPublish,
   commitBuildBumpPushPublish,
-  prepareUpdateCommitSmallFixBuildBumpPushPublishRecursive,
+  prepareUpdateCommitBuildBumpPushPublishRecursive,
   updateCommitBuildBumpPushPublish,
   updateCommitBuildBumpPushPublishRecursive,
   updateCommitSmallFixBuildBumpPushPublishRecursive,
@@ -74,13 +74,6 @@ defineCliApp(async ({ args, command, cwd, flags }) => {
     case 'ucbbpp':
       await updateCommitBuildBumpPushPublish({ cwd })
       break
-    case 'ucbbppr':
-      await updateCommitBuildBumpPushPublishRecursive({
-        cwd,
-        include: typeof flags.i === 'string' ? flags.i.split(',') : undefined,
-        forceAccuracy: !!flags.a || !!flags.forceAccuracy,
-      })
-      break
     case 'bam':
       await updateCommitBuildBumpPushPublishRecursive({
         cwd,
@@ -88,8 +81,8 @@ defineCliApp(async ({ args, command, cwd, flags }) => {
         forceAccuracy: !!flags.a || !!flags.forceAccuracy,
       })
       break
-    case 'ucsfbbppr':
-      await updateCommitSmallFixBuildBumpPushPublishRecursive({
+    case 'pbam':
+      await prepareUpdateCommitBuildBumpPushPublishRecursive({
         cwd,
         include: typeof flags.i === 'string' ? flags.i.split(',') : undefined,
         forceAccuracy: !!flags.a || !!flags.forceAccuracy,
@@ -102,15 +95,8 @@ defineCliApp(async ({ args, command, cwd, flags }) => {
         forceAccuracy: !!flags.a || !!flags.forceAccuracy,
       })
       break
-    case 'pucsfbbppr':
-      await prepareUpdateCommitSmallFixBuildBumpPushPublishRecursive({
-        cwd,
-        include: typeof flags.i === 'string' ? flags.i.split(',') : undefined,
-        forceAccuracy: !!flags.a || !!flags.forceAccuracy,
-      })
-      break
     case 'pboom':
-      await prepareUpdateCommitSmallFixBuildBumpPushPublishRecursive({
+      await prepareUpdateCommitBuildBumpPushPublishRecursive({
         cwd,
         include: typeof flags.i === 'string' ? flags.i.split(',') : undefined,
         forceAccuracy: !!flags.a || !!flags.forceAccuracy,
@@ -133,13 +119,14 @@ defineCliApp(async ({ args, command, cwd, flags }) => {
         bbpp — build, bump, push, publish
         cbbpp — commit, build, bump, push, publish
         ucbbpp — update, commit, build, bump, push, publish
-        ucbbppr — update, commit, build, bump, push, publish, recursive
-        bam — same as "cbbppr"
-        ucsfbbppr — commit small fix, build, bump, push, publish, recursive
-        boom — same as "csfbbppr"
+        bam — update, commit, build, bump, push, publish, recursive
+        pbam — just log bam, not do it
+        boom — commit small fix, build, bump, push, publish, recursive
+        pboom — just log boom, not do it
         pocr — pull or clone recursive
         h — show help
-        ping — pong`)
+        ping — pong
+        `)
       break
     case 'ping':
       log.black(JSON.stringify({ args, command, cwd, flags }, null, 2))

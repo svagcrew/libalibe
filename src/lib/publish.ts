@@ -170,7 +170,7 @@ export const updateCommitSmallFixBuildBumpPushPublishRecursive = async ({
   }
 }
 
-export const prepareUpdateCommitSmallFixBuildBumpPushPublishRecursive = async ({
+export const prepareUpdateCommitBuildBumpPushPublishRecursive = async ({
   cwd,
   include,
   forceAccuracy,
