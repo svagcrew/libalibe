@@ -1,4 +1,4 @@
-import { spawn } from './exec'
+import { spawn } from 'svag-cli-utils'
 import { getSuitableLibPackages, log } from './utils'
 
 export const installLatest = async ({ cwd }: { cwd: string }) => {

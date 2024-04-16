@@ -1,4 +1,4 @@
-import { spawn } from './exec'
+import { spawn } from 'svag-cli-utils'
 import { getOrderedLibPackagesData, getSuitableLibPackages, log } from './utils'
 
 export const link = async ({ cwd }: { cwd: string }) => {
@@ -19,6 +19,20 @@ export const linkRecursive = async ({ cwd }: { cwd: string }) => {
   }
   for (const { libPackagePath } of libPackagesData) {
     await link({ cwd: libPackagePath })
+  }
+}
+
+export const linkGlobal = async ({ cwd }: { cwd: string }) => {
+  await spawn({ cwd, command: `pnpm link -g` })
+}
+
+export const linkGlobalRecursive = async ({ cwd }: { cwd: string }) => {
+  const { libPackagesData } = await getOrderedLibPackagesData({ cwd })
+  if (!libPackagesData.length) {
+    throw new Error('No packages found')
+  }
+  for (const { libPackagePath } of libPackagesData) {
+    await linkGlobal({ cwd: libPackagePath })
   }
 }
 

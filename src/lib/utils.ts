@@ -1,88 +1,21 @@
-import fg from 'fast-glob'
-import { promises as fs } from 'fs'
-import yaml from 'js-yaml'
 import _ from 'lodash'
-import path from 'path'
 import pc from 'picocolors'
 import semver from 'semver'
+import { createDir, exec, getPackageJson, isDirExists } from 'svag-cli-utils'
+import { PackageJson } from 'type-fest'
 import { getConfig } from './config'
-import { exec, spawn } from './exec'
 
-export type PackageJsonData = {
-  name: string
-  version: string
-  devDependencies?: Record<string, string>
-  dependencies?: Record<string, string>
-  scripts?: Record<string, string>
-  repository: {
-    url: string
-  }
-  libalibe?: {
-    selfVersionAccuracyNotMatter?: boolean
-    depsVersionAccuracyNotMatter?: string[]
-  }
-}
-export type LibPackageData = { libPackageName: string; libPackagePath: string; libPackageJsonData: PackageJsonData }
-
-export const getPathsByGlobs = async ({ globs, baseDir }: { globs: string[]; baseDir: string }) => {
-  const filePaths = await fg(globs, {
-    cwd: baseDir,
-    onlyFiles: true,
-    absolute: true,
-  })
-  return { filePaths }
-}
-
-export const getDataFromFile = async ({ filePath }: { filePath: string }) => {
-  const ext = path.basename(filePath).split('.').pop()
-  if (ext === 'js' || ext === 'ts') {
-    return require(filePath)
-  }
-  if (ext === 'yml' || ext === 'yaml') {
-    return yaml.load(await fs.readFile(filePath, 'utf8'))
-  }
-  if (ext === 'json') {
-    return JSON.parse(await fs.readFile(filePath, 'utf8'))
-  }
-  throw new Error(`Unsupported file extension: ${ext}`)
-}
-
-export const stringsToLikeArrayString = (paths: string[]) => {
-  return paths.map((path) => `"${path}"`).join(', ')
-}
-
-export const fulfillDistPath = ({ distPath, distLang }: { distPath: string; distLang: string }) => {
-  return distPath.replace(/\$lang/g, distLang)
-}
-
-export const getPackageJsonData = async ({ dirPath }: { dirPath: string }) => {
-  let dirPathHere = path.resolve('/', dirPath)
-  for (let i = 0; i < 777; i++) {
-    const maybePackageJsonGlobs = [`${dirPathHere}/package.json`]
-    const maybePackageJsonPath = (
-      await fg(maybePackageJsonGlobs, {
-        onlyFiles: true,
-        absolute: true,
-      })
-    )[0]
-    if (maybePackageJsonPath) {
-      const packageJsonData: PackageJsonData = await getDataFromFile({
-        filePath: maybePackageJsonPath,
-      })
-      return { packageJsonData }
+export type PackageJsonDataLibalibe =
+  | {
+      selfVersionAccuracyNotMatter?: boolean
+      depsVersionAccuracyNotMatter?: string[]
     }
-    const parentDirPath = path.resolve(dirPathHere, '..')
-    if (dirPathHere === parentDirPath) {
-      throw new Error('package.json not found')
-    }
-    dirPathHere = parentDirPath
-  }
-  throw new Error('package.json not found')
-}
+  | undefined
+export type LibPackageData = { libPackageName: string; libPackagePath: string; libPackageJsonData: PackageJson }
 
 export const getSuitableLibPackages = async ({ cwd }: { cwd: string }) => {
-  const { config } = await getConfig({ dirPath: cwd })
-  const { packageJsonData: projectPackageJsonData } = await getPackageJsonData({ dirPath: cwd })
+  const { config } = await getConfig({ cwd })
+  const { packageJsonData: projectPackageJsonData } = await getPackageJson({ cwd })
   const include = config.include
   const exclude = config.exclude
   const libPackagesNames = include.filter((include) => !exclude.includes(include))
@@ -113,7 +46,7 @@ export const getSuitableLibPackages = async ({ cwd }: { cwd: string }) => {
 }
 
 export const getLibPackagePath = async ({ cwd, libPackageName }: { cwd: string; libPackageName: string }) => {
-  const { config } = await getConfig({ dirPath: cwd })
+  const { config } = await getConfig({ cwd })
   const libPackagePath = config.items[libPackageName]
   if (!libPackagePath) {
     throw new Error(`Invalid lib package name: "${libPackageName}"`)
@@ -123,16 +56,20 @@ export const getLibPackagePath = async ({ cwd, libPackageName }: { cwd: string; 
 
 export const getLibPackageJsonData = async ({ cwd, libPackageName }: { cwd: string; libPackageName: string }) => {
   const { libPackagePath } = await getLibPackagePath({ cwd, libPackageName })
-  const { packageJsonData: libPackageJsonData } = await getPackageJsonData({ dirPath: libPackagePath })
+  const { packageJsonData: libPackageJsonData } = await getPackageJson({ cwd: libPackagePath })
   return { libPackageJsonData }
 }
 
 export const isSuitableLibPackageActual = async ({ cwd, libPackageName }: { cwd: string; libPackageName: string }) => {
-  const { packageJsonData: projectPackageJsonData } = await getPackageJsonData({ dirPath: cwd })
+  const { packageJsonData: projectPackageJsonData } = await getPackageJson({ cwd })
   const { suitablePackagesWithVersion } = await getSuitableLibPackages({
     cwd,
   })
   const projectLibPackageVersionRaw = suitablePackagesWithVersion[libPackageName]
+  if (!projectLibPackageVersionRaw) {
+    throw new Error(`${cwd}: version not found "${libPackageName}"`)
+  }
+  // TODO:ASAP get execat not min
   const projectLibPackageVersionMin = semver.minVersion(projectLibPackageVersionRaw)
   const { libPackageJsonData } = await getLibPackageJsonData({ cwd, libPackageName })
   if (!projectLibPackageVersionMin) {
@@ -141,9 +78,11 @@ export const isSuitableLibPackageActual = async ({ cwd, libPackageName }: { cwd:
   if (!libPackageJsonData.version) {
     return { suitableLibPackageActual: false }
   }
+  const projectPackageJsonDataLibalibe = projectPackageJsonData.libalibe as PackageJsonDataLibalibe
+  const libPackageJsonDataLibalibe = libPackageJsonData.libalibe as PackageJsonDataLibalibe
   if (
-    projectPackageJsonData.libalibe?.depsVersionAccuracyNotMatter?.includes(libPackageName) ||
-    !!libPackageJsonData.libalibe?.selfVersionAccuracyNotMatter
+    projectPackageJsonDataLibalibe?.depsVersionAccuracyNotMatter?.includes(libPackageName) ||
+    libPackageJsonDataLibalibe?.selfVersionAccuracyNotMatter
   ) {
     return { suitableLibPackageActual: semver.satisfies(libPackageJsonData.version, projectLibPackageVersionRaw) }
   }
@@ -156,15 +95,17 @@ const isThisLibPackageDependsOnThatLibPackage = ({
   thisLibPackageJsonData,
   thatLibPackageJsonData,
 }: {
-  thisLibPackageJsonData: PackageJsonData
-  thatLibPackageJsonData: PackageJsonData
+  thisLibPackageJsonData: PackageJson
+  thatLibPackageJsonData: PackageJson
 }) => {
   const thisLibPackageJsonDataDeps = {
     ...thisLibPackageJsonData.devDependencies,
     ...thisLibPackageJsonData.dependencies,
   }
   const thatLibPackageName = thatLibPackageJsonData.name
-  return { thisLibPackageDependsOnThatLibPackage: !!thisLibPackageJsonDataDeps[thatLibPackageName] }
+  return {
+    thisLibPackageDependsOnThatLibPackage: !!thatLibPackageName && !!thisLibPackageJsonDataDeps[thatLibPackageName],
+  }
 }
 
 const orderLibPackagesFromDependsOnToDependent = ({ libPackagesData }: { libPackagesData: LibPackageData[] }) => {
@@ -194,10 +135,10 @@ const orderLibPackagesFromDependsOnToDependent = ({ libPackagesData }: { libPack
 }
 
 export const getOrderedLibPackagesData = async ({ cwd }: { cwd: string }) => {
-  const { config } = await getConfig({ dirPath: cwd })
+  const { config } = await getConfig({ cwd })
   const libPackagesDataNonOrdered: LibPackageData[] = []
   for (const [libPackageName, libPackagePath] of Object.entries(config.items)) {
-    const { packageJsonData: libPackageJsonData } = await getPackageJsonData({ dirPath: libPackagePath })
+    const { packageJsonData: libPackageJsonData } = await getPackageJson({ cwd: libPackagePath })
     libPackagesDataNonOrdered.push({ libPackageName, libPackagePath, libPackageJsonData })
   }
   const { libPackagesDataOrdered } = orderLibPackagesFromDependsOnToDependent({
@@ -222,24 +163,6 @@ export const isSuitableLibPackagesActual = async ({ cwd }: { cwd: string }) => {
   return result
 }
 
-export const isDirExists = async ({ cwd }: { cwd: string }) => {
-  try {
-    await fs.access(cwd)
-    return { dirExists: true }
-  } catch (error) {
-    return { dirExists: false }
-  }
-}
-
-export const isDirEmpty = async ({ cwd }: { cwd: string }) => {
-  const files = await fs.readdir(cwd)
-  return { dirEmpty: !files.length }
-}
-
-export const createDir = async ({ cwd }: { cwd: string }) => {
-  await fs.mkdir(cwd, { recursive: true })
-}
-
 export const createDirIfNotExists = async ({ cwd }: { cwd: string }) => {
   const { dirExists } = await isDirExists({ cwd })
   if (!dirExists) {
@@ -249,7 +172,7 @@ export const createDirIfNotExists = async ({ cwd }: { cwd: string }) => {
 
 export const isGitRepo = async ({ cwd }: { cwd: string }) => {
   try {
-    await spawn({ cwd, command: `git status --porcelain`, verbose: false })
+    await exec({ cwd, command: `git status --porcelain` })
     return { gitRepo: true }
   } catch (error) {
     return { gitRepo: false }
@@ -257,7 +180,7 @@ export const isGitRepo = async ({ cwd }: { cwd: string }) => {
 }
 
 export const isCommitable = async ({ cwd }: { cwd: string }) => {
-  const out = await spawn({ cwd, command: `git status --porcelain`, verbose: false })
+  const out = await exec({ cwd, command: `git status --porcelain` })
   return {
     commitable: Boolean(out.trim()),
     commitableText: out.trim(),

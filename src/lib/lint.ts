@@ -1,5 +1,5 @@
-import { spawn } from './exec'
-import { getOrderedLibPackagesData, getPackageJsonData, log } from './utils'
+import { getPackageJson, spawn } from 'svag-cli-utils'
+import { getOrderedLibPackagesData, log } from './utils'
 
 export const lint = async ({ cwd }: { cwd: string }) => {
   await spawn({ cwd, command: 'pnpm lint' })
@@ -10,7 +10,7 @@ export const lintFix = async ({ cwd }: { cwd: string }) => {
 }
 
 export const isLintable = async ({ cwd }: { cwd: string }) => {
-  const { packageJsonData } = await getPackageJsonData({ dirPath: cwd })
+  const { packageJsonData } = await getPackageJson({ cwd })
   return { lintable: !!packageJsonData.scripts?.lint }
 }
 

@@ -1,8 +1,8 @@
-import { spawn } from './exec'
-import { getOrderedLibPackagesData, getPackageJsonData, LibPackageData } from './utils'
+import { getPackageJson, spawn } from 'svag-cli-utils'
+import { getOrderedLibPackagesData, LibPackageData } from './utils'
 
 export const isWatchable = async ({ cwd }: { cwd: string }) => {
-  const { packageJsonData } = await getPackageJsonData({ dirPath: cwd })
+  const { packageJsonData } = await getPackageJson({ cwd })
   return { watchable: !!packageJsonData.scripts?.watch }
 }
 

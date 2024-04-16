@@ -1,11 +1,10 @@
 import readlineSync from 'readline-sync'
+import { exec, getPackageJson, spawn } from 'svag-cli-utils'
 import { build, isBuildable } from './build'
-import { exec, spawn } from './exec'
 import { installLatest } from './install'
 import { link } from './link'
 import {
   getOrderedLibPackagesData,
-  getPackageJsonData,
   isCommitable,
   isSuitableLibPackagesActual,
   log,
@@ -73,9 +72,9 @@ export const buildBumpPushPublish = async ({
     log.green(`${cwd}: building`)
     await build({ cwd })
   }
-  const { packageJsonData: pjd1 } = await getPackageJsonData({ dirPath: cwd })
+  const { packageJsonData: pjd1 } = await getPackageJson({ cwd })
   await spawn({ cwd, command: `pnpm version ${bump}` })
-  const { packageJsonData: pjd2 } = await getPackageJsonData({ dirPath: cwd })
+  const { packageJsonData: pjd2 } = await getPackageJson({ cwd })
   const oldVersion = pjd1.version
   const newVersion = pjd2.version
   log.green(`${cwd}: pushing`)
@@ -160,16 +159,23 @@ export const prepareUpdateCommitSmallFixBuildBumpPushPublishRecursive = async ({
   if (!libPackagesData.length) {
     throw new Error('No packages found')
   }
+  let nothingToCommitAndPublish = true
   for (const { libPackagePath } of libPackagesData) {
     const { suitableLibPackagesActual, notSuitableLibPackagesName } = await isSuitableLibPackagesActual({
       cwd: libPackagePath,
     })
     if (!suitableLibPackagesActual) {
+      nothingToCommitAndPublish = false
       log.green(`${libPackagePath}: not suitable packages found: ${notSuitableLibPackagesName.join(', ')}`)
     }
     const { commitable } = await isCommitable({ cwd: libPackagePath })
     if (commitable) {
+      nothingToCommitAndPublish = false
       log.green(`${libPackagePath}: commitable`)
     }
+  }
+  if (nothingToCommitAndPublish) {
+    log.green(`${cwd}: nothing to commit and publish`)
+    return
   }
 }

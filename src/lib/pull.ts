@@ -1,6 +1,6 @@
+import { exec, getDirInfo, isDirExists, spawn } from 'svag-cli-utils'
 import { getConfig } from './config'
-import { exec, spawn } from './exec'
-import { createDirIfNotExists, isCommitable, isDirEmpty, isDirExists, isGitRepo } from './utils'
+import { createDirIfNotExists, isCommitable, isGitRepo } from './utils'
 
 const pull = async ({ cwd }: { cwd: string }) => {
   const { dirExists } = await isDirExists({ cwd })
@@ -19,8 +19,7 @@ const pull = async ({ cwd }: { cwd: string }) => {
 }
 
 const clone = async ({ cwd, libPackageName }: { cwd: string; libPackageName: string }) => {
-  const { dirExists } = await isDirExists({ cwd })
-  const { dirEmpty } = dirExists ? await isDirEmpty({ cwd }) : { dirEmpty: true }
+  const { dirExists, dirEmpty } = await getDirInfo({ cwd })
   if (dirExists && !dirEmpty) {
     throw new Error(`${cwd}: directory is not empty`)
   }
@@ -43,7 +42,7 @@ const pullOrClone = async ({ libPackageName, libPackagePath }: { libPackageName:
 }
 
 export const pullOrCloneRecursive = async ({ cwd }: { cwd: string }) => {
-  const { config } = await getConfig({ dirPath: cwd })
+  const { config } = await getConfig({ cwd })
   const entries = Object.entries(config.items)
   if (!entries.length) {
     throw new Error('No packages found')

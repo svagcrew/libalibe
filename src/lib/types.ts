@@ -1,12 +1,12 @@
-import { spawn } from './exec'
-import { getOrderedLibPackagesData, getPackageJsonData, log } from './utils'
+import { getPackageJson, spawn } from 'svag-cli-utils'
+import { getOrderedLibPackagesData, log } from './utils'
 
 export const typecheck = async ({ cwd }: { cwd: string }) => {
   await spawn({ cwd, command: 'pnpm types' })
 }
 
 export const isTypecheckable = async ({ cwd }: { cwd: string }) => {
-  const { packageJsonData } = await getPackageJsonData({ dirPath: cwd })
+  const { packageJsonData } = await getPackageJson({ cwd })
   return { typecheckable: !!packageJsonData.scripts?.types }
 }
 

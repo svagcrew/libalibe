@@ -1,8 +1,8 @@
 import fg from 'fast-glob'
 import _ from 'lodash'
 import path from 'path'
+import { getDataFromFile, stringsToLikeArrayString } from 'svag-cli-utils'
 import { z } from 'zod'
-import { getDataFromFile, stringsToLikeArrayString } from './utils'
 
 const zConfigInput = z.object({
   items: z.record(z.string(), z.string()).optional().default({}),
@@ -17,11 +17,11 @@ const defaultConfig: Config = {
   exclude: [],
 }
 
-export const findAllConfigsPaths = async ({ dirPath }: { dirPath: string }) => {
+export const findAllConfigsPaths = async ({ cwd }: { cwd: string }) => {
   const configPaths: string[] = []
-  let dirPathHere = path.resolve('/', dirPath)
+  let dirPath = path.resolve('/', cwd)
   for (let i = 0; i < 777; i++) {
-    const maybeConfigGlobs = [`${dirPathHere}/(libalibe.|libalibe.*.)(js|ts|yml|yaml|json)`]
+    const maybeConfigGlobs = [`${dirPath}/(libalibe.|libalibe.*.)(js|ts|yml|yaml|json)`]
     const maybeConfigPath = (
       await fg(maybeConfigGlobs, {
         onlyFiles: true,
@@ -31,17 +31,17 @@ export const findAllConfigsPaths = async ({ dirPath }: { dirPath: string }) => {
     if (maybeConfigPath) {
       configPaths.push(maybeConfigPath)
     }
-    const parentDirPath = path.resolve(dirPathHere, '..')
-    if (dirPathHere === parentDirPath) {
-      return { configPaths: configPaths }
+    const parentDirPath = path.resolve(dirPath, '..')
+    if (dirPath === parentDirPath) {
+      return { configPaths }
     }
-    dirPathHere = parentDirPath
+    dirPath = parentDirPath
   }
-  return { configPaths: configPaths }
+  return { configPaths }
 }
 
-export const getConfig = async ({ dirPath }: { dirPath: string }): Promise<{ config: Config }> => {
-  const { configPaths } = await findAllConfigsPaths({ dirPath })
+export const getConfig = async ({ cwd }: { cwd: string }): Promise<{ config: Config }> => {
+  const { configPaths } = await findAllConfigsPaths({ cwd })
   if (configPaths.length === 0) {
     throw new Error('Config file not found')
   }
