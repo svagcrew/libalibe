@@ -110,7 +110,7 @@ export const buildBumpPushPublishIfNotActual = async ({ cwd }: { cwd: string }) 
   return { published: true }
 }
 
-export const commitBuildBumpPushPublishRecursive = async ({ cwd }: { cwd: string }) => {
+export const updateCommitBuildBumpPushPublishRecursive = async ({ cwd }: { cwd: string }) => {
   const { libPackagesData } = await getOrderedLibPackagesData({ cwd })
   if (!libPackagesData.length) {
     throw new Error('No packages found')
@@ -133,7 +133,7 @@ export const commitBuildBumpPushPublishRecursive = async ({ cwd }: { cwd: string
   }
 }
 
-export const commitSmallFixBuildBumpPushPublishRecursive = async ({ cwd }: { cwd: string }) => {
+export const updateCommitSmallFixBuildBumpPushPublishRecursive = async ({ cwd }: { cwd: string }) => {
   const { libPackagesData } = await getOrderedLibPackagesData({ cwd })
   if (!libPackagesData.length) {
     throw new Error('No packages found')

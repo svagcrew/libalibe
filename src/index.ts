@@ -11,8 +11,8 @@ import { lintFixRecursive, lintRecursive } from './lib/lint'
 import {
   buildBumpPushPublish,
   commitBuildBumpPushPublish,
-  commitBuildBumpPushPublishRecursive,
-  commitSmallFixBuildBumpPushPublishRecursive,
+  updateCommitBuildBumpPushPublishRecursive,
+  updateCommitSmallFixBuildBumpPushPublishRecursive,
 } from './lib/publish'
 import { pullOrCloneRecursive } from './lib/pull'
 import { typecheckRecursive } from './lib/types'
@@ -95,17 +95,17 @@ void (async () => {
           message: args[0] ? args[0].toString() : 'Small fix',
         })
         break
-      case 'cbbppr':
-        await commitBuildBumpPushPublishRecursive({ cwd })
+      case 'ucbbppr':
+        await updateCommitBuildBumpPushPublishRecursive({ cwd })
         break
       case 'bam':
-        await commitBuildBumpPushPublishRecursive({ cwd })
+        await updateCommitBuildBumpPushPublishRecursive({ cwd })
         break
-      case 'csfbbppr':
-        await commitSmallFixBuildBumpPushPublishRecursive({ cwd })
+      case 'ucsfbbppr':
+        await updateCommitSmallFixBuildBumpPushPublishRecursive({ cwd })
         break
       case 'boom':
-        await commitSmallFixBuildBumpPushPublishRecursive({ cwd })
+        await updateCommitSmallFixBuildBumpPushPublishRecursive({ cwd })
         break
       case 'pocr':
         await pullOrCloneRecursive({ cwd })
@@ -123,9 +123,9 @@ il — install latest packages
 ill — install latest packages and link
 bbpp — build, bump, push, publish
 cbbpp — commit, build, bump, push, publish
-cbbppr — commit, build, bump, push, publish, recursive
+ucbbppr — update, commit, build, bump, push, publish, recursive
 bam — same as "cbbppr"
-csfbbppr — commit small fix, build, bump, push, publish, recursive
+ucsfbbppr — commit small fix, build, bump, push, publish, recursive
 boom — same as "csfbbppr"
 pocr — pull or clone recursive
 h — show help
