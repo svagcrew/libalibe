@@ -1,6 +1,5 @@
-import { spawn } from 'svag-cli-utils'
+import { log, spawn } from 'svag-cli-utils'
 import { findAllConfigsPaths } from './config'
-import { log } from './utils'
 
 export const edit = async ({ cwd }: { cwd: string }) => {
   const { configPaths } = await findAllConfigsPaths({ cwd })

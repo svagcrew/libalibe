@@ -1,5 +1,5 @@
-import { spawn } from 'svag-cli-utils'
-import { getSuitableLibPackages, log } from './utils'
+import { log, spawn } from 'svag-cli-utils'
+import { getSuitableLibPackages } from './utils'
 
 export const installLatest = async ({ cwd }: { cwd: string }) => {
   const { suitableProdPackagesNames, suitableDevPackagesNames } = await getSuitableLibPackages({ cwd })

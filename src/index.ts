@@ -1,5 +1,5 @@
 import dedent from 'dedent'
-import { defineCliApp, spawn } from 'svag-cli-utils'
+import { defineCliApp, log, spawn } from 'svag-cli-utils'
 import { buildRecursive } from './lib/build'
 import { edit } from './lib/edit'
 import { installLatest } from './lib/install'
@@ -15,7 +15,6 @@ import {
 } from './lib/publish'
 import { pullOrCloneRecursive } from './lib/pull'
 import { typecheckRecursive } from './lib/types'
-import { log } from './lib/utils'
 import { watchRecursiveConcurrently } from './lib/watch'
 
 defineCliApp(async ({ args, command, cwd, flags }) => {

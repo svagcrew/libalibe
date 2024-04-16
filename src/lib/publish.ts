@@ -1,15 +1,9 @@
 import readlineSync from 'readline-sync'
-import { exec, getPackageJson, spawn } from 'svag-cli-utils'
+import { exec, getPackageJson, log, spawn } from 'svag-cli-utils'
 import { build, isBuildable } from './build'
 import { installLatest } from './install'
 import { link } from './link'
-import {
-  getOrderedLibPackagesData,
-  isCommitable,
-  isSuitableLibPackagesActual,
-  log,
-  throwIfNotMasterBaranch,
-} from './utils'
+import { getOrderedLibPackagesData, isCommitable, isSuitableLibPackagesActual, throwIfNotMasterBaranch } from './utils'
 
 // small helpers
 
