@@ -70,9 +70,9 @@ export const isSuitableLibPackageActual = async ({ cwd, libPackageName }: { cwd:
     throw new Error(`${cwd}: version not found "${libPackageName}"`)
   }
   // TODO:ASAP get execat not min
-  const projectLibPackageVersionMin = semver.minVersion(projectLibPackageVersionRaw)
+  const projectLibPackageVersionExact = projectLibPackageVersionRaw.match(/(\d+\.\d+\.\d+)/)?.[0]
   const { libPackageJsonData } = await getLibPackageJsonData({ cwd, libPackageName })
-  if (!projectLibPackageVersionMin) {
+  if (!projectLibPackageVersionExact) {
     return { suitableLibPackageActual: false }
   }
   if (!libPackageJsonData.version) {
@@ -87,7 +87,7 @@ export const isSuitableLibPackageActual = async ({ cwd, libPackageName }: { cwd:
     return { suitableLibPackageActual: semver.satisfies(libPackageJsonData.version, projectLibPackageVersionRaw) }
   }
   return {
-    suitableLibPackageActual: semver.eq(projectLibPackageVersionMin, libPackageJsonData.version),
+    suitableLibPackageActual: semver.eq(projectLibPackageVersionExact, libPackageJsonData.version),
   }
 }
 
