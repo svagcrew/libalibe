@@ -26,7 +26,7 @@ export const watchRecursiveConcurrently = async ({ cwd }: { cwd: string }) => {
     .join(' ')
   const names = watchableLibPackagesData.map(({ libPackageName }) => libPackageName).join(',')
   await spawn({
-    cwd,
+    cwd: __dirname,
     command: `pnpm concurrently --kill-others-on-fail --names ${names} ${commands}`,
   })
 }
