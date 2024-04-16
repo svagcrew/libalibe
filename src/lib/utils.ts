@@ -1,12 +1,12 @@
 import fg from 'fast-glob'
 import { promises as fs } from 'fs'
 import yaml from 'js-yaml'
+import _ from 'lodash'
 import path from 'path'
 import pc from 'picocolors'
 import semver from 'semver'
 import { getConfig } from './config'
 import { exec, spawn } from './exec'
-import _ from 'lodash'
 
 export type PackageJsonData = {
   name: string
@@ -16,6 +16,10 @@ export type PackageJsonData = {
   scripts?: Record<string, string>
   repository: {
     url: string
+  }
+  libalibe?: {
+    selfVersionAccuracyNotMatter?: boolean
+    depsVersionAccuracyNotMatter?: string[]
   }
 }
 type LibPackageData = { libPackageName: string; libPackagePath: string; libPackageJsonData: PackageJsonData }
@@ -124,6 +128,7 @@ export const getLibPackageJsonData = async ({ cwd, libPackageName }: { cwd: stri
 }
 
 export const isSuitableLibPackageActual = async ({ cwd, libPackageName }: { cwd: string; libPackageName: string }) => {
+  const { packageJsonData: projectPackageJsonData } = await getPackageJsonData({ dirPath: cwd })
   const { suitablePackagesWithVersion } = await getSuitableLibPackages({
     cwd,
   })
@@ -135,6 +140,12 @@ export const isSuitableLibPackageActual = async ({ cwd, libPackageName }: { cwd:
   }
   if (!libPackageJsonData.version) {
     return { suitableLibPackageActual: false }
+  }
+  if (
+    projectPackageJsonData.libalibe?.depsVersionAccuracyNotMatter?.includes(libPackageName) ||
+    !!libPackageJsonData.libalibe?.selfVersionAccuracyNotMatter
+  ) {
+    return { suitableLibPackageActual: semver.satisfies(libPackageJsonData.version, projectLibPackageVersionRaw) }
   }
   return {
     suitableLibPackageActual: semver.eq(projectLibPackageVersionMin, libPackageJsonData.version),
