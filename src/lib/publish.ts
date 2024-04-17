@@ -267,9 +267,12 @@ export const updateLinkCommitBuildBumpPushPublishRecursiveFoxy = async ({
   let publishedSome = false
   if (libPackagesDataCommitableCircular.length) {
     log.green(`circular commitable packages found: ${stringsToLikeArrayString(libPackagesNamesCommitableCircular)}`)
-    log.green(`will twice hop circular deps: ${stringsToLikeArrayString(libPackagesNamesCircular)}`)
+    log.green(`will twice hop with forceAccuracy circular deps: ${stringsToLikeArrayString(libPackagesNamesCircular)}`)
     for (const { libPackagePath } of [...libPackagesDataCircular, ...libPackagesDataCircular]) {
-      const { commited, published } = await updateLinkCommitBuildBumpPushPublish({ cwd: libPackagePath, forceAccuracy })
+      const { commited, published } = await updateLinkCommitBuildBumpPushPublish({
+        cwd: libPackagePath,
+        forceAccuracy: true,
+      })
       commitedSome = commitedSome || commited
       publishedSome = publishedSome || published
     }
@@ -322,11 +325,11 @@ export const updateLinkCommitSmallFixBuildBumpPushPublishRecursiveFoxy = async (
   let publishedSome = false
   if (libPackagesDataCommitableCircular.length) {
     log.green(`circular commitable packages found: ${stringsToLikeArrayString(libPackagesNamesCommitableCircular)}`)
-    log.green(`will twice hop circular deps: ${stringsToLikeArrayString(libPackagesNamesCircular)}`)
+    log.green(`will twice hop with forceAccuracy circular deps: ${stringsToLikeArrayString(libPackagesNamesCircular)}`)
     for (const { libPackagePath } of [...libPackagesDataCircular, ...libPackagesDataCircular]) {
       const { commited, published } = await updateLinkCommitSmallFixBuildBumpPushPublish({
         cwd: libPackagePath,
-        forceAccuracy,
+        forceAccuracy: true,
       })
       commitedSome = commitedSome || commited
       publishedSome = publishedSome || published
@@ -378,7 +381,7 @@ export const prepareUpdateLinkCommitBuildBumpPushPublishRecursiveFoxy = async ({
   )
   if (libPackagesDataCommitableCircular.length) {
     log.green(`circular commitable packages found: ${stringsToLikeArrayString(libPackagesNamesCommitableCircular)}`)
-    log.green(`will twice hop circular deps: ${stringsToLikeArrayString(libPackagesNamesCircular)}`)
+    log.green(`will twice hop with forceAccuracy circular deps: ${stringsToLikeArrayString(libPackagesNamesCircular)}`)
     log.green(`and then will hop noncircular as usual: ${stringsToLikeArrayString(libPackagesNamesNoncircular)}`)
     await prepareUpdateLinkCommitBuildBumpPushPublishRecursive({
       cwd,
