@@ -106,7 +106,6 @@ defineCliApp(async ({ args, command, cwd, flags, argr }) => {
         include: typeof flags.i === 'string' ? flags.i.split(',') : undefined,
         forceAccuracy: !!flags.a || !!flags.forceAccuracy,
       })
-      await pullOrCloneRecursive({ cwd })
       break
     case 'xx':
     case 'bidibadaboom':
@@ -115,7 +114,6 @@ defineCliApp(async ({ args, command, cwd, flags, argr }) => {
         include: typeof flags.i === 'string' ? flags.i.split(',') : undefined,
         forceAccuracy: !!flags.a || !!flags.forceAccuracy,
       })
-      await pullOrCloneRecursive({ cwd })
       break
     case 'px':
     case 'pxx':

@@ -1,8 +1,8 @@
 import { getConfig } from '@/lib/config'
+import _ from 'lodash'
 import semver from 'semver'
 import { createDir, exec, getPackageJson, isDirExists } from 'svag-cli-utils'
 import { PackageJson } from 'type-fest'
-import _ from 'lodash'
 
 export type PackageJsonDataLibalibe =
   | {
@@ -114,6 +114,23 @@ const isThisLibPackageDependencyOfThatLibPackage = ({
   const thisLibPackageName = thisLibPackageJsonData.name
   return {
     thisLibPackageDependencyOfThatLibPackage: !!thisLibPackageName && !!thatLibPackageJsonDataDeps[thisLibPackageName],
+  }
+}
+
+const isThisLibPackageDependsOnThatLibPackage = ({
+  thisLibPackageJsonData,
+  thatLibPackageJsonData,
+}: {
+  thisLibPackageJsonData: PackageJson
+  thatLibPackageJsonData: PackageJson
+}) => {
+  const thisLibPackageJsonDataDeps = {
+    ...thisLibPackageJsonData.devDependencies,
+    ...thisLibPackageJsonData.dependencies,
+  }
+  const thatLibPackageName = thatLibPackageJsonData.name
+  return {
+    thisLibPackageDependsOnThatLibPackage: !!thatLibPackageName && !!thisLibPackageJsonDataDeps[thatLibPackageName],
   }
 }
 
@@ -313,6 +330,30 @@ const orderLibPackagesFromDependsOnToDependent = ({ libPackagesData }: { libPack
     dependency: false,
     circular: false,
   })) as LibPackageDataExtended[]
+
+  // TODO: check if this is correct
+  const getOrderString = (libPackagesData: LibPackageData[]) => {
+    return libPackagesData.map(({ libPackageName }) => libPackageName).join('|')
+  }
+  const knownOrders = [getOrderString(libPackagesDataExtended)]
+  for (let i = 0; i < libPackagesDataExtended.length; i++) {
+    for (let j = i + 1; j < libPackagesDataExtended.length; j++) {
+      const { thisLibPackageDependsOnThatLibPackage } = isThisLibPackageDependsOnThatLibPackage({
+        thisLibPackageJsonData: libPackagesDataExtended[i].libPackageJsonData,
+        thatLibPackageJsonData: libPackagesDataExtended[j].libPackageJsonData,
+      })
+      if (thisLibPackageDependsOnThatLibPackage) {
+        const libPackageData = libPackagesDataExtended.splice(j, 1)[0]
+        libPackageData.dependency = true
+        libPackagesDataExtended.splice(i, 0, libPackageData)
+        if (!knownOrders.includes(getOrderString(libPackagesDataExtended))) {
+          i--
+          knownOrders.push(getOrderString(libPackagesDataExtended))
+        }
+        break
+      }
+    }
+  }
 
   for (const libPackageDataExtended of libPackagesDataExtended) {
     libPackageDataExtended.dependency = isLibPackageDependencyOfAnother({
