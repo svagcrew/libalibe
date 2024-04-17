@@ -6,8 +6,8 @@ import _ from 'lodash'
 
 export type PackageJsonDataLibalibe =
   | {
-      selfVersionAccuracyNotMatter?: boolean
-      depsVersionAccuracyNotMatter?: string[]
+      ignoreDependeciesVersionAccuracy?: boolean
+      ignoreSelfVersionAccuracy?: string[]
     }
   | undefined
 export type LibPackageData = { libPackageName: string; libPackagePath: string; libPackageJsonData: PackageJson }
@@ -90,8 +90,8 @@ export const isSuitableLibPackageActual = async ({
   const libPackageJsonDataLibalibe = libPackageJsonData.libalibe as PackageJsonDataLibalibe
   if (
     !forceAccuracy &&
-    (projectPackageJsonDataLibalibe?.depsVersionAccuracyNotMatter?.includes(libPackageName) ||
-      libPackageJsonDataLibalibe?.selfVersionAccuracyNotMatter)
+    (projectPackageJsonDataLibalibe?.ignoreDependeciesVersionAccuracy?.includes(libPackageName) ||
+      libPackageJsonDataLibalibe?.ignoreSelfVersionAccuracy)
   ) {
     return { suitableLibPackageActual: semver.satisfies(libPackageJsonData.version, projectLibPackageVersionRaw) }
   }
