@@ -263,18 +263,14 @@ export const updateLinkCommitBuildBumpPushPublishRecursiveFoxy = async ({
   const libPackagesNamesCommitableCircular = libPackagesDataCommitableCircular.map(
     ({ libPackageName }) => libPackageName
   )
-  let commitedSome = false
-  let publishedSome = false
   if (libPackagesDataCommitableCircular.length) {
     log.green(`circular commitable packages found: ${stringsToLikeArrayString(libPackagesNamesCommitableCircular)}`)
     log.green(`will twice hop with forceAccuracy circular deps: ${stringsToLikeArrayString(libPackagesNamesCircular)}`)
     for (const { libPackagePath } of [...libPackagesDataCircular, ...libPackagesDataCircular]) {
-      const { commited, published } = await updateLinkCommitBuildBumpPushPublish({
+      await updateLinkCommitBuildBumpPushPublish({
         cwd: libPackagePath,
         forceAccuracy: true,
       })
-      commitedSome = commitedSome || commited
-      publishedSome = publishedSome || published
     }
     log.green(`and then will hop noncircular as usual: ${stringsToLikeArrayString(libPackagesNamesNoncircular)}`)
     await updateLinkCommitBuildBumpPushPublishRecursive({
@@ -286,9 +282,6 @@ export const updateLinkCommitBuildBumpPushPublishRecursiveFoxy = async ({
   } else {
     log.green(`circular commitable packages not found, will install all as usual`)
     await updateLinkCommitBuildBumpPushPublishRecursive({ cwd, include, forceAccuracy })
-  }
-  if (!commitedSome && !publishedSome) {
-    log.green(`${cwd}: nothing to commit and publish`)
   }
 }
 
@@ -321,18 +314,14 @@ export const updateLinkCommitSmallFixBuildBumpPushPublishRecursiveFoxy = async (
   const libPackagesNamesCommitableCircular = libPackagesDataCommitableCircular.map(
     ({ libPackageName }) => libPackageName
   )
-  let commitedSome = false
-  let publishedSome = false
   if (libPackagesDataCommitableCircular.length) {
     log.green(`circular commitable packages found: ${stringsToLikeArrayString(libPackagesNamesCommitableCircular)}`)
     log.green(`will twice hop with forceAccuracy circular deps: ${stringsToLikeArrayString(libPackagesNamesCircular)}`)
     for (const { libPackagePath } of [...libPackagesDataCircular, ...libPackagesDataCircular]) {
-      const { commited, published } = await updateLinkCommitSmallFixBuildBumpPushPublish({
+      await updateLinkCommitSmallFixBuildBumpPushPublish({
         cwd: libPackagePath,
         forceAccuracy: true,
       })
-      commitedSome = commitedSome || commited
-      publishedSome = publishedSome || published
     }
     log.green(`and then will hop noncircular as usual: ${stringsToLikeArrayString(libPackagesNamesNoncircular)}`)
     await updateLinkCommitSmallFixBuildBumpPushPublishRecursive({
@@ -344,9 +333,6 @@ export const updateLinkCommitSmallFixBuildBumpPushPublishRecursiveFoxy = async (
   } else {
     log.green(`circular commitable packages not found, will install all as usual`)
     await updateLinkCommitSmallFixBuildBumpPushPublishRecursive({ cwd, include, forceAccuracy })
-  }
-  if (!commitedSome && !publishedSome) {
-    log.green(`${cwd}: nothing to commit and publish`)
   }
 }
 
