@@ -1,5 +1,5 @@
 import { getPackageJson, log, spawn } from 'svag-cli-utils'
-import { getOrderedLibPackagesData } from './utils'
+import { getOrderedLibPackagesData } from '@/lib/utils'
 
 export const typecheck = async ({ cwd }: { cwd: string }) => {
   await spawn({ cwd, command: 'pnpm types' })

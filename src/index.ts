@@ -1,23 +1,26 @@
-import dedent from 'dedent'
-import { defineCliApp, log, spawn } from 'svag-cli-utils'
-import { buildRecursive } from './lib/build'
-import { edit } from './lib/edit'
-import { installLatest } from './lib/install'
-import { link, linkGlobal, linkGlobalRecursive, linkRecursive, unlink } from './lib/link'
-import { lintFixRecursive, lintRecursive } from './lib/lint'
+import { buildRecursive } from '@/lib/build'
+import { edit } from '@/lib/edit'
+import { update } from '@/lib/install'
+import { link, linkGlobal, linkGlobalRecursive, linkRecursive, unlink } from '@/lib/link'
+import { lintFixRecursive, lintRecursive } from '@/lib/lint'
 import {
   buildBumpPushPublish,
   commitBuildBumpPushPublish,
-  prepareUpdateCommitBuildBumpPushPublishRecursive,
-  updateCommitBuildBumpPushPublish,
-  updateCommitBuildBumpPushPublishRecursive,
-  updateCommitSmallFixBuildBumpPushPublishRecursive,
-} from './lib/publish'
-import { pullOrCloneRecursive } from './lib/pull'
-import { typecheckRecursive } from './lib/types'
-import { watchRecursiveConcurrently } from './lib/watch'
+  prepareUpdateLinkCommitBuildBumpPushPublishRecursive,
+  prepareUpdateLinkCommitBuildBumpPushPublishRecursiveFoxy,
+  updateLinkCommitBuildBumpPushPublishRecursiveFoxy,
+  updateLinkCommitSmallFixBuildBumpPushPublishRecursiveFoxy,
+  updateLinkCommitBuildBumpPushPublish,
+  updateLinkCommitBuildBumpPushPublishRecursive,
+  updateLinkCommitSmallFixBuildBumpPushPublishRecursive,
+} from '@/lib/publish'
+import { pullOrCloneRecursive } from '@/lib/pull'
+import { typecheckRecursive } from '@/lib/types'
+import { watchRecursiveConcurrently } from '@/lib/watch'
+import dedent from 'dedent'
+import { defineCliApp, log, spawn } from 'svag-cli-utils'
 
-defineCliApp(async ({ args, command, cwd, flags }) => {
+defineCliApp(async ({ args, command, cwd, flags, argr }) => {
   switch (command) {
     case 'link':
       await link({ cwd })
@@ -52,11 +55,11 @@ defineCliApp(async ({ args, command, cwd, flags }) => {
     case 'edit':
       await edit({ cwd })
       break
-    case 'il':
-      await installLatest({ cwd })
+    case 'u':
+      await update({ cwd })
       break
-    case 'ill':
-      await installLatest({ cwd })
+    case 'ul':
+      await update({ cwd })
       await link({ cwd })
       break
     case 'bbpp':
@@ -68,35 +71,57 @@ defineCliApp(async ({ args, command, cwd, flags }) => {
     case 'cbbpp':
       await commitBuildBumpPushPublish({
         cwd,
-        message: args[0] ? args[0].toString() : 'Small fix',
+        message: args[0] || 'Small fix',
       })
       break
-    case 'ucbbpp':
-      await updateCommitBuildBumpPushPublish({ cwd })
+    case 'hop':
+      await updateLinkCommitBuildBumpPushPublish({ cwd })
       break
     case 'bam':
-      await updateCommitBuildBumpPushPublishRecursive({
-        cwd,
-        include: typeof flags.i === 'string' ? flags.i.split(',') : undefined,
-        forceAccuracy: !!flags.a || !!flags.forceAccuracy,
-      })
-      break
-    case 'pbam':
-      await prepareUpdateCommitBuildBumpPushPublishRecursive({
+      await updateLinkCommitBuildBumpPushPublishRecursive({
         cwd,
         include: typeof flags.i === 'string' ? flags.i.split(',') : undefined,
         forceAccuracy: !!flags.a || !!flags.forceAccuracy,
       })
       break
     case 'boom':
-      await updateCommitSmallFixBuildBumpPushPublishRecursive({
+      await updateLinkCommitSmallFixBuildBumpPushPublishRecursive({
         cwd,
         include: typeof flags.i === 'string' ? flags.i.split(',') : undefined,
         forceAccuracy: !!flags.a || !!flags.forceAccuracy,
       })
       break
+    case 'pbam':
     case 'pboom':
-      await prepareUpdateCommitBuildBumpPushPublishRecursive({
+      await prepareUpdateLinkCommitBuildBumpPushPublishRecursive({
+        cwd,
+        include: typeof flags.i === 'string' ? flags.i.split(',') : undefined,
+        forceAccuracy: !!flags.a || !!flags.forceAccuracy,
+      })
+      break
+    case 'x':
+    case 'badaboom':
+      await updateLinkCommitBuildBumpPushPublishRecursiveFoxy({
+        cwd,
+        include: typeof flags.i === 'string' ? flags.i.split(',') : undefined,
+        forceAccuracy: !!flags.a || !!flags.forceAccuracy,
+      })
+      await pullOrCloneRecursive({ cwd })
+      break
+    case 'xx':
+    case 'bidibadaboom':
+      await updateLinkCommitSmallFixBuildBumpPushPublishRecursiveFoxy({
+        cwd,
+        include: typeof flags.i === 'string' ? flags.i.split(',') : undefined,
+        forceAccuracy: !!flags.a || !!flags.forceAccuracy,
+      })
+      await pullOrCloneRecursive({ cwd })
+      break
+    case 'px':
+    case 'pxx':
+    case 'pbadaboom':
+    case 'pbidibadaboom':
+      await prepareUpdateLinkCommitBuildBumpPushPublishRecursiveFoxy({
         cwd,
         include: typeof flags.i === 'string' ? flags.i.split(',') : undefined,
         forceAccuracy: !!flags.a || !!flags.forceAccuracy,
@@ -104,6 +129,20 @@ defineCliApp(async ({ args, command, cwd, flags }) => {
       break
     case 'pocr':
       await pullOrCloneRecursive({ cwd })
+      break
+    case 'i':
+      await spawn({
+        cwd,
+        command: `pnpm install --color ${argr.join(' ')}`,
+      })
+      await link({ cwd })
+      break
+    case 'r':
+      await spawn({
+        cwd,
+        command: `pnpm remove --color ${argr.join(' ')}`,
+      })
+      await link({ cwd })
       break
     case 'h':
       log.black(dedent`Commands:
@@ -114,18 +153,23 @@ defineCliApp(async ({ args, command, cwd, flags }) => {
         typesr — typecheck packages recursive
         lintr — lint packages recursive
         edit — edit package.json
-        il — install latest packages
-        ill — install latest packages and link
+        u — update libalibe packages
+        ul — update libalibe packages and link
         bbpp — build, bump, push, publish
         cbbpp — commit, build, bump, push, publish
-        ucbbpp — update, commit, build, bump, push, publish
+        hop — update, commit, build, bump, push, publish
         bam — update, commit, build, bump, push, publish, recursive
-        pbam — just log bam, not do it
-        boom — commit small fix, build, bump, push, publish, recursive
+        boom — update, commit small fix, build, bump, push, publish, recursive
+        pbam | pboom — just log bam | boom, not do it
         pboom — just log boom, not do it
+        badaboom | x — update, commit, build, bump, push, publish, recursive-foxy
+        bidibadaboom | xx — update, commit small fix, build, bump, push, publish, recursive-foxy
+        pbadaboom | pbidibadaboom | px | pxx — just log badaboom, not do it
         pocr — pull or clone recursive
-        h — show help
+        i — pnpm install ... && lili link
+        r — pnpm remove ... && lili link
         ping — pong
+        h — show help
         `)
       break
     case 'ping':

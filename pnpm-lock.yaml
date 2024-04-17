@@ -68,14 +68,17 @@ devDependencies:
     specifier: ^5.0.5
     version: 5.0.5
   svag-lint:
-    specifier: ^0.1.5
-    version: 0.1.5(@types/node@20.12.7)(prettier@3.2.5)
+    specifier: ^0.1.6
+    version: 0.1.6(@types/node@20.12.7)(prettier@3.2.5)
   svag-prettier:
     specifier: ^0.1.2
     version: 0.1.2
   svag-ts:
-    specifier: ^0.1.2
-    version: 0.1.2
+    specifier: ^0.1.5
+    version: 0.1.5
+  ts-patch:
+    specifier: ^3.1.2
+    version: 3.1.2
   type-fest:
     specifier: ^4.15.0
     version: 4.15.0
@@ -909,6 +912,15 @@ packages:
       path-scurry: 1.10.2
     dev: true
 
+  /global-prefix@3.0.0:
+    resolution: {integrity: sha512-awConJSVCHVGND6x3tmMaKcQvwXLhjdkmomy2W+Goaui8YPgYgXJZewhg3fWC+DlfqqQuWg8AwqjGTD2nAPVWg==}
+    engines: {node: '>=6'}
+    dependencies:
+      ini: 1.3.8
+      kind-of: 6.0.3
+      which: 1.3.1
+    dev: true
+
   /globals@14.0.0:
     resolution: {integrity: sha512-oahGvuMGQlPw/ivIYBjVSrWAfWLBeku5tpPE2fOPLi+WHffIWbuh2tCjhyQhTBPMf5E9jDEH4FOmTYgYwbKwtQ==}
     engines: {node: '>=18'}
@@ -974,6 +986,10 @@ packages:
   /imurmurhash@0.1.4:
     resolution: {integrity: sha512-JmXMZ6wuvDmLiHEml9ykzqO6lwFbof0GG4IkcGaENdCRDDmMVnny7s5HsIgHCbaq0w2MyPhDqkhTUgS2LU2PHA==}
     engines: {node: '>=0.8.19'}
+    dev: true
+
+  /ini@1.3.8:
+    resolution: {integrity: sha512-JV/yugV2uzW5iMRSiZAyDtQd+nxtUnjeLt0acNdw98kKLrvuRVyB80tsREOE7yvGVgalhZ6RNXCmEHkUKBKxew==}
     dev: true
 
   /is-core-module@2.13.1:
@@ -1057,6 +1073,11 @@ packages:
       json-buffer: 3.0.1
     dev: true
 
+  /kind-of@6.0.3:
+    resolution: {integrity: sha512-dcS1ul+9tmeD95T+x28/ehLgd9mENa3LsvDTtzm3vyBEO7RPptvAD+t44WVXaUjTBRcrpFeFlC8WCruUR456hw==}
+    engines: {node: '>=0.10.0'}
+    dev: true
+
   /levn@0.4.1:
     resolution: {integrity: sha512-+bT2uH4E5LGE7h/n3evcS/sQlJXCpIp6ym8OWJ5eV6+67Dsql/LaaT7qJBAt2rzfoa/5QBGBhxDix1dMt2kQKQ==}
     engines: {node: '>= 0.8.0'}
@@ -1115,6 +1136,10 @@ packages:
     engines: {node: '>=16 || 14 >=14.17'}
     dependencies:
       brace-expansion: 2.0.1
+    dev: true
+
+  /minimist@1.2.8:
+    resolution: {integrity: sha512-2yyAR8qBkN3YuheJanUpWC5U3bb5osDywNB8RzDVlDwDHbocAJveqqj1u8+SVD7jkWT4yvsHCpWqqWqAxb0zCA==}
     dev: true
 
   /minipass@7.0.4:
@@ -1413,8 +1438,8 @@ packages:
       - '@types/node'
       - babel-plugin-macros
 
-  /svag-lint@0.1.5(@types/node@20.12.7)(prettier@3.2.5):
-    resolution: {integrity: sha512-jjy1P5ewTV+4ZYjWZSm7903etSS7ewTzMPwmU/JtiqPVCiStknM+zRLKuehOdKIwPOqETDWfrXl8AHUaYNk+gA==}
+  /svag-lint@0.1.6(@types/node@20.12.7)(prettier@3.2.5):
+    resolution: {integrity: sha512-gkmIq5Va26s5mXRPNmMDraUd505x30Likv3DfEkYR3BrXTWJ1UO7+FmV0VbkPAl8hr6gUdtTd71LfZwKzuc03g==}
     hasBin: true
     dependencies:
       '@eslint/js': 9.0.0
@@ -1444,10 +1469,11 @@ packages:
       prettier: 3.2.5
     dev: true
 
-  /svag-ts@0.1.2:
-    resolution: {integrity: sha512-yC0+XJzGJ7SyQ1TCYtH/XiOg1yW7EDZ9CU+6AArP99RWs435HL6KTaKtHccFXG6tUk2ANBO1Ia8dF193PDq6sg==}
+  /svag-ts@0.1.5:
+    resolution: {integrity: sha512-FCryhZ0vXf0paF7r/w2AOsC84qUPqWqzaYVU0Xg/szA1EwEPAipAQmhlKdtYvY/ldOe7HGrVZTGHUXsVtTmeIQ==}
     dependencies:
       typescript: 5.4.5
+      typescript-transform-paths: 3.4.7(typescript@5.4.5)
     dev: true
 
   /synckit@0.8.8:
@@ -1512,6 +1538,18 @@ packages:
       v8-compile-cache-lib: 3.0.1
       yn: 3.1.1
 
+  /ts-patch@3.1.2:
+    resolution: {integrity: sha512-n58F5AqjUMdp9RAKq+E1YBkmONltPVbt1nN+wrmZXoYZek6QcvaTuqvKMhYhr5BxtC53kD/exxIPA1cP1RQxsA==}
+    hasBin: true
+    dependencies:
+      chalk: 4.1.2
+      global-prefix: 3.0.0
+      minimist: 1.2.8
+      resolve: 1.22.8
+      semver: 7.6.0
+      strip-ansi: 6.0.1
+    dev: true
+
   /tslib@2.6.2:
     resolution: {integrity: sha512-AEYxH93jGFPn/a2iVAwW87VuUIkR1FVUKB77NwMF7nBTDkDrrT/Hpt/IrCJ0QXhW27jTBDcf5ZY7w6RiqTMw2Q==}
 
@@ -1546,6 +1584,15 @@ packages:
       - supports-color
     dev: true
 
+  /typescript-transform-paths@3.4.7(typescript@5.4.5):
+    resolution: {integrity: sha512-1Us1kdkdfKd2unbkBAOV2HHRmbRBYpSuk9nJ7cLD2hP4QmfToiM/VpxNlhJc1eezVwVqSKSBjNSzZsK/fWR/9A==}
+    peerDependencies:
+      typescript: '>=3.6.5'
+    dependencies:
+      minimatch: 3.1.2
+      typescript: 5.4.5
+    dev: true
+
   /typescript@5.4.5:
     resolution: {integrity: sha512-vcI4UpRgg81oIRUFwR0WSIHKt11nJ7SAVlYNIu+QpqeyXP+gpQJy/Z4+F0aGxSE4MqwjyXvW/TzgkLAx2AGHwQ==}
     engines: {node: '>=14.17'}
@@ -1562,6 +1609,13 @@ packages:
 
   /v8-compile-cache-lib@3.0.1:
     resolution: {integrity: sha512-wa7YjyUGfNZngI/vtK0UHAN+lgDCxBPCylVXGp0zu59Fz5aiGtNXaq3DhIov063MorB+VfufLh3JlF2KdTK3xg==}
+
+  /which@1.3.1:
+    resolution: {integrity: sha512-HxJdYWq1MTIQbJ3nw0cqssHoTNU267KlrDuGZ1WYlxDStUtKUhOaJmh112/TZmHxxUfuJqPXSOm7tDyas0OSIQ==}
+    hasBin: true
+    dependencies:
+      isexe: 2.0.0
+    dev: true
 
   /which@2.0.2:
     resolution: {integrity: sha512-BLI3Tl1TW3Pvl70l3yq3Y64i+awpwXqsGBYWkkqMtnbXgrMD+yj7rhW0kuEDxzJaYXGjEW5ogapKNMEKNMjibA==}

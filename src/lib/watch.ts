@@ -1,5 +1,5 @@
 import { getPackageJson, spawn } from 'svag-cli-utils'
-import { getOrderedLibPackagesData, LibPackageData } from './utils'
+import { getOrderedLibPackagesData, LibPackageData } from '@/lib/utils'
 
 export const isWatchable = async ({ cwd }: { cwd: string }) => {
   const { packageJsonData } = await getPackageJson({ cwd })

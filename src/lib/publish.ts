@@ -1,9 +1,15 @@
+import { build, isBuildable } from '@/lib/build'
+import { update } from '@/lib/install'
+import { link } from '@/lib/link'
+import {
+  getOrderedLibPackagesData,
+  isCommitable,
+  isSuitableLibPackagesActual,
+  LibPackageDataExtended,
+  throwIfNotMasterBaranch,
+} from '@/lib/utils'
 import readlineSync from 'readline-sync'
-import { exec, getPackageJson, log, spawn } from 'svag-cli-utils'
-import { build, isBuildable } from './build'
-import { installLatest } from './install'
-import { link } from './link'
-import { getOrderedLibPackagesData, isCommitable, isSuitableLibPackagesActual, throwIfNotMasterBaranch } from './utils'
+import { exec, getPackageJson, log, spawn, stringsToLikeArrayString } from 'svag-cli-utils'
 
 // small helpers
 
@@ -97,7 +103,7 @@ export const buildBumpPushPublishIfNotActual = async ({ cwd }: { cwd: string }) 
   return { published: true }
 }
 
-export const updateCommitBuildBumpPushPublish = async ({
+export const updateLinkCommitBuildBumpPushPublish = async ({
   cwd,
   forceAccuracy,
 }: {
@@ -106,7 +112,7 @@ export const updateCommitBuildBumpPushPublish = async ({
 }) => {
   const { suitableLibPackagesActual } = await isSuitableLibPackagesActual({ cwd, forceAccuracy })
   if (!suitableLibPackagesActual) {
-    await installLatest({ cwd })
+    await update({ cwd })
     await link({ cwd })
   }
   const { commited } = await commitIfNeededWithPrompt({ cwd })
@@ -114,23 +120,42 @@ export const updateCommitBuildBumpPushPublish = async ({
   return { commited, published }
 }
 
-export const updateCommitBuildBumpPushPublishRecursive = async ({
+export const updateLinkCommitSmallFixBuildBumpPushPublish = async ({
+  cwd,
+  forceAccuracy,
+}: {
+  cwd: string
+  forceAccuracy?: boolean
+}) => {
+  const { suitableLibPackagesActual } = await isSuitableLibPackagesActual({ cwd, forceAccuracy })
+  if (!suitableLibPackagesActual) {
+    await update({ cwd })
+    await link({ cwd })
+  }
+  const { commited } = await commitIfNeededWithMessage({ cwd, message: 'Small fix' })
+  const { published } = await buildBumpPushPublishIfNotActual({ cwd })
+  return { commited, published }
+}
+
+export const updateLinkCommitBuildBumpPushPublishRecursive = async ({
   cwd,
   include,
+  exclude,
   forceAccuracy,
 }: {
   cwd: string
   include?: string[]
+  exclude?: string[]
   forceAccuracy?: boolean
 }) => {
-  const { libPackagesData } = await getOrderedLibPackagesData({ cwd, include })
+  const { libPackagesData } = await getOrderedLibPackagesData({ cwd, include, exclude })
   if (!libPackagesData.length) {
     throw new Error('No packages found')
   }
   let commitedSome = false
   let publishedSome = false
   for (const { libPackagePath } of libPackagesData) {
-    const { commited, published } = await updateCommitBuildBumpPushPublish({ cwd: libPackagePath, forceAccuracy })
+    const { commited, published } = await updateLinkCommitBuildBumpPushPublish({ cwd: libPackagePath, forceAccuracy })
     commitedSome = commitedSome || commited
     publishedSome = publishedSome || published
   }
@@ -139,16 +164,18 @@ export const updateCommitBuildBumpPushPublishRecursive = async ({
   }
 }
 
-export const updateCommitSmallFixBuildBumpPushPublishRecursive = async ({
+export const updateLinkCommitSmallFixBuildBumpPushPublishRecursive = async ({
   cwd,
   include,
+  exclude,
   forceAccuracy,
 }: {
   cwd: string
   include?: string[]
+  exclude?: string[]
   forceAccuracy?: boolean
 }) => {
-  const { libPackagesData } = await getOrderedLibPackagesData({ cwd, include })
+  const { libPackagesData } = await getOrderedLibPackagesData({ cwd, include, exclude })
   if (!libPackagesData.length) {
     throw new Error('No packages found')
   }
@@ -157,7 +184,7 @@ export const updateCommitSmallFixBuildBumpPushPublishRecursive = async ({
   for (const { libPackagePath } of libPackagesData) {
     const { suitableLibPackagesActual } = await isSuitableLibPackagesActual({ cwd: libPackagePath, forceAccuracy })
     if (!suitableLibPackagesActual) {
-      await installLatest({ cwd: libPackagePath })
+      await update({ cwd: libPackagePath })
       await link({ cwd: libPackagePath })
     }
     const { commited } = await commitIfNeededWithMessage({ cwd: libPackagePath, message: 'Small fix' })
@@ -170,16 +197,18 @@ export const updateCommitSmallFixBuildBumpPushPublishRecursive = async ({
   }
 }
 
-export const prepareUpdateCommitBuildBumpPushPublishRecursive = async ({
+export const prepareUpdateLinkCommitBuildBumpPushPublishRecursive = async ({
   cwd,
   include,
+  exclude,
   forceAccuracy,
 }: {
   cwd: string
   include?: string[]
+  exclude?: string[]
   forceAccuracy?: boolean
 }) => {
-  const { libPackagesData } = await getOrderedLibPackagesData({ cwd, include })
+  const { libPackagesData } = await getOrderedLibPackagesData({ cwd, include, exclude })
   if (!libPackagesData.length) {
     throw new Error('No packages found')
   }
@@ -202,5 +231,163 @@ export const prepareUpdateCommitBuildBumpPushPublishRecursive = async ({
   if (nothingToCommitAndPublish) {
     log.green(`nothing to commit and publish`)
     return
+  }
+}
+
+export const updateLinkCommitBuildBumpPushPublishRecursiveFoxy = async ({
+  cwd,
+  include,
+  exclude,
+  forceAccuracy,
+}: {
+  cwd: string
+  include?: string[]
+  exclude?: string[]
+  forceAccuracy?: boolean
+}) => {
+  const { libPackagesData } = await getOrderedLibPackagesData({ cwd, include, exclude })
+  const libPackagesDataCircular = libPackagesData.filter(({ circular }) => circular)
+  const libPackagesDataNonircular = libPackagesData.filter(({ circular }) => !circular)
+  const libPackagesDataCommitableCircular: LibPackageDataExtended[] = []
+  for (const libPackageData of libPackagesData) {
+    if (!libPackageData.circular) {
+      continue
+    }
+    const { commitable } = await isCommitable({ cwd: libPackageData.libPackagePath })
+    if (commitable) {
+      libPackagesDataCommitableCircular.push(libPackageData)
+    }
+  }
+  const libPackagesNamesNoncircular = libPackagesDataNonircular.map(({ libPackageName }) => libPackageName)
+  const libPackagesNamesCircular = libPackagesDataCircular.map(({ libPackageName }) => libPackageName)
+  const libPackagesNamesCommitableCircular = libPackagesDataCommitableCircular.map(
+    ({ libPackageName }) => libPackageName
+  )
+  let commitedSome = false
+  let publishedSome = false
+  if (libPackagesDataCommitableCircular.length) {
+    log.green(`circular commitable packages found: ${stringsToLikeArrayString(libPackagesNamesCommitableCircular)}`)
+    log.green(`will twice hop circular deps: ${stringsToLikeArrayString(libPackagesNamesCircular)}`)
+    for (const { libPackagePath } of [...libPackagesDataCircular, ...libPackagesDataCircular]) {
+      const { commited, published } = await updateLinkCommitBuildBumpPushPublish({ cwd: libPackagePath, forceAccuracy })
+      commitedSome = commitedSome || commited
+      publishedSome = publishedSome || published
+    }
+    log.green(`and then will hop noncircular as usual: ${stringsToLikeArrayString(libPackagesNamesNoncircular)}`)
+    await updateLinkCommitBuildBumpPushPublishRecursive({
+      cwd,
+      include,
+      exclude: [...libPackagesNamesCircular, ...(exclude || [])],
+      forceAccuracy,
+    })
+  } else {
+    log.green(`circular commitable packages not found, will install all as usual`)
+    await updateLinkCommitBuildBumpPushPublishRecursive({ cwd, include, forceAccuracy })
+  }
+  if (!commitedSome && !publishedSome) {
+    log.green(`${cwd}: nothing to commit and publish`)
+  }
+}
+
+export const updateLinkCommitSmallFixBuildBumpPushPublishRecursiveFoxy = async ({
+  cwd,
+  include,
+  exclude,
+  forceAccuracy,
+}: {
+  cwd: string
+  include?: string[]
+  exclude?: string[]
+  forceAccuracy?: boolean
+}) => {
+  const { libPackagesData } = await getOrderedLibPackagesData({ cwd, include, exclude })
+  const libPackagesDataCircular = libPackagesData.filter(({ circular }) => circular)
+  const libPackagesDataNonircular = libPackagesData.filter(({ circular }) => !circular)
+  const libPackagesDataCommitableCircular: LibPackageDataExtended[] = []
+  for (const libPackageData of libPackagesData) {
+    if (!libPackageData.circular) {
+      continue
+    }
+    const { commitable } = await isCommitable({ cwd: libPackageData.libPackagePath })
+    if (commitable) {
+      libPackagesDataCommitableCircular.push(libPackageData)
+    }
+  }
+  const libPackagesNamesNoncircular = libPackagesDataNonircular.map(({ libPackageName }) => libPackageName)
+  const libPackagesNamesCircular = libPackagesDataCircular.map(({ libPackageName }) => libPackageName)
+  const libPackagesNamesCommitableCircular = libPackagesDataCommitableCircular.map(
+    ({ libPackageName }) => libPackageName
+  )
+  let commitedSome = false
+  let publishedSome = false
+  if (libPackagesDataCommitableCircular.length) {
+    log.green(`circular commitable packages found: ${stringsToLikeArrayString(libPackagesNamesCommitableCircular)}`)
+    log.green(`will twice hop circular deps: ${stringsToLikeArrayString(libPackagesNamesCircular)}`)
+    for (const { libPackagePath } of [...libPackagesDataCircular, ...libPackagesDataCircular]) {
+      const { commited, published } = await updateLinkCommitSmallFixBuildBumpPushPublish({
+        cwd: libPackagePath,
+        forceAccuracy,
+      })
+      commitedSome = commitedSome || commited
+      publishedSome = publishedSome || published
+    }
+    log.green(`and then will hop noncircular as usual: ${stringsToLikeArrayString(libPackagesNamesNoncircular)}`)
+    await updateLinkCommitSmallFixBuildBumpPushPublishRecursive({
+      cwd,
+      include,
+      exclude: [...libPackagesNamesCircular, ...(exclude || [])],
+      forceAccuracy,
+    })
+  } else {
+    log.green(`circular commitable packages not found, will install all as usual`)
+    await updateLinkCommitSmallFixBuildBumpPushPublishRecursive({ cwd, include, forceAccuracy })
+  }
+  if (!commitedSome && !publishedSome) {
+    log.green(`${cwd}: nothing to commit and publish`)
+  }
+}
+
+export const prepareUpdateLinkCommitBuildBumpPushPublishRecursiveFoxy = async ({
+  cwd,
+  include,
+  exclude,
+  forceAccuracy,
+}: {
+  cwd: string
+  include?: string[]
+  exclude?: string[]
+  forceAccuracy?: boolean
+}) => {
+  const { libPackagesData } = await getOrderedLibPackagesData({ cwd, include, exclude })
+  const libPackagesDataCircular = libPackagesData.filter(({ circular }) => circular)
+  const libPackagesDataNonircular = libPackagesData.filter(({ circular }) => !circular)
+  const libPackagesDataCommitableCircular: LibPackageDataExtended[] = []
+  for (const libPackageData of libPackagesData) {
+    if (!libPackageData.circular) {
+      continue
+    }
+    const { commitable } = await isCommitable({ cwd: libPackageData.libPackagePath })
+    if (commitable) {
+      libPackagesDataCommitableCircular.push(libPackageData)
+    }
+  }
+  const libPackagesNamesNoncircular = libPackagesDataNonircular.map(({ libPackageName }) => libPackageName)
+  const libPackagesNamesCircular = libPackagesDataCircular.map(({ libPackageName }) => libPackageName)
+  const libPackagesNamesCommitableCircular = libPackagesDataCommitableCircular.map(
+    ({ libPackageName }) => libPackageName
+  )
+  if (libPackagesDataCommitableCircular.length) {
+    log.green(`circular commitable packages found: ${stringsToLikeArrayString(libPackagesNamesCommitableCircular)}`)
+    log.green(`will twice hop circular deps: ${stringsToLikeArrayString(libPackagesNamesCircular)}`)
+    log.green(`and then will hop noncircular as usual: ${stringsToLikeArrayString(libPackagesNamesNoncircular)}`)
+    await prepareUpdateLinkCommitBuildBumpPushPublishRecursive({
+      cwd,
+      include,
+      exclude: libPackagesNamesCircular,
+      forceAccuracy,
+    })
+  } else {
+    log.green(`circular commitable packages not found, will install all as usual`)
+    await prepareUpdateLinkCommitBuildBumpPushPublishRecursive({ cwd, include, forceAccuracy })
   }
 }

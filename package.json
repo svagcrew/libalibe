@@ -24,6 +24,7 @@
     "dist/**/*"
   ],
   "scripts": {
+    "prepare": "ts-patch install -s",
     "lint": "eslint --cache --cache-location ./node_modules/.cache/.eslintcache .",
     "prettify": "prettier --log-level warn --cache --write '{src/**/*,*}.{ts,tsx,js,json,yml,scss}' '!**/{node_modules,dist}/**/*'",
     "types": "tsc --noEmit",
@@ -53,9 +54,10 @@
     "@types/yargs": "^17.0.32",
     "prettier": "^3.2.5",
     "rimraf": "^5.0.5",
-    "svag-lint": "^0.1.5",
+    "svag-lint": "^0.1.6",
     "svag-prettier": "^0.1.2",
-    "svag-ts": "^0.1.2",
+    "svag-ts": "^0.1.5",
+    "ts-patch": "^3.1.2",
     "type-fest": "^4.15.0"
   }
 }

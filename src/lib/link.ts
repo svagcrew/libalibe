@@ -1,5 +1,5 @@
 import { log, spawn } from 'svag-cli-utils'
-import { getOrderedLibPackagesData, getSuitableLibPackages } from './utils'
+import { getOrderedLibPackagesData, getSuitableLibPackages } from '@/lib/utils'
 
 export const link = async ({ cwd }: { cwd: string }) => {
   const { suitablePackagesNames } = await getSuitableLibPackages({ cwd })
