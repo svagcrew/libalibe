@@ -88,11 +88,16 @@ export const isSuitableLibPackageActual = async ({
   }
   const projectPackageJsonDataLibalibe = projectPackageJsonData.libalibe as PackageJsonDataLibalibe
   const libPackageJsonDataLibalibe = libPackageJsonData.libalibe as PackageJsonDataLibalibe
-  if (
-    !forceAccuracy &&
-    (projectPackageJsonDataLibalibe?.ignoreDependeciesVersionAccuracy?.includes(libPackageName) ||
-      libPackageJsonDataLibalibe?.ignoreSelfVersionAccuracy)
-  ) {
+  const { libPackagesData } = await getOrderedLibPackagesData({ cwd })
+  const circular = isLibPackageCircularDependency({
+    libPackageData: { libPackageName, libPackagePath: cwd, libPackageJsonData },
+    libPackagesData,
+  })
+  const ignoreVersionAccuracy =
+    projectPackageJsonDataLibalibe?.ignoreDependeciesVersionAccuracy?.includes(libPackageName) ||
+    libPackageJsonDataLibalibe?.ignoreSelfVersionAccuracy ||
+    circular
+  if (!forceAccuracy && ignoreVersionAccuracy) {
     return { suitableLibPackageActual: semver.satisfies(libPackageJsonData.version, projectLibPackageVersionRaw) }
   }
   return {
@@ -133,132 +138,6 @@ const isThisLibPackageDependsOnThatLibPackage = ({
     thisLibPackageDependsOnThatLibPackage: !!thatLibPackageName && !!thisLibPackageJsonDataDeps[thatLibPackageName],
   }
 }
-
-// const orderLibPackagesFromDependsOnToDependent = ({ libPackagesData }: { libPackagesData: LibPackageData[] }) => {
-//   const libPackagesDataExtendedOrdered = _.cloneDeep(libPackagesData).map((libPackageData) => ({
-//     ...libPackageData,
-//     dependency: false,
-//     circular: false,
-//   })) as LibPackageDataExtended[]
-
-//   const circularVisited = new Set()
-//   const circularInStack = new Map()
-//   const isCircular = (node: number, stack: Map<number, boolean>) => {
-//     if (stack.has(node)) {
-//       return true // Cycle found
-//     }
-//     if (circularVisited.has(node)) {
-//       return false // Already visited and no cycle detected from this node
-//     }
-//     circularVisited.add(node)
-//     stack.set(node, true)
-//     const dependencies = libPackagesDataExtendedOrdered.filter(
-//       (pkg) =>
-//         isThisLibPackageDependsOnThatLibPackage({
-//           thisLibPackageJsonData: libPackagesDataExtendedOrdered[node].libPackageJsonData,
-//           thatLibPackageJsonData: pkg.libPackageJsonData,
-//         }).thisLibPackageDependsOnThatLibPackage
-//     )
-//     for (const dep of dependencies) {
-//       const index = libPackagesDataExtendedOrdered.indexOf(dep)
-//       if (isCircular(index, stack)) {
-//         return true
-//       }
-//     }
-//     stack.delete(node)
-//     return false
-//   }
-
-//   const getOrderString = (libPackagesData: LibPackageData[]) => {
-//     return libPackagesData.map(({ libPackageName }) => libPackageName).join('|')
-//   }
-//   // const knownOrders = [getOrderString(libPackagesDataExtendedOrdered)]
-//   for (let i = 0; i < libPackagesDataExtendedOrdered.length; i++) {
-//     if (isCircular(i, circularInStack)) {
-//       const libPackageData = libPackagesDataExtendedOrdered.splice(i, 1)[0]
-//       libPackageData.circular = true
-//       libPackagesDataExtendedOrdered.unshift(libPackageData)
-//     }
-//     for (let j = i + 1; j < libPackagesDataExtendedOrdered.length; j++) {
-//       const { thisLibPackageDependsOnThatLibPackage } = isThisLibPackageDependsOnThatLibPackage({
-//         thisLibPackageJsonData: libPackagesDataExtendedOrdered[i].libPackageJsonData,
-//         thatLibPackageJsonData: libPackagesDataExtendedOrdered[j].libPackageJsonData,
-//       })
-//       if (thisLibPackageDependsOnThatLibPackage) {
-//         const libPackageData = libPackagesDataExtendedOrdered.splice(j, 1)[0]
-//         libPackageData.dependency = true
-//         libPackagesDataExtendedOrdered.splice(i, 0, libPackageData)
-//         i--
-//         // if (!knownOrders.includes(getOrderString(libPackagesDataExtendedOrdered))) {
-//         //   i--
-//         //   knownOrders.push(getOrderString(libPackagesDataExtendedOrdered))
-//         // }
-//         break
-//       }
-//     }
-//   }
-//   return { libPackagesDataOrdered: libPackagesDataExtendedOrdered }
-// }
-
-// const orderLibPackagesFromDependsOnToDependent = ({ libPackagesData }: { libPackagesData: LibPackageData[] }) => {
-//   const libPackagesDataExtendedOrdered = libPackagesData.map((libPackageData) => ({
-//     ...libPackageData,
-//     dependency: false,
-//     circular: false,
-//   })) as LibPackageDataExtended[]
-
-//   const visited = new Set<number>()
-//   const onStack = new Set<number>()
-//   const stack: LibPackageDataExtended[] = []
-//   let hasCycle = false
-
-//   const visit = (nodeIndex: number) => {
-//     if (onStack.has(nodeIndex)) {
-//       hasCycle = true
-//       return // Cycle detected
-//     }
-//     if (visited.has(nodeIndex)) {
-//       return // Already processed
-//     }
-//     visited.add(nodeIndex)
-//     onStack.add(nodeIndex)
-
-//     const currentNode = libPackagesDataExtendedOrdered[nodeIndex]
-//     const dependencies = libPackagesDataExtendedOrdered.filter(
-//       (pkg, idx) =>
-//         idx !== nodeIndex &&
-//         isThisLibPackageDependsOnThatLibPackage({
-//           thisLibPackageJsonData: currentNode.libPackageJsonData,
-//           thatLibPackageJsonData: pkg.libPackageJsonData,
-//         }).thisLibPackageDependsOnThatLibPackage
-//     )
-
-//     dependencies.forEach((dep) => {
-//       const depIndex = libPackagesDataExtendedOrdered.indexOf(dep)
-//       libPackagesDataExtendedOrdered[depIndex].dependency = true
-//       visit(depIndex)
-//       if (hasCycle) {
-//         currentNode.circular = true // Mark as part of a cycle
-//         libPackagesDataExtendedOrdered[depIndex].circular = true
-//         return
-//       }
-//     })
-
-//     onStack.delete(nodeIndex)
-//     stack.unshift(currentNode) // Prepend to stack to build order
-//   }
-
-//   libPackagesDataExtendedOrdered.forEach((_, index) => visit(index))
-//   const libPackagesDataNoncircularOrdered = stack.filter((pkg) => !pkg.circular)
-//   const libPackagesDataCircularOrdered = stack.filter((pkg) => pkg.circular)
-//   const libPackagesDataOrdered = [...libPackagesDataCircularOrdered, ...libPackagesDataNoncircularOrdered]
-
-//   return {
-//     libPackagesDataOrdered,
-//     libPackagesDataNoncircularOrdered,
-//     libPackagesDataCircularOrdered,
-//   }
-// }
 
 const isLibPackageDependencyOfAnother = ({
   libPackageData,
@@ -320,7 +199,10 @@ const isLibPackageCircularDependency = ({
     onStack.delete(nodeIndex)
   }
 
-  visit(libPackagesData.indexOf(libPackageData))
+  const nodeIndex = libPackagesData.indexOf(libPackageData)
+  if (nodeIndex > -1) {
+    visit(nodeIndex)
+  }
   return hasCycle
 }
 
