@@ -6,8 +6,8 @@ import _ from 'lodash'
 
 export type PackageJsonDataLibalibe =
   | {
-      ignoreDependeciesVersionAccuracy?: boolean
-      ignoreSelfVersionAccuracy?: string[]
+      ignoreSelfVersionAccuracy?: boolean
+      ignoreDependeciesVersionAccuracy?: string[]
     }
   | undefined
 export type LibPackageData = { libPackageName: string; libPackagePath: string; libPackageJsonData: PackageJson }
