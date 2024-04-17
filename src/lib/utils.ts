@@ -89,8 +89,12 @@ export const isSuitableLibPackageActual = async ({
   const projectPackageJsonDataLibalibe = projectPackageJsonData.libalibe as PackageJsonDataLibalibe
   const libPackageJsonDataLibalibe = libPackageJsonData.libalibe as PackageJsonDataLibalibe
   const { libPackagesData } = await getOrderedLibPackagesData({ cwd })
+  const libPackageData = libPackagesData.find((pkg) => pkg.libPackageName === libPackageName)
+  if (!libPackageData) {
+    throw new Error(`${cwd}: lib package data not found "${libPackageName}"`)
+  }
   const circular = isLibPackageCircularDependency({
-    libPackageData: { libPackageName, libPackagePath: cwd, libPackageJsonData },
+    libPackageData,
     libPackagesData,
   })
   const ignoreVersionAccuracy =
