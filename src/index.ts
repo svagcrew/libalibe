@@ -1,5 +1,6 @@
 import { buildRecursive } from '@/lib/build'
 import { edit } from '@/lib/edit'
+import { execCommandRecursive } from '@/lib/exec'
 import { update } from '@/lib/install'
 import { link, linkGlobal, linkGlobalRecursive, linkRecursive, unlink } from '@/lib/link'
 import { lintFixRecursive, lintRecursive } from '@/lib/lint'
@@ -15,6 +16,7 @@ import {
   updateLinkCommitSmallFixBuildBumpPushPublishRecursive,
 } from '@/lib/publish'
 import { pullOrCloneRecursive } from '@/lib/pull'
+import { runCommandRecursive } from '@/lib/run'
 import { typecheckRecursive } from '@/lib/types'
 import { watchRecursiveConcurrently } from '@/lib/watch'
 import dedent from 'dedent'
@@ -22,6 +24,13 @@ import { defineCliApp, log, spawn } from 'svag-cli-utils'
 
 defineCliApp(async ({ args, command, cwd, flags, argr }) => {
   switch (command) {
+    case 'runr':
+      const [firstArg, ...restArgs] = argr
+      await runCommandRecursive({ cwd, command: firstArg, argr: restArgs })
+      break
+    case 'execr':
+      await execCommandRecursive({ cwd, command: argr.join(' ') })
+      break
     case 'link':
       await link({ cwd })
       break
@@ -117,6 +126,8 @@ defineCliApp(async ({ args, command, cwd, flags, argr }) => {
       break
     case 'px':
     case 'pxx':
+    case 'xp':
+    case 'xxp':
     case 'pbadaboom':
     case 'pbidibadaboom':
       await prepareUpdateLinkCommitBuildBumpPushPublishRecursiveFoxy({
@@ -144,6 +155,8 @@ defineCliApp(async ({ args, command, cwd, flags, argr }) => {
       break
     case 'h':
       log.black(dedent`Commands:
+        runr — run "pnpm {args[0]} {...restArgs}" command in all packages
+        execr — run "{...args}" command in all packages
         link — link packages
         linkr — link packages recursive
         unlink — unlink packages
@@ -158,11 +171,10 @@ defineCliApp(async ({ args, command, cwd, flags, argr }) => {
         hop — update, commit, build, bump, push, publish
         bam — update, commit, build, bump, push, publish, recursive
         boom — update, commit small fix, build, bump, push, publish, recursive
-        pbam | pboom — just log bam | boom, not do it
-        pboom — just log boom, not do it
+        pbam | pboom — prepare bam | boom, not do it
         badaboom | x — update, commit, build, bump, push, publish, recursive-foxy
         bidibadaboom | xx — update, commit small fix, build, bump, push, publish, recursive-foxy
-        pbadaboom | pbidibadaboom | px | pxx — just log badaboom, not do it
+        pbadaboom | pbidibadaboom | px | pxx | xp | xxp — prepare badaboom, not do it
         pocr — pull or clone recursive
         i — pnpm install ... && lili link
         r — pnpm remove ... && lili link
