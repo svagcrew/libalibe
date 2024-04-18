@@ -24,10 +24,11 @@ import { defineCliApp, log, spawn } from 'svag-cli-utils'
 
 defineCliApp(async ({ args, command, cwd, flags, argr }) => {
   switch (command) {
-    case 'runr':
+    case 'runr': {
       const [firstArg, ...restArgs] = argr
       await runCommandRecursive({ cwd, command: firstArg, argr: restArgs })
       break
+    }
     case 'execr':
       await execCommandRecursive({ cwd, command: argr.join(' ') })
       break
@@ -143,6 +144,7 @@ defineCliApp(async ({ args, command, cwd, flags, argr }) => {
       await spawn({
         cwd,
         command: `pnpm install --color ${argr.join(' ')}`,
+        exitOnFailure: true,
       })
       await link({ cwd })
       break
@@ -150,6 +152,7 @@ defineCliApp(async ({ args, command, cwd, flags, argr }) => {
       await spawn({
         cwd,
         command: `pnpm remove --color ${argr.join(' ')}`,
+        exitOnFailure: true,
       })
       await link({ cwd })
       break

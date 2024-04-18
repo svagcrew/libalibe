@@ -95,7 +95,7 @@ export const commitBuildBumpPushPublish = async ({ cwd, message }: { cwd: string
   log.green(`${cwd}: commiting (${message})`)
   await spawn({ cwd, command: `git add -A` })
   await spawn({ cwd, command: `git commit -m "${message}"` })
-  log.toMemory.black(`${cwd}: Ccmmited (${message})`)
+  log.toMemory.black(`${cwd}: Commited (${message})`)
   await buildBumpPushPublish({ cwd })
 }
 

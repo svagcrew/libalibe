@@ -30,8 +30,8 @@ dependencies:
     specifier: ^7.6.0
     version: 7.6.0
   svag-cli-utils:
-    specifier: ^0.1.19
-    version: 0.1.19(@types/node@20.12.7)
+    specifier: ^0.1.23
+    version: 0.1.23
   typescript:
     specifier: ^5.4.5
     version: 5.4.5
@@ -64,6 +64,9 @@ devDependencies:
   cross-env:
     specifier: ^7.0.3
     version: 7.0.3
+  husky:
+    specifier: ^9.0.11
+    version: 9.0.11
   jest:
     specifier: 30.0.0-alpha.3
     version: 30.0.0-alpha.3(@types/node@20.12.7)
@@ -73,18 +76,21 @@ devDependencies:
   rimraf:
     specifier: ^5.0.5
     version: 5.0.5
+  svag-husky:
+    specifier: ^0.1.4
+    version: 0.1.4
   svag-jest:
-    specifier: ^0.1.23
-    version: 0.1.23(@types/node@20.12.7)
+    specifier: ^0.1.24
+    version: 0.1.24
   svag-lint:
-    specifier: ^0.1.23
-    version: 0.1.23(@types/node@20.12.7)(prettier@3.2.5)
+    specifier: ^0.1.27
+    version: 0.1.27(prettier@3.2.5)
   svag-prettier:
-    specifier: ^0.1.15
-    version: 0.1.15(@types/node@20.12.7)
-  svag-ts:
     specifier: ^0.1.19
-    version: 0.1.19(@types/node@20.12.7)
+    version: 0.1.19
+  svag-ts:
+    specifier: ^0.1.23
+    version: 0.1.23
   ts-jest:
     specifier: ^29.1.2
     version: 29.1.2(@babel/core@7.24.4)(jest@30.0.0-alpha.3)(typescript@5.4.5)
@@ -455,6 +461,7 @@ packages:
     engines: {node: '>=12'}
     dependencies:
       '@jridgewell/trace-mapping': 0.3.9
+    dev: true
 
   /@eslint-community/eslint-utils@4.4.0(eslint@9.0.0):
     resolution: {integrity: sha512-1/sA4dwrzBAyeUoQ6oxahHKmrZvsnLCg4RfxW3ZFGGmQkSNQPFNLV9CUEFQP1x9EYXHTo5p6xdhZM1Ne9p/AfA==}
@@ -793,6 +800,7 @@ packages:
   /@jridgewell/resolve-uri@3.1.2:
     resolution: {integrity: sha512-bRISgCIjP20/tbWSPWMEi54QVPRZExkuD9lJL+UIxUKtwVJA8wW1Trb1jMs1RFXo1CBTNZ/5hpC9QvmKWdopKw==}
     engines: {node: '>=6.0.0'}
+    dev: true
 
   /@jridgewell/set-array@1.2.1:
     resolution: {integrity: sha512-R8gLRTZeyp03ymzP/6Lil/28tGeGEzhx1q2k703KGWRAI1VdvPIXdG70VJc2pAMw3NA6JKL5hhFu1sJX0Mnn/A==}
@@ -801,6 +809,7 @@ packages:
 
   /@jridgewell/sourcemap-codec@1.4.15:
     resolution: {integrity: sha512-eF2rxCRulEKXHTRiDrDy6erMYWqNw4LPdQ8UQA4huuxaQsVeRPFl2oM8oDGxMFhJUWZf9McpLtJasDDZb/Bpeg==}
+    dev: true
 
   /@jridgewell/trace-mapping@0.3.25:
     resolution: {integrity: sha512-vNk6aEwybGtawWmy/PzwnGDOjCkLWSD2wqvjGGAgOAwCGWySYXfYoxt00IJkTF+8Lb57DwOb3Aa0o9CApepiYQ==}
@@ -814,6 +823,7 @@ packages:
     dependencies:
       '@jridgewell/resolve-uri': 3.1.2
       '@jridgewell/sourcemap-codec': 1.4.15
+    dev: true
 
   /@nodelib/fs.scandir@2.1.5:
     resolution: {integrity: sha512-vq24Bq3ym5HEQm2NKCr3yXDwjc7vTsEThRDnkp2DK9p1uqLR+DHurm/NOTo0KG7HYHU7eppKZj3MyqYuMBf62g==}
@@ -867,15 +877,19 @@ packages:
 
   /@tsconfig/node10@1.0.11:
     resolution: {integrity: sha512-DcRjDCujK/kCk/cUe8Xz8ZSpm8mS3mNNpta+jGCA6USEDfktlNvm1+IuZ9eTcDbNk41BHwpHHeW+N1lKCz4zOw==}
+    dev: true
 
   /@tsconfig/node12@1.0.11:
     resolution: {integrity: sha512-cqefuRsh12pWyGsIoBKJA9luFu3mRxCA+ORZvA4ktLSzIuCUtWVxGIuXigEwO5/ywWFMZ2QEGKWvkZG1zDMTag==}
+    dev: true
 
   /@tsconfig/node14@1.0.3:
     resolution: {integrity: sha512-ysT8mhdixWK6Hw3i1V2AeRqZ5WfXg1G43mqoYlM2nc6388Fq5jcXyr5mRsqViLx/GJYdoL0bfXD8nmF+Zn/Iow==}
+    dev: true
 
   /@tsconfig/node16@1.0.4:
     resolution: {integrity: sha512-vxhUy4J8lyeyinH7Azl1pdd43GJhZH/tP2weN8TntQblOY+A0XbT8DJk1/oCPuOOyg/Ja757rG0CgHcWC8OfMA==}
+    dev: true
 
   /@types/babel__core@7.20.5:
     resolution: {integrity: sha512-qoQprZvz5wQFJwMDqeseRXWv3rqMvhgpbXFfVyWhbx9X47POIA6i/+dXefEmZKoAgOaTdaIgNSMqMIU61yRyzA==}
@@ -945,6 +959,7 @@ packages:
     resolution: {integrity: sha512-wq0cICSkRLVaf3UGLMGItu/PtdY7oaXaI/RVU+xliKVOtRna3PRY57ZDfztpDL0n11vfymMUnXv8QwYCO7L1wg==}
     dependencies:
       undici-types: 5.26.5
+    dev: true
 
   /@types/readline-sync@1.4.8:
     resolution: {integrity: sha512-BL7xOf0yKLA6baAX6MMOnYkoflUyj/c7y3pqMRfU0va7XlwHAOTOIo4x55P/qLfMsuaYdJJKubToLqRVmRtRZA==}
@@ -1119,11 +1134,13 @@ packages:
   /acorn-walk@8.3.2:
     resolution: {integrity: sha512-cjkyv4OtNCIeqhHrfS81QWXoCBPExR/J62oyEqepVw8WaQeSqpW2uhuLPh1m9eWhDuOo/jUXVTlifvesOWp/4A==}
     engines: {node: '>=0.4.0'}
+    dev: true
 
   /acorn@8.11.3:
     resolution: {integrity: sha512-Y9rRfJG5jcKOE0CLisYbojUjIrIEE7AGMzA/Sm4BslANhbS+cDMpgBdcPT91oJ7OuJ9hYJBx59RjbhxVnrF8Xg==}
     engines: {node: '>=0.4.0'}
     hasBin: true
+    dev: true
 
   /ajv@6.12.6:
     resolution: {integrity: sha512-j3fVLgvTo527anyYyJOGTYJbG+vnnQYvE0m5mmkc1TK+nxAppkCLMIL0aZ4dblVCNoGShhm+kzE4ZUykBoMg4g==}
@@ -1187,6 +1204,7 @@ packages:
 
   /arg@4.1.3:
     resolution: {integrity: sha512-58S9QDqG0Xx27YwPSt9fJxivjYl432YCwfDMfZ+71RAqUrZef7LrKQZ3LHLOwCS4FLNBplP533Zx895SeOCHvA==}
+    dev: true
 
   /argparse@1.0.10:
     resolution: {integrity: sha512-o5Roy6tNG4SL/FOkCAN6RzjiakZS25RLYFrcMttJqbdd8BWrnA+fGz57iN5Pb06pvBGvl5gQ0B48dJlslXvoTg==}
@@ -1461,6 +1479,7 @@ packages:
 
   /create-require@1.1.1:
     resolution: {integrity: sha512-dcKFX3jn0MpIaXjisoRvexIJVEKzaq7z2rZKxf+MSr9TkdmHmsU4m2lcLojrj/FHl8mk5VxMmYA+ftRkP/3oKQ==}
+    dev: true
 
   /cross-env@7.0.3:
     resolution: {integrity: sha512-+/HKd6EgcQCJGh2PSjZuUitQBQynKor4wrFbRg4DtAgS1aWO+gU52xpH7M9ScGgXSYmAVS9bIJ8EzuaGw0oNAw==}
@@ -1533,6 +1552,7 @@ packages:
   /diff@4.0.2:
     resolution: {integrity: sha512-58lmxKSA4BNyLz+HHMUzlOEpg09FV+ev6ZMe3vJihgdxzgcwZ8VoEEPmALCZG9LmqfVoNMMKpttIYTVG6uDY7A==}
     engines: {node: '>=0.3.1'}
+    dev: true
 
   /dir-glob@3.0.1:
     resolution: {integrity: sha512-WkrWp9GR4KXfKGYzOLmTuGVi1UWFfws377n9cc55/tb6DuqyF6pcQ5AbiHEshaDpY9v6oaSr2XCDidGmMwdzIA==}
@@ -1997,6 +2017,11 @@ packages:
     engines: {node: '>=18'}
     dev: true
 
+  /globals@15.0.0:
+    resolution: {integrity: sha512-m/C/yR4mjO6pXDTm9/R/SpYTAIyaUB4EOzcaaMEl7mds7Mshct9GfejiJNQGjHHbdMPey13Kpu4TMbYi9ex1pw==}
+    engines: {node: '>=18'}
+    dev: true
+
   /globby@11.1.0:
     resolution: {integrity: sha512-jhIXaOzy1sb8IyocaruWSn1TjmnBVs8Ayhcy83rmxNJ8q2uWKCAj3CnJY+KpGSXCueAPc0i05kVvVKtP1t9S3g==}
     engines: {node: '>=10'}
@@ -2040,6 +2065,12 @@ packages:
   /human-signals@2.1.0:
     resolution: {integrity: sha512-B4FFZ6q/T2jhhksgkbEW3HBvWIfDW85snkQgawt07S7J5QXTk6BkNV+0yAeZrM5QpMAdYlocGoljn0sJ/WQkFw==}
     engines: {node: '>=10.17.0'}
+    dev: true
+
+  /husky@9.0.11:
+    resolution: {integrity: sha512-AB6lFlbwwyIqMdHYhwPe+kjOC3Oc5P3nThEoW/AaO2BX3vJDjWPFxYLxokUZOo6RNX20He3AaT8sESs9NJcmEw==}
+    engines: {node: '>=18'}
+    hasBin: true
     dev: true
 
   /ignore@5.3.1:
@@ -2809,6 +2840,7 @@ packages:
 
   /make-error@1.3.6:
     resolution: {integrity: sha512-s8UhlNe7vPKomQhC1qFelMokr/Sc3AgNbso3n74mVPA5LTZwkB9NlXf4XPamLxJE8h0gh73rM94xvwRT2CVInw==}
+    dev: true
 
   /makeerror@1.0.12:
     resolution: {integrity: sha512-JmqCvUhmt43madlpFzG4BQzG2Z3m6tvQDNKdClZnO3VbIudJYmxsT0FNJMeiB2+JTSlTQTSbU8QdesVmwJcmLg==}
@@ -3340,8 +3372,8 @@ packages:
     engines: {node: '>= 0.4'}
     dev: true
 
-  /svag-cli-utils@0.1.19(@types/node@20.12.7):
-    resolution: {integrity: sha512-S/e3fMrDXERgKcQUbLW7/LkKZqLgL8grxDOU6M/tKxW+qAHK3vQvpmcsp5w0MIevMlrQnUcTqD72tR0o9IDgvw==}
+  /svag-cli-utils@0.1.23:
+    resolution: {integrity: sha512-5RJ1Pjtlt3O9CPxZZOl8kHmmG0tv9tQvNEtxayl8L9zkCjGnmjgRCXHvwcskIbppRN1RAl1KPlG2xZd27omJwQ==}
     dependencies:
       dedent: 1.5.3
       edit-json-file: 1.8.0
@@ -3351,37 +3383,45 @@ packages:
       lodash: 4.17.21
       omelette: 0.4.17
       picocolors: 1.0.0
-      ts-node: 10.9.2(@types/node@20.12.7)(typescript@5.4.5)
       typescript: 5.4.5
       yargs: 17.7.2
       zod: 3.22.4
     transitivePeerDependencies:
-      - '@swc/core'
-      - '@swc/wasm'
-      - '@types/node'
       - babel-plugin-macros
 
-  /svag-jest@0.1.23(@types/node@20.12.7):
-    resolution: {integrity: sha512-CnqLGLpMSvFIVGWqsPpUJXY8gFwauXJbAHViplGh8pgRaCMxfvCCIJ3OBghrzVR+hVQBSB1+JRgCRurdic40DA==}
+  /svag-husky@0.1.4:
+    resolution: {integrity: sha512-N2GVFDVox/Bhpy/NWymmjzgHa9C5T8dMgq/0X87R+9XZ5tNZz9vL4bona0wLwzv3+BjAWHGirv9dnMVt0Vh7cQ==}
+    hasBin: true
+    dependencies:
+      dedent: 1.5.3
+      lodash: 4.17.21
+      prettier: 3.2.5
+      svag-cli-utils: 0.1.23
+      typescript: 5.4.5
+      typescript-transform-paths: 3.4.7(typescript@5.4.5)
+      zod: 3.22.4
+    transitivePeerDependencies:
+      - babel-plugin-macros
+    dev: true
+
+  /svag-jest@0.1.24:
+    resolution: {integrity: sha512-qR8HfASRjDgaaDlmUTvzu6U3PrqS90OfVlgCXlW9ujwvIhRsgn1PedR+HSFZwqQtoBSP7ZLMi1m3w2jm1lL19g==}
     hasBin: true
     dependencies:
       dedent: 1.5.3
       eslint: 9.0.0
       lodash: 4.17.21
-      svag-cli-utils: 0.1.19(@types/node@20.12.7)
+      svag-cli-utils: 0.1.23
       typescript: 5.4.5
       typescript-eslint: 7.6.0(eslint@9.0.0)(typescript@5.4.5)
       zod: 3.22.4
     transitivePeerDependencies:
-      - '@swc/core'
-      - '@swc/wasm'
-      - '@types/node'
       - babel-plugin-macros
       - supports-color
     dev: true
 
-  /svag-lint@0.1.23(@types/node@20.12.7)(prettier@3.2.5):
-    resolution: {integrity: sha512-OWcGB5V1EJbp58Aaiz9tQpcr1bQ0IHl0gg5WzwQi7xyatbthU542XfTMQUAiwVWEDOx6Qoi78XuO3379udJzZA==}
+  /svag-lint@0.1.27(prettier@3.2.5):
+    resolution: {integrity: sha512-wkMz33VAp84PB1P53rkncSR0M73uKGfNEQZnJcRe7w7YoYdywJkDlwzp4AcmWcj2vfUCumo30Z4oodeRKPSMzA==}
     hasBin: true
     dependencies:
       '@eslint/js': 9.0.0
@@ -3390,54 +3430,45 @@ packages:
       eslint-config-prettier: 9.1.0(eslint@9.0.0)
       eslint-plugin-node: 11.1.0(eslint@9.0.0)
       eslint-plugin-prettier: 5.1.3(eslint-config-prettier@9.1.0)(eslint@9.0.0)(prettier@3.2.5)
+      globals: 15.0.0
       lodash: 4.17.21
-      svag-cli-utils: 0.1.19(@types/node@20.12.7)
+      svag-cli-utils: 0.1.23
       typescript: 5.4.5
       typescript-eslint: 7.6.0(eslint@9.0.0)(typescript@5.4.5)
       zod: 3.22.4
     transitivePeerDependencies:
-      - '@swc/core'
-      - '@swc/wasm'
       - '@types/eslint'
-      - '@types/node'
       - babel-plugin-macros
       - prettier
       - supports-color
     dev: true
 
-  /svag-prettier@0.1.15(@types/node@20.12.7):
-    resolution: {integrity: sha512-RY8O5M+WHBvxriufPwJwFgmnt23jeGdn7nY0x0IyMDNCfDtedn+n7Cds3ABSGDk5+7OaciWH0/2cx7lqcPyIkg==}
+  /svag-prettier@0.1.19:
+    resolution: {integrity: sha512-S6XMSK5pPb3mZjy0FKQQEJxISJyBLmIX1YWLqfeUkspud75wF6AS6fxzyF/CVRvgFtFDokC5Uw20hI8MiEvLyQ==}
     hasBin: true
     dependencies:
       dedent: 1.5.3
       lodash: 4.17.21
       prettier: 3.2.5
-      svag-cli-utils: 0.1.19(@types/node@20.12.7)
+      svag-cli-utils: 0.1.23
       typescript: 5.4.5
       zod: 3.22.4
     transitivePeerDependencies:
-      - '@swc/core'
-      - '@swc/wasm'
-      - '@types/node'
       - babel-plugin-macros
     dev: true
 
-  /svag-ts@0.1.19(@types/node@20.12.7):
-    resolution: {integrity: sha512-qq0OhVD0lUqIlLJ7qzRaXk/4zTVB9Gjhz0EDQhf4SPwEstcTu/UczJhsLGQ0aEMQZj6WMxD9wmMIlXlPKFCfrA==}
+  /svag-ts@0.1.23:
+    resolution: {integrity: sha512-T6svmiRgYZij2+HChc7UA9SBQmV4oJv/el/i1+txx/E6Bmi+LpFgzMEmqK4zLG14FrKs2JZK6o40wffhJdw99A==}
     hasBin: true
     dependencies:
       dedent: 1.5.3
       lodash: 4.17.21
       prettier: 3.2.5
-      svag-cli-utils: 0.1.19(@types/node@20.12.7)
-      ts-node: 10.9.2(@types/node@20.12.7)(typescript@5.4.5)
+      svag-cli-utils: 0.1.23
       typescript: 5.4.5
       typescript-transform-paths: 3.4.7(typescript@5.4.5)
       zod: 3.22.4
     transitivePeerDependencies:
-      - '@swc/core'
-      - '@swc/wasm'
-      - '@types/node'
       - babel-plugin-macros
     dev: true
 
@@ -3589,6 +3620,7 @@ packages:
       typescript: 5.4.5
       v8-compile-cache-lib: 3.0.1
       yn: 3.1.1
+    dev: true
 
   /ts-patch@3.1.2:
     resolution: {integrity: sha512-n58F5AqjUMdp9RAKq+E1YBkmONltPVbt1nN+wrmZXoYZek6QcvaTuqvKMhYhr5BxtC53kD/exxIPA1cP1RQxsA==}
@@ -3671,6 +3703,7 @@ packages:
 
   /undici-types@5.26.5:
     resolution: {integrity: sha512-JlCMO+ehdEIKqlFxk6IfVoAUVmgz7cU7zD/h9XZ0qzeosSHmUJVOzSQvvYSYWXkFXC+IfLKSIffhv0sVZup6pA==}
+    dev: true
 
   /update-browserslist-db@1.0.13(browserslist@4.23.0):
     resolution: {integrity: sha512-xebP81SNcPuNpPP3uzeW1NYXxI3rxyJzF3pD6sH4jE7o/IX+WtSpwnVU+qIsDPyk0d3hmFQ7mjqc6AtV604hbg==}
@@ -3691,6 +3724,7 @@ packages:
 
   /v8-compile-cache-lib@3.0.1:
     resolution: {integrity: sha512-wa7YjyUGfNZngI/vtK0UHAN+lgDCxBPCylVXGp0zu59Fz5aiGtNXaq3DhIov063MorB+VfufLh3JlF2KdTK3xg==}
+    dev: true
 
   /v8-to-istanbul@9.2.0:
     resolution: {integrity: sha512-/EH/sDgxU2eGxajKdwLCDmQ4FWq+kpi3uCmBGpw1xJtnAxEjlD8j8PEiGWpCIMIs3ciNAgH0d3TTJiUkYzyZjA==}
@@ -3789,6 +3823,7 @@ packages:
   /yn@3.1.1:
     resolution: {integrity: sha512-Ux4ygGWsu2c7isFWe8Yu1YluJmqVhxqK2cLXNQA5AcC3QfbGNpM7fu0Y8b/z16pXLnFxZYvWhd3fhBY9DLmC6Q==}
     engines: {node: '>=6'}
+    dev: true
 
   /yocto-queue@0.1.0:
     resolution: {integrity: sha512-rVksvsnNCdJ/ohGc6xgPwyN8eheCxsiLM8mxuE/t/mOVqJewPuO1miLpTHQiRgTKCLexL4MeAFVagts7HmNZ2Q==}
