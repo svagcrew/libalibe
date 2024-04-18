@@ -210,7 +210,11 @@ const isLibPackageCircularDependency = ({
   return hasCycle
 }
 
-const orderLibPackagesFromDependsOnToDependent = ({ libPackagesData }: { libPackagesData: LibPackageData[] }) => {
+export const orderLibPackagesFromDependsOnToDependent = ({
+  libPackagesData,
+}: {
+  libPackagesData: LibPackageData[]
+}) => {
   const libPackagesDataExtended = _.cloneDeep(libPackagesData).map((libPackageData) => ({
     ...libPackageData,
     dependency: false,
@@ -260,38 +264,6 @@ const orderLibPackagesFromDependsOnToDependent = ({ libPackagesData }: { libPack
 
   return { libPackagesDataOrdered: libPackagesDataExtendedOrdered }
 }
-
-// const orderLibPackagesFromDependsOnToDependent = ({ libPackagesData }: { libPackagesData: LibPackageData[] }) => {
-//   const libPackagesDataExtendedOrdered = _.cloneDeep(libPackagesData).map((libPackageData) => ({
-//     ...libPackageData,
-//     dependency: false,
-//     circular: false,
-//   })) as LibPackageDataExtended[]
-
-//   const getOrderString = (libPackagesData: LibPackageData[]) => {
-//     return libPackagesData.map(({ libPackageName }) => libPackageName).join('|')
-//   }
-//   const knownOrders = [getOrderString(libPackagesDataExtendedOrdered)]
-//   for (let i = 0; i < libPackagesDataExtendedOrdered.length; i++) {
-//     for (let j = i + 1; j < libPackagesDataExtendedOrdered.length; j++) {
-//       const { thisLibPackageDependsOnThatLibPackage } = isThisLibPackageDependsOnThatLibPackage({
-//         thisLibPackageJsonData: libPackagesDataExtendedOrdered[i].libPackageJsonData,
-//         thatLibPackageJsonData: libPackagesDataExtendedOrdered[j].libPackageJsonData,
-//       })
-//       if (thisLibPackageDependsOnThatLibPackage) {
-//         const libPackageData = libPackagesDataExtendedOrdered.splice(j, 1)[0]
-//         libPackageData.dependency = true
-//         libPackagesDataExtendedOrdered.splice(i, 0, libPackageData)
-//         if (!knownOrders.includes(getOrderString(libPackagesDataExtendedOrdered))) {
-//           i--
-//           knownOrders.push(getOrderString(libPackagesDataExtendedOrdered))
-//         }
-//         break
-//       }
-//     }
-//   }
-//   return { libPackagesDataOrdered: libPackagesDataExtendedOrdered }
-// }
 
 export const getOrderedLibPackagesData = async ({
   cwd,

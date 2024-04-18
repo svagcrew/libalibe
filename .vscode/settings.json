@@ -4,5 +4,6 @@
       "mode": "auto"
     }
   ],
-  "eslint.experimental.useFlatConfig": true
+  "eslint.experimental.useFlatConfig": true,
+  "typescript.preferences.importModuleSpecifier": "non-relative"
 }

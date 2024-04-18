@@ -16,7 +16,13 @@ import { exec, getPackageJson, log, spawn, stringsToLikeArrayString } from 'svag
 const isLastCommitSetVersionSameToLatestTag = async ({ cwd }: { cwd: string }) => {
   const lastCommitMessageRaw = await exec({ cwd, command: `git log -1 --pretty=%B` })
   const lastCommitMessage = lastCommitMessageRaw.trim()
-  const latestTagRaw = await exec({ cwd, command: `git describe --tags --abbrev=0` })
+  const latestTagRaw = await (async () => {
+    try {
+      return await exec({ cwd, command: `git describe --tags --abbrev=0` })
+    } catch {
+      return ''
+    }
+  })()
   const latestTag = latestTagRaw.trim().replace(/^v/, '')
   return {
     lastCommitSetVersionSameToLatestTag: lastCommitMessage === latestTag,
