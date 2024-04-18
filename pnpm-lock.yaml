@@ -32,9 +32,6 @@ dependencies:
   svag-cli-utils:
     specifier: ^0.1.19
     version: 0.1.19(@types/node@20.12.7)
-  ts-node:
-    specifier: ^10.9.2
-    version: 10.9.2(@types/node@20.12.7)(typescript@5.4.5)
   typescript:
     specifier: ^5.4.5
     version: 5.4.5
@@ -69,7 +66,7 @@ devDependencies:
     version: 7.0.3
   jest:
     specifier: 30.0.0-alpha.3
-    version: 30.0.0-alpha.3(@types/node@20.12.7)(ts-node@10.9.2)
+    version: 30.0.0-alpha.3(@types/node@20.12.7)
   prettier:
     specifier: ^3.2.5
     version: 3.2.5
@@ -556,7 +553,7 @@ packages:
       slash: 3.0.0
     dev: true
 
-  /@jest/core@30.0.0-alpha.3(ts-node@10.9.2):
+  /@jest/core@30.0.0-alpha.3:
     resolution: {integrity: sha512-nqtDVDXpwlt8vXG7Fw4WsI81157BnOZGW7B4svpqseEptLSfSbCRkrsTs63bXI2SHiljoqgl8rqNvghsGZoATw==}
     engines: {node: ^16.10.0 || ^18.12.0 || >=20.0.0}
     peerDependencies:
@@ -577,7 +574,7 @@ packages:
       exit: 0.1.2
       graceful-fs: 4.2.11
       jest-changed-files: 30.0.0-alpha.3
-      jest-config: 30.0.0-alpha.3(@types/node@20.12.7)(ts-node@10.9.2)
+      jest-config: 30.0.0-alpha.3(@types/node@20.12.7)
       jest-haste-map: 30.0.0-alpha.3
       jest-message-util: 30.0.0-alpha.3
       jest-regex-util: 30.0.0-alpha.3
@@ -2264,7 +2261,7 @@ packages:
       - supports-color
     dev: true
 
-  /jest-cli@30.0.0-alpha.3(@types/node@20.12.7)(ts-node@10.9.2):
+  /jest-cli@30.0.0-alpha.3(@types/node@20.12.7):
     resolution: {integrity: sha512-z1aQDxDe0VeDSEUeMr9MrfI5cc2SSCiKtG0Rt3XDfTgWrzyoakVds/9QMkkpNKHryCBzZZKOMe5W2uy7qM4WOA==}
     engines: {node: ^16.10.0 || ^18.12.0 || >=20.0.0}
     hasBin: true
@@ -2274,13 +2271,13 @@ packages:
       node-notifier:
         optional: true
     dependencies:
-      '@jest/core': 30.0.0-alpha.3(ts-node@10.9.2)
+      '@jest/core': 30.0.0-alpha.3
       '@jest/test-result': 30.0.0-alpha.3
       '@jest/types': 30.0.0-alpha.3
       chalk: 4.1.2
       exit: 0.1.2
       import-local: 3.1.0
-      jest-config: 30.0.0-alpha.3(@types/node@20.12.7)(ts-node@10.9.2)
+      jest-config: 30.0.0-alpha.3(@types/node@20.12.7)
       jest-util: 30.0.0-alpha.3
       jest-validate: 30.0.0-alpha.3
       yargs: 17.7.2
@@ -2291,7 +2288,7 @@ packages:
       - ts-node
     dev: true
 
-  /jest-config@30.0.0-alpha.3(@types/node@20.12.7)(ts-node@10.9.2):
+  /jest-config@30.0.0-alpha.3(@types/node@20.12.7):
     resolution: {integrity: sha512-3eqS6gcsaPtcpU/VVlkLx1se1JiH18uh1Xg+oOf6FhlLDvAT5h6+dvWa2IpyucCN46dHHEw3E85qfjogq4XLtw==}
     engines: {node: ^16.10.0 || ^18.12.0 || >=20.0.0}
     peerDependencies:
@@ -2326,7 +2323,6 @@ packages:
       pretty-format: 30.0.0-alpha.3
       slash: 3.0.0
       strip-json-comments: 3.1.1
-      ts-node: 10.9.2(@types/node@20.12.7)(typescript@5.4.5)
     transitivePeerDependencies:
       - babel-plugin-macros
       - supports-color
@@ -2667,7 +2663,7 @@ packages:
       supports-color: 8.1.1
     dev: true
 
-  /jest@30.0.0-alpha.3(@types/node@20.12.7)(ts-node@10.9.2):
+  /jest@30.0.0-alpha.3(@types/node@20.12.7):
     resolution: {integrity: sha512-oJndFRnG1Xsc1ybac44hGGj7+O4nT9losg8+8YDjNwDAXbYwvzyRgmCiPo6L/BROiAD8Z9qGgFRsFuGdpmQuFw==}
     engines: {node: ^16.10.0 || ^18.12.0 || >=20.0.0}
     hasBin: true
@@ -2677,10 +2673,10 @@ packages:
       node-notifier:
         optional: true
     dependencies:
-      '@jest/core': 30.0.0-alpha.3(ts-node@10.9.2)
+      '@jest/core': 30.0.0-alpha.3
       '@jest/types': 30.0.0-alpha.3
       import-local: 3.1.0
-      jest-cli: 30.0.0-alpha.3(@types/node@20.12.7)(ts-node@10.9.2)
+      jest-cli: 30.0.0-alpha.3(@types/node@20.12.7)
     transitivePeerDependencies:
       - '@types/node'
       - babel-plugin-macros
@@ -3526,7 +3522,7 @@ packages:
       '@babel/core': 7.24.4
       bs-logger: 0.2.6
       fast-json-stable-stringify: 2.1.0
-      jest: 30.0.0-alpha.3(@types/node@20.12.7)(ts-node@10.9.2)
+      jest: 30.0.0-alpha.3(@types/node@20.12.7)
       jest-util: 29.7.0
       json5: 2.2.3
       lodash.memoize: 4.1.2
