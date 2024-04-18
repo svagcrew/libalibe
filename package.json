@@ -24,12 +24,12 @@
     "dist/**/*"
   ],
   "scripts": {
-    "prepare": "ts-patch install -s",
     "lint": "svag-lint lint",
     "prettify": "svag-prettier prettify",
-    "types": "tsc --noEmit",
-    "build": "rimraf ./dist && tsc --build",
-    "watch": "tsc --watch --preserveWatchOutput --pretty"
+    "types": "svag-ts types",
+    "build": "svag-ts build",
+    "watch": "svag-ts watch",
+    "prepare": "ts-patch install -s"
   },
   "dependencies": {
     "concurrently": "^8.2.2",
@@ -52,11 +52,13 @@
     "@types/readline-sync": "^1.4.8",
     "@types/semver": "^7.5.8",
     "@types/yargs": "^17.0.32",
+    "cross-env": "^7.0.3",
     "prettier": "^3.2.5",
     "rimraf": "^5.0.5",
     "svag-lint": "^0.1.11",
     "svag-prettier": "^0.1.6",
     "svag-ts": "^0.1.10",
+    "ts-node-dev": "^2.0.0",
     "ts-patch": "^3.1.2",
     "type-fest": "^4.15.0"
   }

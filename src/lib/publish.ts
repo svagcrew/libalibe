@@ -41,7 +41,7 @@ ${commitableText}`)
     defaultInput: 'Small fix',
   })
   await addAllAndCommit({ cwd, message })
-  log.toMemory.green(`${cwd}: commited (${message})`)
+  log.toMemory.black(`${cwd}: commited (${message})`)
   return { commited: true, message }
 }
 
@@ -53,7 +53,7 @@ const commitIfNeededWithMessage = async ({ cwd, message }: { cwd: string; messag
   log.green(`${cwd}: commiting (${message})
 ${commitableText}`)
   await addAllAndCommit({ cwd, message })
-  log.toMemory.green(`${cwd}: commited (${message})`)
+  log.toMemory.black(`${cwd}: commited (${message})`)
   return { commited: true, message }
 }
 
@@ -81,7 +81,7 @@ export const buildBumpPushPublish = async ({
   await spawn({ cwd, command: `git push origin master` })
   log.green(`${cwd}: publishing`)
   await spawn({ cwd, command: `pnpm publish` })
-  log.toMemory.green(`${cwd}: published ${oldVersion}→${newVersion}`)
+  log.toMemory.black(`${cwd}: published ${oldVersion}→${newVersion}`)
 }
 
 export const commitBuildBumpPushPublish = async ({ cwd, message }: { cwd: string; message: string }) => {
@@ -89,7 +89,7 @@ export const commitBuildBumpPushPublish = async ({ cwd, message }: { cwd: string
   log.green(`${cwd}: commiting (${message})`)
   await spawn({ cwd, command: `git add -A` })
   await spawn({ cwd, command: `git commit -m "${message}"` })
-  log.toMemory.green(`${cwd}: Ccmmited (${message})`)
+  log.toMemory.black(`${cwd}: Ccmmited (${message})`)
   await buildBumpPushPublish({ cwd })
 }
 

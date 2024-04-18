@@ -29,7 +29,7 @@ export const buildRecursive = async ({ cwd }: { cwd: string }) => {
     if (buildable) {
       log.green(`Building ${libPackagePath}`)
       await build({ cwd: libPackagePath })
-      log.toMemory.green(`Built ${libPackagePath}`)
+      log.toMemory.black(`Built ${libPackagePath}`)
     }
   }
 }

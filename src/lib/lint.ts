@@ -33,7 +33,7 @@ export const lintRecursive = async ({ cwd }: { cwd: string }) => {
     if (lintable) {
       log.green(`Linting ${libPackagePath}`)
       await lint({ cwd: libPackagePath })
-      log.toMemory.green(`Linted ${libPackagePath}`)
+      log.toMemory.black(`Linted ${libPackagePath}`)
     }
   }
 }
@@ -48,7 +48,7 @@ export const lintFixRecursive = async ({ cwd }: { cwd: string }) => {
     if (lintable) {
       log.green(`Linting and fixing ${libPackagePath}`)
       await lintFix({ cwd: libPackagePath })
-      log.toMemory.green(`Linted and fixed ${libPackagePath}`)
+      log.toMemory.black(`Linted and fixed ${libPackagePath}`)
     }
   }
 }
