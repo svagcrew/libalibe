@@ -9,11 +9,11 @@ import {
   commitBuildBumpPushPublish,
   prepareUpdateLinkCommitBuildBumpPushPublishRecursive,
   prepareUpdateLinkCommitBuildBumpPushPublishRecursiveFoxy,
-  updateLinkCommitBuildBumpPushPublishRecursiveFoxy,
-  updateLinkCommitSmallFixBuildBumpPushPublishRecursiveFoxy,
   updateLinkCommitBuildBumpPushPublish,
   updateLinkCommitBuildBumpPushPublishRecursive,
+  updateLinkCommitBuildBumpPushPublishRecursiveFoxy,
   updateLinkCommitSmallFixBuildBumpPushPublishRecursive,
+  updateLinkCommitSmallFixBuildBumpPushPublishRecursiveFoxy,
 } from '@/lib/publish'
 import { pullOrCloneRecursive } from '@/lib/pull'
 import { runCommandRecursive } from '@/lib/run'
