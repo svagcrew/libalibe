@@ -1,3 +1,4 @@
+import { getEnv } from '@/lib/env'
 import fg from 'fast-glob'
 import _ from 'lodash'
 import path from 'path'
@@ -15,9 +16,13 @@ const defaultConfig: Config = {
 
 export const findAllConfigsPaths = async ({ cwd }: { cwd: string }) => {
   const configPaths: string[] = []
+  const LIBALIBE_CONFIG_PATH = getEnv('LIBALIBE_CONFIG_PATH')
+  if (LIBALIBE_CONFIG_PATH) {
+    configPaths.push(LIBALIBE_CONFIG_PATH)
+  }
   let dirPath = path.resolve('/', cwd)
   for (let i = 0; i < 777; i++) {
-    const maybeConfigGlobs = [`${dirPath}/(libalibe.|libalibe.*.)(js|ts|yml|yaml|json)`]
+    const maybeConfigGlobs = [`${dirPath}/(libalibe.|libalibe.*.)(js|mjs|ts|yml|yaml|json)`]
     const maybeConfigPath = (
       await fg(maybeConfigGlobs, {
         onlyFiles: true,

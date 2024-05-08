@@ -36,6 +36,7 @@
   "dependencies": {
     "concurrently": "^8.2.2",
     "dedent": "^1.5.3",
+    "dotenv": "^16.4.5",
     "fast-glob": "^3.3.2",
     "js-yaml": "^4.1.0",
     "lodash": "^4.17.21",
