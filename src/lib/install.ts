@@ -1,7 +1,14 @@
-import { log, spawn } from 'svag-cli-utils'
+import { getAllPackageJsonPaths, log, spawn } from 'svag-cli-utils'
 import { getSuitableLibPackages } from '@/lib/utils'
 
 export const update = async ({ cwd }: { cwd: string }) => {
+  const { allPackageJsonsPathsAndDirs } = await getAllPackageJsonPaths({ cwd })
+  for (const { packageJsonDir } of allPackageJsonsPathsAndDirs) {
+    await updateCurrent({ cwd: packageJsonDir })
+  }
+}
+
+export const updateCurrent = async ({ cwd }: { cwd: string }) => {
   const { suitableProdPackagesNames, suitableDevPackagesNames } = await getSuitableLibPackages({ cwd })
   if (!suitableProdPackagesNames.length && !suitableDevPackagesNames.length) {
     log.green(`${cwd}: nothing to install`)
