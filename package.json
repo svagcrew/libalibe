@@ -17,6 +17,7 @@
   "publishConfig": {
     "access": "public"
   },
+  "type": "module",
   "bin": {
     "lili": "./bin/index.js"
   },
@@ -30,8 +31,8 @@
     "prettify": "svag-prettier prettify",
     "types": "svag-ts types",
     "watch": "svag-ts watch",
-    "test": "jest",
-    "prepare": "ts-patch install -s && husky"
+    "test": "NODE_OPTIONS=--experimental-vm-modules jest",
+    "prepare": "husky"
   },
   "dependencies": {
     "concurrently": "^8.2.2",
@@ -43,7 +44,7 @@
     "picocolors": "^1.0.0",
     "readline-sync": "^1.4.10",
     "semver": "^7.6.0",
-    "svag-cli-utils": "^0.1.25",
+    "svag-cli-utils": "^0.1.45",
     "typescript": "^5.4.5",
     "yargs": "^17.7.2",
     "zod": "^3.22.4"
@@ -60,15 +61,13 @@
     "jest": "30.0.0-alpha.3",
     "prettier": "^3.2.5",
     "rimraf": "^5.0.5",
-    "svag-husky": "^0.1.6",
-    "svag-jest": "^0.1.25",
-    "svag-lint": "^0.1.29",
-    "svag-prettier": "^0.1.21",
-    "svag-ts": "^0.1.25",
+    "svag-husky": "^0.1.27",
+    "svag-jest": "^0.1.28",
+    "svag-lint": "^0.1.50",
+    "svag-prettier": "^0.1.41",
+    "svag-ts": "^0.1.46",
     "ts-jest": "^29.1.2",
-    "ts-node-dev": "^2.0.0",
-    "ts-patch": "^3.1.2",
-    "type-fest": "^4.15.0",
-    "typescript-transform-paths": "^3.4.7"
+    "tsc-alias": "^1.8.10",
+    "type-fest": "^4.15.0"
   }
 }

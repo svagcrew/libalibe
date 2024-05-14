@@ -55,10 +55,18 @@ export const getLibPackagePath = async ({ cwd, libPackageName }: { cwd: string; 
   return { libPackagePath }
 }
 
-export const getLibPackageJsonData = async ({ cwd, libPackageName }: { cwd: string; libPackageName: string }) => {
+export const getLibPackageJsonData = async ({
+  cwd,
+  libPackageName,
+}: {
+  cwd: string
+  libPackageName: string
+}): Promise<{
+  libPackageJsonData: PackageJson
+}> => {
   const { libPackagePath } = await getLibPackagePath({ cwd, libPackageName })
   const { packageJsonData: libPackageJsonData } = await getPackageJson({ cwd: libPackagePath })
-  return { libPackageJsonData }
+  return { libPackageJsonData } as { libPackageJsonData: PackageJson }
 }
 
 export const isSuitableLibPackageActual = async ({
@@ -86,8 +94,8 @@ export const isSuitableLibPackageActual = async ({
   if (!libPackageJsonData.version) {
     return { suitableLibPackageActual: false }
   }
-  const projectPackageJsonDataLibalibe = projectPackageJsonData.libalibe as PackageJsonDataLibalibe
-  const libPackageJsonDataLibalibe = libPackageJsonData.libalibe as PackageJsonDataLibalibe
+  const projectPackageJsonDataLibalibe = (projectPackageJsonData as any).libalibe as PackageJsonDataLibalibe
+  const libPackageJsonDataLibalibe = (libPackageJsonData as any).libalibe as PackageJsonDataLibalibe
   const { libPackagesData } = await getOrderedLibPackagesData({ cwd })
   const libPackageData = libPackagesData.find((pkg) => pkg.libPackageName === libPackageName)
   if (!libPackageData) {
@@ -281,7 +289,11 @@ export const getOrderedLibPackagesData = async ({
     const existsInInclude = !include || include.includes(libPackageName)
     const notExistsInExclude = !exclude || !exclude.includes(libPackageName)
     if (existsInInclude && notExistsInExclude) {
-      libPackagesDataNonOrdered.push({ libPackageName, libPackagePath, libPackageJsonData })
+      libPackagesDataNonOrdered.push({
+        libPackageName,
+        libPackagePath,
+        libPackageJsonData: libPackageJsonData as PackageJson,
+      })
     }
   }
   const { libPackagesDataOrdered } = orderLibPackagesFromDependsOnToDependent({

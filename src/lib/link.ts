@@ -1,7 +1,14 @@
-import { log, spawn } from 'svag-cli-utils'
 import { getOrderedLibPackagesData, getSuitableLibPackages } from '@/lib/utils'
+import { getAllPackageJsonPaths, log, spawn } from 'svag-cli-utils'
 
 export const link = async ({ cwd }: { cwd: string }) => {
+  const { allPackageJsonsPathsAndDirs } = await getAllPackageJsonPaths({ cwd })
+  for (const { packageJsonDir } of allPackageJsonsPathsAndDirs) {
+    await linkCurrent({ cwd: packageJsonDir })
+  }
+}
+
+export const linkCurrent = async ({ cwd }: { cwd: string }) => {
   const { suitablePackagesNames } = await getSuitableLibPackages({ cwd })
   if (suitablePackagesNames.length) {
     // wait 100ms for safety
