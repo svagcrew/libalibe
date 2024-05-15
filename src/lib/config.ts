@@ -1,8 +1,9 @@
 import { getEnv } from '@/lib/env'
 import fg from 'fast-glob'
+import fs from 'fs/promises'
 import _ from 'lodash'
 import path from 'path'
-import { getDataFromFile, stringsToLikeArrayString } from 'svag-cli-utils'
+import { getDataFromFile, getPackageJson, stringsToLikeArrayString } from 'svag-cli-utils'
 import { z } from 'zod'
 
 const zConfigInput = z.object({
@@ -34,11 +35,11 @@ export const findAllConfigsPaths = async ({ cwd }: { cwd: string }) => {
     }
     const parentDirPath = path.resolve(dirPath, '..')
     if (dirPath === parentDirPath) {
-      return { configPaths }
+      return { configPaths: [...new Set(configPaths)] }
     }
     dirPath = parentDirPath
   }
-  return { configPaths }
+  return { configPaths: [...new Set(configPaths)] }
 }
 
 export const getConfig = async ({ cwd }: { cwd: string }): Promise<{ config: Config }> => {
@@ -56,4 +57,21 @@ export const getConfig = async ({ cwd }: { cwd: string }): Promise<{ config: Con
     throw new Error(`Invalid config files: "${stringsToLikeArrayString(configPaths)}"`)
   }
   return { config: configMergedValidated.data }
+}
+
+export const addItemToConfig = async ({ projectPath }: { projectPath: string }) => {
+  const { configPaths } = await findAllConfigsPaths({ cwd: projectPath })
+  const configPath = configPaths[0]
+  const configRaw = await getDataFromFile({ filePath: configPath })
+  const configValidated = zConfigInput.safeParse(configRaw)
+  if (!configValidated.success) {
+    throw new Error(`Invalid config file: "${configPath}"`)
+  }
+  const config = configValidated.data
+  const { packageJsonData } = await getPackageJson({ cwd: projectPath })
+  if (!packageJsonData.name) {
+    throw new Error('No name in package.json')
+  }
+  config.items[packageJsonData.name] = projectPath
+  await fs.writeFile(configPath, JSON.stringify(config, null, 2))
 }

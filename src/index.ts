@@ -1,4 +1,5 @@
 import { buildRecursive } from '@/lib/build'
+import { addItemToConfig } from '@/lib/config'
 import { edit } from '@/lib/edit'
 import { execCommandRecursive } from '@/lib/exec'
 import { update } from '@/lib/install'
@@ -16,11 +17,12 @@ import {
   updateLinkCommitSmallFixBuildBumpPushPublishRecursiveFoxy,
 } from '@/lib/publish'
 import { pullOrCloneRecursive } from '@/lib/pull'
+import { addRemoteOrigin, createRemoteRepo } from '@/lib/remote'
 import { runCommandRecursive } from '@/lib/run'
 import { typecheckRecursive } from '@/lib/types'
 import { watchRecursiveConcurrently } from '@/lib/watch'
 import dedent from 'dedent'
-import { defineCliApp, log, spawn } from 'svag-cli-utils'
+import { defineCliApp, getFlagAsBoolean, getFlagAsString, log, spawn } from 'svag-cli-utils'
 
 defineCliApp(async ({ args, command, cwd, flags, argr }) => {
   switch (command) {
@@ -68,6 +70,52 @@ defineCliApp(async ({ args, command, cwd, flags, argr }) => {
     case 'u':
       await update({ cwd })
       break
+    case 'create-remote':
+    case 'cr': {
+      const isPrivate = getFlagAsBoolean({ flags, keys: ['private', 'p'], coalesce: false })
+      const githubOrganization = getFlagAsString({ flags, keys: ['org', 'o'], coalesce: undefined })
+      const githubToken = getFlagAsString({ flags, keys: ['token', 't'], coalesce: undefined })
+      const repositoryName = getFlagAsString({ flags, keys: ['name', 'n'], coalesce: undefined })
+      await createRemoteRepo({
+        cwd,
+        repositoryName,
+        githubOrganization: githubOrganization,
+        githubToken,
+        isPublic: !isPrivate,
+      })
+      await addRemoteOrigin({ cwd, githubOrganization, repositoryName })
+      break
+    }
+    case 'add-to-libalibe-config':
+    case 'al': {
+      await addItemToConfig({ projectPath: args[0] || cwd })
+      break
+    }
+    case 'add-to-workspace':
+    case 'aw': {
+      await spawn({
+        cwd,
+        command: `code --add ${args[0] || cwd}`,
+        exitOnFailure: true,
+      })
+      break
+    }
+    case 'link-remote-config-workspace':
+    case 'init': {
+      await link({ cwd })
+      await createRemoteRepo({
+        cwd,
+        isPublic: true,
+      })
+      await addRemoteOrigin({ cwd })
+      await addItemToConfig({ projectPath: cwd })
+      await spawn({
+        cwd,
+        command: `code --add ${args[0] || cwd}`,
+        exitOnFailure: true,
+      })
+      break
+    }
     case 'ul':
       await update({ cwd })
       await link({ cwd })

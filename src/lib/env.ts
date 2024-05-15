@@ -23,12 +23,14 @@ if (envFilePath) {
 
 const zEnv = z.object({
   LIBALIBE_CONFIG_PATH: z.string().optional(),
+  GITHUB_TOKEN: z.string().optional(),
 })
 
 type Env = z.infer<typeof zEnv>
 
 export const envRaw = {
   LIBALIBE_CONFIG_PATH: process.env.LIBALIBE_CONFIG_PATH,
+  GITHUB_TOKEN: process.env.GITHUB_TOKEN,
 }
 
 export const validateEnv = () => {
