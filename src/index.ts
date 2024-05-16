@@ -13,12 +13,14 @@ import {
   updateLinkCommitBuildBumpPushPublish,
   updateLinkCommitBuildBumpPushPublishRecursive,
   updateLinkCommitBuildBumpPushPublishRecursiveFoxy,
+  updateLinkCommitSmallFixBuildBumpPushPublish,
   updateLinkCommitSmallFixBuildBumpPushPublishRecursive,
   updateLinkCommitSmallFixBuildBumpPushPublishRecursiveFoxy,
 } from '@/lib/publish'
 import { pullOrCloneRecursive } from '@/lib/pull'
 import { addRemoteOrigin, createRemoteRepo } from '@/lib/remote'
 import { runCommandRecursive } from '@/lib/run'
+import { testItRecursive } from '@/lib/testcmd'
 import { typecheckRecursive } from '@/lib/types'
 import { watchRecursiveConcurrently } from '@/lib/watch'
 import dedent from 'dedent'
@@ -64,6 +66,14 @@ defineCliApp(async ({ args, command, cwd, flags, argr }) => {
     case 'lintfixr':
       await lintFixRecursive({ cwd })
       break
+    case 'testr':
+      await testItRecursive({ cwd })
+      break
+    case 'checkr':
+      await typecheckRecursive({ cwd })
+      await lintFixRecursive({ cwd })
+      await testItRecursive({ cwd })
+      break
     case 'edit':
       await edit({ cwd })
       break
@@ -103,6 +113,7 @@ defineCliApp(async ({ args, command, cwd, flags, argr }) => {
     case 'link-remote-config-workspace':
     case 'init': {
       await link({ cwd })
+      await linkGlobal({ cwd })
       await createRemoteRepo({
         cwd,
         isPublic: true,
@@ -114,6 +125,7 @@ defineCliApp(async ({ args, command, cwd, flags, argr }) => {
         command: `code --add ${args[0] || cwd}`,
         exitOnFailure: true,
       })
+      await updateLinkCommitSmallFixBuildBumpPushPublish({ cwd })
       break
     }
     case 'ul':

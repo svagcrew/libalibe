@@ -1,9 +1,9 @@
 import * as dotenv from 'dotenv'
-import path from 'path'
-import z from 'zod'
 import fs from 'fs'
-import { fileURLToPath } from 'url'
-const __dirname = path.dirname(fileURLToPath(import.meta.url))
+import path from 'path'
+import { get__dirname } from 'svag-esm'
+import z from 'zod'
+const __dirname = get__dirname(import.meta)
 
 const findEnvFilePath = (dir: string, pathPart: string): string | null => {
   const maybeEnvFilePath = path.join(dir, pathPart)

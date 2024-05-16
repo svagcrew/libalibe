@@ -1,8 +1,7 @@
 import { getOrderedLibPackagesData, LibPackageData } from '@/lib/utils'
-import path from 'path'
 import { getPackageJson, spawn } from 'svag-cli-utils'
-import { fileURLToPath } from 'url'
-const __dirname = path.dirname(fileURLToPath(import.meta.url))
+import { get__dirname } from 'svag-esm'
+const __dirname = get__dirname(import.meta)
 
 export const isWatchable = async ({ cwd }: { cwd: string }) => {
   const { packageJsonData } = await getPackageJson({ cwd })
