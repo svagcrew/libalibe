@@ -22,8 +22,9 @@
     "lili": "./bin/index.js"
   },
   "files": [
-    "./bin/**/*",
-    "./dist/**/*"
+    "./src/**/*",
+    "./dist/**/*",
+    "./bin/**/*"
   ],
   "scripts": {
     "build": "svag-ts build",
@@ -46,8 +47,8 @@
     "picocolors": "^1.0.0",
     "readline-sync": "^1.4.10",
     "semver": "^7.6.0",
-    "svag-cli-utils": "^0.1.49",
-    "svag-esm": "^0.1.4",
+    "svag-cli-utils": "^0.1.53",
+    "svag-esm": "^0.1.5",
     "typescript": "^5.4.5",
     "yargs": "^17.7.2",
     "zod": "^3.22.4"
@@ -64,11 +65,11 @@
     "jest": "30.0.0-alpha.3",
     "prettier": "^3.2.5",
     "rimraf": "^5.0.5",
-    "svag-husky": "^0.1.31",
-    "svag-jest": "^0.1.32",
-    "svag-lint": "^0.1.54",
-    "svag-prettier": "^0.1.45",
-    "svag-ts": "^0.1.50",
+    "svag-husky": "^0.1.35",
+    "svag-jest": "^0.1.33",
+    "svag-lint": "^0.1.58",
+    "svag-prettier": "^0.1.49",
+    "svag-ts": "^0.1.54",
     "ts-jest": "^29.1.2",
     "tsc-alias": "^1.8.10",
     "type-fest": "^4.15.0"
