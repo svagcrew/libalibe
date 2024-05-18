@@ -1,5 +1,5 @@
-import { getAllPackageJsonPaths, log, spawn } from 'svag-cli-utils'
 import { getSuitableLibPackages } from '@/lib/utils'
+import { getAllPackageJsonPaths, log, spawn } from 'svag-cli-utils'
 
 export const update = async ({ cwd }: { cwd: string }) => {
   const { allPackageJsonsPathsAndDirs } = await getAllPackageJsonPaths({ cwd })

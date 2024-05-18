@@ -2,7 +2,7 @@ import { getConfig } from '@/lib/config'
 import _ from 'lodash'
 import semver from 'semver'
 import { createDir, exec, getPackageJson, isDirExists } from 'svag-cli-utils'
-import { PackageJson } from 'type-fest'
+import type { PackageJson } from 'type-fest'
 
 export type PackageJsonDataLibalibe =
   | {
@@ -33,8 +33,8 @@ export const getSuitableLibPackages = async ({ cwd }: { cwd: string }) => {
   )
   const suitablePackagesWithVersion = Object.fromEntries(
     Object.entries({
-      ...(projectPackageJsonData.devDependencies || {}),
-      ...(projectPackageJsonData.dependencies || {}),
+      ...projectPackageJsonData.devDependencies,
+      ...projectPackageJsonData.dependencies,
     }).filter(([key]) => suitablePackagesNames.includes(key))
   )
   return {
@@ -200,20 +200,20 @@ const isLibPackageCircularDependency = ({
         }).thisLibPackageDependencyOfThatLibPackage
     )
 
-    dependencies.forEach((dep) => {
+    for (const dep of dependencies) {
       const depIndex = libPackagesData.indexOf(dep)
       visit(depIndex)
       if (hasCycle) {
-        return
+        continue
       }
-    })
+    }
 
     onStack.delete(nodeIndex)
   }
 
-  const nodeIndex = libPackagesData.indexOf(libPackageData)
-  if (nodeIndex > -1) {
-    visit(nodeIndex)
+  const nodeIndexOutside = libPackagesData.indexOf(libPackageData)
+  if (nodeIndexOutside > -1) {
+    visit(nodeIndexOutside)
   }
   return hasCycle
 }
@@ -230,8 +230,8 @@ export const orderLibPackagesFromDependsOnToDependent = ({
   })) as LibPackageDataExtended[]
 
   // TODO: check if this is correct
-  const getOrderString = (libPackagesData: LibPackageData[]) => {
-    return libPackagesData.map(({ libPackageName }) => libPackageName).join('|')
+  const getOrderString = (libPackagesDataInside: LibPackageData[]) => {
+    return libPackagesDataInside.map(({ libPackageName }) => libPackageName).join('|')
   }
   const knownOrders = [getOrderString(libPackagesDataExtended)]
   for (let i = 0; i < libPackagesDataExtended.length; i++) {
@@ -287,7 +287,7 @@ export const getOrderedLibPackagesData = async ({
   for (const [libPackageName, libPackagePath] of Object.entries(config.items)) {
     const { packageJsonData: libPackageJsonData } = await getPackageJson({ cwd: libPackagePath })
     const existsInInclude = !include || include.includes(libPackageName)
-    const notExistsInExclude = !exclude || !exclude.includes(libPackageName)
+    const notExistsInExclude = !exclude?.includes(libPackageName)
     if (existsInInclude && notExistsInExclude) {
       libPackagesDataNonOrdered.push({
         libPackageName,
@@ -333,7 +333,7 @@ export const isGitRepo = async ({ cwd }: { cwd: string }) => {
   try {
     await exec({ cwd, command: `git status --porcelain` })
     return { gitRepo: true }
-  } catch (error) {
+  } catch {
     return { gitRepo: false }
   }
 }

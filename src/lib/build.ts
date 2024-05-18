@@ -1,5 +1,5 @@
-import { getPackageJson, log, spawn } from 'svag-cli-utils'
 import { getOrderedLibPackagesData } from '@/lib/utils'
+import { getPackageJson, log, spawn } from 'svag-cli-utils'
 
 export const build = async ({ cwd }: { cwd: string }) => {
   await spawn({ cwd, command: 'pnpm build' })

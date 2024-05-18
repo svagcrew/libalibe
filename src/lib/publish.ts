@@ -5,7 +5,7 @@ import {
   getOrderedLibPackagesData,
   isCommitable,
   isSuitableLibPackagesActual,
-  LibPackageDataExtended,
+  type LibPackageDataExtended,
   throwIfNotMasterBaranch,
 } from '@/lib/utils'
 import readlineSync from 'readline-sync'
@@ -236,7 +236,6 @@ export const prepareUpdateLinkCommitBuildBumpPushPublishRecursive = async ({
   }
   if (nothingToCommitAndPublish) {
     log.green(`nothing to commit and publish`)
-    return
   }
 }
 

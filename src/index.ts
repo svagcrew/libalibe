@@ -89,7 +89,7 @@ defineCliApp(async ({ args, command, cwd, flags, argr }) => {
       await createRemoteRepo({
         cwd,
         repositoryName,
-        githubOrganization: githubOrganization,
+        githubOrganization,
         githubToken,
         isPublic: !isPrivate,
       })

@@ -1,4 +1,4 @@
-import { getOrderedLibPackagesData, LibPackageData } from '@/lib/utils'
+import { getOrderedLibPackagesData, type LibPackageData } from '@/lib/utils'
 import { getPackageJson, spawn } from 'svag-cli-utils'
 import { get__dirname } from 'svag-esm'
 const __dirname = get__dirname(import.meta)
@@ -13,6 +13,7 @@ export const watchRecursiveConcurrently = async ({ cwd }: { cwd: string }) => {
   if (!libPackagesData.length) {
     throw new Error('No packages found')
   }
+
   const watchableLibPackagesData: LibPackageData[] = []
   for (const libPackageData of libPackagesData) {
     const { watchable } = await isWatchable({ cwd: libPackageData.libPackagePath })
@@ -23,6 +24,7 @@ export const watchRecursiveConcurrently = async ({ cwd }: { cwd: string }) => {
   if (!watchableLibPackagesData.length) {
     throw new Error('No watchable packages found')
   }
+
   const commands = watchableLibPackagesData
     .map(({ libPackagePath }) => `"cd ${libPackagePath} && pnpm watch"`)
     .join(' ')
