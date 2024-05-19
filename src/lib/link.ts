@@ -11,9 +11,12 @@ export const link = async ({ cwd }: { cwd: string }) => {
 export const linkCurrent = async ({ cwd }: { cwd: string }) => {
   const { suitablePackagesNames } = await getSuitableLibPackages({ cwd })
   if (suitablePackagesNames.length) {
-    // wait 100ms for safety
-    await new Promise((resolve) => setTimeout(resolve, 100))
-    await spawn({ cwd, command: `pnpm link -g ${suitablePackagesNames.join(' ')}` })
+    // wait 300ms for safety
+    await new Promise((resolve) => setTimeout(resolve, 300))
+    // for (const suitablePackageName of suitablePackagesNames) {
+    //   await spawn({ cwd, command: `pnpm link --color -g ${suitablePackageName}` })
+    // }
+    await spawn({ cwd, command: `pnpm link --color -g ${suitablePackagesNames.join(' ')}` })
   } else {
     log.green(`${cwd}: nothing to link`)
   }
