@@ -32,7 +32,7 @@
     "prettify": "svag-prettier prettify",
     "types": "svag-ts types",
     "watch": "svag-ts watch",
-    "test": "cross-env NODE_OPTIONS=--experimental-vm-modules jest",
+    "test": "svag-jest test",
     "prepare": "husky"
   },
   "dependencies": {
@@ -48,7 +48,7 @@
     "readline-sync": "^1.4.10",
     "semver": "^7.6.0",
     "svag-cli-utils": "^0.1.57",
-    "svag-esm": "^0.1.7",
+    "svag-esm": "^0.1.8",
     "typescript": "^5.4.5",
     "yargs": "^17.7.2",
     "zod": "^3.22.4"
@@ -66,7 +66,7 @@
     "prettier": "^3.2.5",
     "rimraf": "^5.0.5",
     "svag-husky": "^0.1.39",
-    "svag-jest": "^0.1.35",
+    "svag-jest": "^0.1.36",
     "svag-lint": "^0.1.62",
     "svag-prettier": "^0.1.53",
     "svag-ts": "^0.1.58",

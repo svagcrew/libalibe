@@ -30,7 +30,7 @@ export const testItRecursive = async ({ cwd }: { cwd: string }) => {
     if (testable) {
       log.green(`Testing ${libPackagePath}`)
       await testIt({ cwd: libPackagePath })
-      log.toMemory.black(`Typechecked ${libPackagePath}`)
+      log.toMemory.black(`Tested ${libPackagePath}`)
     }
   }
 }

@@ -42,8 +42,8 @@ dependencies:
     specifier: ^0.1.57
     version: 0.1.57(@types/node@20.12.11)
   svag-esm:
-    specifier: ^0.1.7
-    version: 0.1.7
+    specifier: ^0.1.8
+    version: 0.1.8
   typescript:
     specifier: ^5.4.5
     version: 5.4.5
@@ -92,8 +92,8 @@ devDependencies:
     specifier: ^0.1.39
     version: 0.1.39(@types/node@20.12.11)
   svag-jest:
-    specifier: ^0.1.35
-    version: 0.1.35(@babel/core@7.24.4)(@types/node@20.12.11)(jest@30.0.0-alpha.3)
+    specifier: ^0.1.36
+    version: 0.1.36(@babel/core@7.24.4)(@types/node@20.12.11)(jest@30.0.0-alpha.3)
   svag-lint:
     specifier: ^0.1.62
     version: 0.1.62(@babel/plugin-syntax-flow@7.24.1)(@babel/plugin-transform-react-jsx@7.23.4)(@types/node@20.12.11)(jest@30.0.0-alpha.3)(prettier@3.2.5)
@@ -6330,8 +6330,8 @@ packages:
       - '@types/node'
       - babel-plugin-macros
 
-  /svag-esm@0.1.7:
-    resolution: {integrity: sha512-sa4xiGbZ/VuPGCPzQ0XJAPKgKnVpP1oxdg6HYTRssBHtGSBMoX1nnbMveQS5/fh3g80WD4PGyh0EqeDXWm7pdw==}
+  /svag-esm@0.1.8:
+    resolution: {integrity: sha512-8qEht10RcmCUgaKq0ldnXXMgOTLHBC4UfElGNWg3kzTVR64HsgvE0dFUop/s28kKBTo3HaUelgsQ9xxZg2kRIg==}
     dev: false
 
   /svag-husky@0.1.39(@types/node@20.12.11):
@@ -6351,8 +6351,8 @@ packages:
       - babel-plugin-macros
     dev: true
 
-  /svag-jest@0.1.35(@babel/core@7.24.4)(@types/node@20.12.11)(jest@30.0.0-alpha.3):
-    resolution: {integrity: sha512-Pibh6NSSDQxAX9cu8HNQYS9olILyZaaCH90c0wjUuM6JPz6fgDfpsYv/E7I/U0Du+v0GaplfyiQ2Z5GH/usjfQ==}
+  /svag-jest@0.1.36(@babel/core@7.24.4)(@types/node@20.12.11)(jest@30.0.0-alpha.3):
+    resolution: {integrity: sha512-eNOsdk8sDNuXUVG4WoDVaqMOaC2BO6nt6qpjfCtyNHExQgkZBNPFadpRVBUH5SyILpFYVvZGh4N4gIV00VgTJw==}
     hasBin: true
     dependencies:
       dedent: 1.5.3
