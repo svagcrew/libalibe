@@ -1,4 +1,4 @@
-import { getEnv } from '@/lib/env'
+import { getEnv } from '@/lib/env.js'
 import fg from 'fast-glob'
 import fs from 'fs/promises'
 import _ from 'lodash'

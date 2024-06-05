@@ -1,4 +1,4 @@
-import { getOrderedLibPackagesData } from '@/lib/utils'
+import { getOrderedLibPackagesData } from '@/lib/utils.js'
 import { log, spawn } from 'svag-cli-utils'
 
 export const execCommandRecursive = async ({ cwd, command }: { cwd: string; command: string }) => {

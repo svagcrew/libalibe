@@ -1,4 +1,4 @@
-import { getConfig } from '@/lib/config'
+import { getConfig } from '@/lib/config.js'
 import _ from 'lodash'
 import semver from 'semver'
 import { createDir, exec, getPackageJson, isDirExists } from 'svag-cli-utils'

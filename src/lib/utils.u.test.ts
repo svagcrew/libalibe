@@ -1,4 +1,4 @@
-import { orderLibPackagesFromDependsOnToDependent } from '@/lib/utils'
+import { orderLibPackagesFromDependsOnToDependent } from '@/lib/utils.js'
 
 describe('utils', () => {
   it('test', () => {

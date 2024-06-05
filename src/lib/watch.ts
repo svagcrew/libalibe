@@ -1,4 +1,4 @@
-import { getOrderedLibPackagesData, type LibPackageData } from '@/lib/utils'
+import { getOrderedLibPackagesData, type LibPackageData } from '@/lib/utils.js'
 import { getPackageJson, spawn } from 'svag-cli-utils'
 import { get__dirname } from 'svag-esm'
 const __dirname = get__dirname(import.meta)

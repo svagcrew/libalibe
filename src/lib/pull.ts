@@ -1,5 +1,5 @@
-import { getConfig } from '@/lib/config'
-import { createDirIfNotExists, isCommitable, isGitRepo } from '@/lib/utils'
+import { getConfig } from '@/lib/config.js'
+import { createDirIfNotExists, isCommitable, isGitRepo } from '@/lib/utils.js'
 import { exec, getDirInfo, isDirExists, spawn } from 'svag-cli-utils'
 
 const pull = async ({ cwd }: { cwd: string }) => {

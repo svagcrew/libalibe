@@ -1,10 +1,10 @@
-import { buildRecursive } from '@/lib/build'
-import { addItemToConfig } from '@/lib/config'
-import { edit } from '@/lib/edit'
-import { execCommandRecursive } from '@/lib/exec'
-import { update } from '@/lib/install'
-import { link, linkGlobal, linkGlobalRecursive, linkRecursive, unlink } from '@/lib/link'
-import { lintFixRecursive, lintRecursive } from '@/lib/lint'
+import { buildRecursive } from '@/lib/build.js'
+import { addItemToConfig } from '@/lib/config.js'
+import { edit } from '@/lib/edit.js'
+import { execCommandRecursive } from '@/lib/exec.js'
+import { update } from '@/lib/install.js'
+import { link, linkGlobal, linkGlobalRecursive, linkRecursive, unlink } from '@/lib/link.js'
+import { lintFixRecursive, lintRecursive } from '@/lib/lint.js'
 import {
   buildBumpPushPublish,
   commitBuildBumpPushPublish,
@@ -16,13 +16,13 @@ import {
   updateLinkCommitSmallFixBuildBumpPushPublish,
   updateLinkCommitSmallFixBuildBumpPushPublishRecursive,
   updateLinkCommitSmallFixBuildBumpPushPublishRecursiveFoxy,
-} from '@/lib/publish'
-import { pullOrCloneRecursive } from '@/lib/pull'
-import { addRemoteOrigin, createRemoteRepo } from '@/lib/remote'
-import { runCommandRecursive } from '@/lib/run'
-import { testItRecursive } from '@/lib/testcmd'
-import { typecheckRecursive } from '@/lib/types'
-import { watchRecursiveConcurrently } from '@/lib/watch'
+} from '@/lib/publish.js'
+import { pullOrCloneRecursive } from '@/lib/pull.js'
+import { addRemoteOrigin, createRemoteRepo } from '@/lib/remote.js'
+import { runCommandRecursive } from '@/lib/run.js'
+import { testItRecursive } from '@/lib/testcmd.js'
+import { typecheckRecursive } from '@/lib/types.js'
+import { watchRecursiveConcurrently } from '@/lib/watch.js'
 import dedent from 'dedent'
 import { defineCliApp, getFlagAsBoolean, getFlagAsString, log, spawn } from 'svag-cli-utils'
 

@@ -1,5 +1,5 @@
-import { getEnv } from '@/lib/env'
-import { isGitRepo } from '@/lib/utils'
+import { getEnv } from '@/lib/env.js'
+import { isGitRepo } from '@/lib/utils.js'
 import axios from 'axios'
 import { getPackageJson, log, spawn } from 'svag-cli-utils'
 

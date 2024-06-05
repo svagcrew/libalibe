@@ -1,4 +1,4 @@
-import { getOrderedLibPackagesData } from '@/lib/utils'
+import { getOrderedLibPackagesData } from '@/lib/utils.js'
 import { getPackageJson, log, spawn } from 'svag-cli-utils'
 
 export const build = async ({ cwd }: { cwd: string }) => {

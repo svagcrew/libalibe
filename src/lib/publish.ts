@@ -1,13 +1,13 @@
-import { build, isBuildable } from '@/lib/build'
-import { update } from '@/lib/install'
-import { link } from '@/lib/link'
+import { build, isBuildable } from '@/lib/build.js'
+import { update } from '@/lib/install.js'
+import { link } from '@/lib/link.js'
 import {
   getOrderedLibPackagesData,
   isCommitable,
   isSuitableLibPackagesActual,
   type LibPackageDataExtended,
   throwIfNotMasterBaranch,
-} from '@/lib/utils'
+} from '@/lib/utils.js'
 import readlineSync from 'readline-sync'
 import { exec, getPackageJson, log, spawn, stringsToLikeArrayString } from 'svag-cli-utils'
 

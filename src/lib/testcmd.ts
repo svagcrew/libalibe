@@ -1,5 +1,5 @@
-import { isRunableCommand } from '@/lib/run'
-import { getOrderedLibPackagesData } from '@/lib/utils'
+import { isRunableCommand } from '@/lib/run.js'
+import { getOrderedLibPackagesData } from '@/lib/utils.js'
 import { log, spawn } from 'svag-cli-utils'
 
 export const testIt = async ({ cwd }: { cwd: string }) => {
