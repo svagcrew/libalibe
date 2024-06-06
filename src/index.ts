@@ -2,6 +2,7 @@ import { buildRecursive } from '@/lib/build.js'
 import { addItemToConfig } from '@/lib/config.js'
 import { edit } from '@/lib/edit.js'
 import { execCommandRecursive } from '@/lib/exec.js'
+import { fixLinkRecursive } from '@/lib/fixlink.js'
 import { update } from '@/lib/install.js'
 import { link, linkGlobal, linkGlobalRecursive, linkRecursive, unlink } from '@/lib/link.js'
 import { lintFixRecursive, lintRecursive } from '@/lib/lint.js'
@@ -66,6 +67,11 @@ defineCliApp(async ({ args, command, cwd, flags, argr }) => {
     case 'lintfixr':
       await lintFixRecursive({ cwd })
       break
+    case 'fixlink':
+    case 'fl': {
+      await fixLinkRecursive({ cwd })
+      break
+    }
     case 'testr':
       await testItRecursive({ cwd })
       break
@@ -223,6 +229,7 @@ defineCliApp(async ({ args, command, cwd, flags, argr }) => {
         link — link packages
         linkr — link packages recursive
         unlink — unlink packages
+        fixlink | fl — link peer deps to project deps
         buildr — build packages recursive
         typesr — typecheck packages recursive
         lintr — lint packages recursive

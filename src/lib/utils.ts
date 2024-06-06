@@ -55,6 +55,16 @@ export const getLibPackagePath = async ({ cwd, libPackageName }: { cwd: string; 
   return { libPackagePath }
 }
 
+export const getLibPackagesPaths = async ({ cwd, libPackagesNames }: { cwd: string; libPackagesNames: string[] }) => {
+  const libPackagesPaths = await Promise.all(
+    libPackagesNames.map(async (libPackageName) => {
+      const { libPackagePath } = await getLibPackagePath({ cwd, libPackageName })
+      return libPackagePath
+    })
+  )
+  return { libPackagesPaths }
+}
+
 export const getLibPackageJsonData = async ({
   cwd,
   libPackageName,
