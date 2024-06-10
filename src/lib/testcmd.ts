@@ -21,16 +21,16 @@ export const testItIfPossible = async ({ cwd }: { cwd: string }) => {
 }
 
 export const testItRecursive = async ({ cwd }: { cwd: string }) => {
-  const { libPackagesData } = await getOrderedRootLibPackagesData({ cwd })
-  if (!libPackagesData.length) {
+  const { rootLibPackagesData } = await getOrderedRootLibPackagesData({ cwd })
+  if (!rootLibPackagesData.length) {
     throw new Error('No packages found')
   }
-  for (const { libPackagePath } of libPackagesData) {
-    const { testable } = await isTestable({ cwd: libPackagePath })
+  for (const { rootLibPackagePath } of rootLibPackagesData) {
+    const { testable } = await isTestable({ cwd: rootLibPackagePath })
     if (testable) {
-      log.green(`Testing ${libPackagePath}`)
-      await testIt({ cwd: libPackagePath })
-      log.toMemory.black(`Tested ${libPackagePath}`)
+      log.green(`Testing ${rootLibPackagePath}`)
+      await testIt({ cwd: rootLibPackagePath })
+      log.toMemory.black(`Tested ${rootLibPackagePath}`)
     }
   }
 }

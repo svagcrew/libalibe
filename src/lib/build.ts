@@ -20,16 +20,16 @@ export const buildIfPossible = async ({ cwd }: { cwd: string }) => {
 }
 
 export const buildRecursive = async ({ cwd }: { cwd: string }) => {
-  const { libPackagesData } = await getOrderedRootLibPackagesData({ cwd })
-  if (!libPackagesData.length) {
+  const { rootLibPackagesData } = await getOrderedRootLibPackagesData({ cwd })
+  if (!rootLibPackagesData.length) {
     throw new Error('No packages found')
   }
-  for (const { libPackagePath } of libPackagesData) {
-    const { buildable } = await isBuildable({ cwd: libPackagePath })
+  for (const { rootLibPackagePath } of rootLibPackagesData) {
+    const { buildable } = await isBuildable({ cwd: rootLibPackagePath })
     if (buildable) {
-      log.green(`Building ${libPackagePath}`)
-      await build({ cwd: libPackagePath })
-      log.toMemory.black(`Built ${libPackagePath}`)
+      log.green(`Building ${rootLibPackagePath}`)
+      await build({ cwd: rootLibPackagePath })
+      log.toMemory.black(`Built ${rootLibPackagePath}`)
     }
   }
 }

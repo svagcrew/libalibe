@@ -28,18 +28,18 @@ export const runCommandIfPossible = async ({
 }
 
 export const runCommandRecursive = async ({ cwd, command, argr }: { cwd: string; command: string; argr: string[] }) => {
-  const { libPackagesData } = await getOrderedRootLibPackagesData({ cwd })
-  if (!libPackagesData.length) {
+  const { rootLibPackagesData } = await getOrderedRootLibPackagesData({ cwd })
+  if (!rootLibPackagesData.length) {
     log.black('No packages found at all')
     return
   }
   let ran = false
-  for (const { libPackagePath } of libPackagesData) {
-    const { runable } = await isRunableCommand({ cwd: libPackagePath, command })
+  for (const { rootLibPackagePath } of rootLibPackagesData) {
+    const { runable } = await isRunableCommand({ cwd: rootLibPackagePath, command })
     if (runable) {
-      log.green(`Running ${libPackagePath}`)
-      await runCommand({ cwd: libPackagePath, command, argr })
-      log.toMemory.black(`Ran ${libPackagePath}`)
+      log.green(`Running ${rootLibPackagePath}`)
+      await runCommand({ cwd: rootLibPackagePath, command, argr })
+      log.toMemory.black(`Ran ${rootLibPackagePath}`)
       ran = true
     }
   }

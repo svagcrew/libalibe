@@ -23,12 +23,12 @@ export const linkCurrent = async ({ cwd }: { cwd: string }) => {
 }
 
 export const linkRecursive = async ({ cwd }: { cwd: string }) => {
-  const { libPackagesData } = await getOrderedRootLibPackagesData({ cwd })
-  if (!libPackagesData.length) {
+  const { rootLibPackagesData } = await getOrderedRootLibPackagesData({ cwd })
+  if (!rootLibPackagesData.length) {
     throw new Error('No packages found')
   }
-  for (const { libPackagePath } of libPackagesData) {
-    await link({ cwd: libPackagePath })
+  for (const { rootLibPackagePath } of rootLibPackagesData) {
+    await link({ cwd: rootLibPackagePath })
   }
 }
 
@@ -40,12 +40,12 @@ export const linkGlobal = async ({ cwd }: { cwd: string }) => {
 }
 
 export const linkGlobalRecursive = async ({ cwd }: { cwd: string }) => {
-  const { libPackagesData } = await getOrderedRootLibPackagesData({ cwd })
-  if (!libPackagesData.length) {
+  const { rootLibPackagesData } = await getOrderedRootLibPackagesData({ cwd })
+  if (!rootLibPackagesData.length) {
     throw new Error('No packages found')
   }
-  for (const { libPackagePath } of libPackagesData) {
-    await linkGlobal({ cwd: libPackagePath })
+  for (const { rootLibPackagePath } of rootLibPackagesData) {
+    await linkGlobal({ cwd: rootLibPackagePath })
   }
 }
 

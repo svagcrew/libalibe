@@ -11,8 +11,12 @@ export type PackageJsonDataLibalibe =
       ignoreDependeciesVersionAccuracy?: string[]
     }
   | undefined
-export type LibPackageData = { libPackageName: string; libPackagePath: string; libPackageJsonData: PackageJson }
-export type LibPackageDataExtended = LibPackageData & {
+export type RootLibPackageData = {
+  rootLibPackageName: string
+  rootLibPackagePath: string
+  rootLibPackageJsonData: PackageJson
+}
+export type RootLibPackageDataExtended = RootLibPackageData & {
   dependency: boolean
   circular: boolean
 }
@@ -133,14 +137,14 @@ export const isSuitableLibPackageActual = async ({
   }
   const projectPackageJsonDataLibalibe = (projectPackageJsonData as any).libalibe as PackageJsonDataLibalibe
   const libPackageJsonDataLibalibe = (libPackageJsonData as any).libalibe as PackageJsonDataLibalibe
-  const { libPackagesData } = await getOrderedRootLibPackagesData({ cwd })
-  const libPackageData = libPackagesData.find((pkg) => pkg.libPackageName === libPackageName)
-  if (!libPackageData) {
+  const { rootLibPackagesData } = await getOrderedRootLibPackagesData({ cwd })
+  const rootLibPackageData = rootLibPackagesData.find((pkg) => pkg.rootLibPackageName === libPackageName)
+  if (!rootLibPackageData) {
     throw new Error(`${cwd}: lib package data not found "${libPackageName}"`)
   }
-  const circular = isLibPackageCircularDependency({
-    libPackageData,
-    libPackagesData,
+  const circular = isRootLibPackageCircularDependency({
+    rootLibPackageData,
+    rootLibPackagesData,
   })
   const ignoreVersionAccuracy =
     projectPackageJsonDataLibalibe?.ignoreDependeciesVersionAccuracy?.includes(libPackageName) ||
@@ -273,18 +277,18 @@ const isRootLibPackageDependencyOfAnother = async ({
   rootLibPackageData,
   rootLibPackagesData,
 }: {
-  rootLibPackageData: LibPackageData
-  rootLibPackagesData: LibPackageData[]
+  rootLibPackageData: RootLibPackageData
+  rootLibPackagesData: RootLibPackageData[]
 }) => {
   let dependenciesCount = 0
   for (const pkg of rootLibPackagesData) {
-    if (pkg.libPackageName === rootLibPackageData.libPackageName) {
+    if (pkg.rootLibPackageName === rootLibPackageData.rootLibPackageName) {
       continue
     }
     const { thisRootLibPackageDependencyOfThatRootLibPackage } =
       await isThisRootLibPackageDependencyOfThatRootLibPackage({
-        thisRootLibPackageJsonDir: rootLibPackageData.libPackagePath,
-        thatRootLibPackageJsonDir: pkg.libPackagePath,
+        thisRootLibPackageJsonDir: rootLibPackageData.rootLibPackagePath,
+        thatRootLibPackageJsonDir: pkg.rootLibPackagePath,
       })
     if (thisRootLibPackageDependencyOfThatRootLibPackage) {
       dependenciesCount++
@@ -293,62 +297,62 @@ const isRootLibPackageDependencyOfAnother = async ({
   return dependenciesCount > 0
 }
 
-const isLibPackageCircularDependency = ({
-  libPackageData,
-  libPackagesData,
-}: {
-  libPackageData: LibPackageData
-  libPackagesData: LibPackageData[]
-}) => {
-  const visited = new Set<number>()
-  const onStack = new Set<number>()
-  let hasCycle = false
+// const isLibPackageCircularDependency = ({
+//   libPackageData,
+//   libPackagesData,
+// }: {
+//   libPackageData: LibPackageData
+//   libPackagesData: LibPackageData[]
+// }) => {
+//   const visited = new Set<number>()
+//   const onStack = new Set<number>()
+//   let hasCycle = false
 
-  const visit = (nodeIndex: number) => {
-    if (onStack.has(nodeIndex)) {
-      hasCycle = true
-      return // Cycle detected
-    }
-    if (visited.has(nodeIndex)) {
-      return // Already processed
-    }
-    visited.add(nodeIndex)
-    onStack.add(nodeIndex)
+//   const visit = (nodeIndex: number) => {
+//     if (onStack.has(nodeIndex)) {
+//       hasCycle = true
+//       return // Cycle detected
+//     }
+//     if (visited.has(nodeIndex)) {
+//       return // Already processed
+//     }
+//     visited.add(nodeIndex)
+//     onStack.add(nodeIndex)
 
-    const currentNode = libPackagesData[nodeIndex]
-    const dependencies = libPackagesData.filter(
-      (pkg, idx) =>
-        idx !== nodeIndex &&
-        isThisLibPackageDependencyOfThatLibPackage({
-          thisLibPackageJsonData: currentNode.libPackageJsonData,
-          thatLibPackageJsonData: pkg.libPackageJsonData,
-        }).thisLibPackageDependencyOfThatLibPackage
-    )
+//     const currentNode = libPackagesData[nodeIndex]
+//     const dependencies = libPackagesData.filter(
+//       (pkg, idx) =>
+//         idx !== nodeIndex &&
+//         isThisLibPackageDependencyOfThatLibPackage({
+//           thisLibPackageJsonData: currentNode.libPackageJsonData,
+//           thatLibPackageJsonData: pkg.libPackageJsonData,
+//         }).thisLibPackageDependencyOfThatLibPackage
+//     )
 
-    for (const dep of dependencies) {
-      const depIndex = libPackagesData.indexOf(dep)
-      visit(depIndex)
-      if (hasCycle) {
-        continue
-      }
-    }
+//     for (const dep of dependencies) {
+//       const depIndex = libPackagesData.indexOf(dep)
+//       visit(depIndex)
+//       if (hasCycle) {
+//         continue
+//       }
+//     }
 
-    onStack.delete(nodeIndex)
-  }
+//     onStack.delete(nodeIndex)
+//   }
 
-  const nodeIndexOutside = libPackagesData.indexOf(libPackageData)
-  if (nodeIndexOutside > -1) {
-    visit(nodeIndexOutside)
-  }
-  return hasCycle
-}
+//   const nodeIndexOutside = libPackagesData.indexOf(libPackageData)
+//   if (nodeIndexOutside > -1) {
+//     visit(nodeIndexOutside)
+//   }
+//   return hasCycle
+// }
 
 const isRootLibPackageCircularDependency = async ({
   rootLibPackageData,
   rootLibPackagesData,
 }: {
-  rootLibPackageData: LibPackageData
-  rootLibPackagesData: LibPackageData[]
+  rootLibPackageData: RootLibPackageData
+  rootLibPackagesData: RootLibPackageData[]
 }) => {
   const visited = new Set<number>()
   const onStack = new Set<number>()
@@ -366,15 +370,15 @@ const isRootLibPackageCircularDependency = async ({
     onStack.add(nodeIndex)
 
     const currentNode = rootLibPackagesData[nodeIndex]
-    const dependencies: LibPackageData[] = []
+    const dependencies: RootLibPackageData[] = []
     for (const [idx, pkg] of rootLibPackagesData.entries()) {
       if (idx === nodeIndex) {
         continue
       }
       const { thisRootLibPackageDependencyOfThatRootLibPackage } =
         await isThisRootLibPackageDependencyOfThatRootLibPackage({
-          thisRootLibPackageJsonDir: currentNode.libPackagePath,
-          thatRootLibPackageJsonDir: pkg.libPackagePath,
+          thisRootLibPackageJsonDir: currentNode.rootLibPackagePath,
+          thatRootLibPackageJsonDir: pkg.rootLibPackagePath,
         })
       if (thisRootLibPackageDependencyOfThatRootLibPackage) {
         dependencies.push(pkg)
@@ -402,24 +406,24 @@ const isRootLibPackageCircularDependency = async ({
 export const orderRootLibPackagesFromDependsOnToDependent = async ({
   rootLibPackagesData,
 }: {
-  rootLibPackagesData: LibPackageData[]
+  rootLibPackagesData: RootLibPackageData[]
 }) => {
   const rootLibPackagesDataExtended = _.cloneDeep(rootLibPackagesData).map((libPackageData) => ({
     ...libPackageData,
     dependency: false,
     circular: false,
-  })) as LibPackageDataExtended[]
+  })) as RootLibPackageDataExtended[]
 
   // TODO: check if this is correct
-  const getOrderString = (rootLibPackagesDataInside: LibPackageData[]) => {
-    return rootLibPackagesDataInside.map(({ libPackageName }) => libPackageName).join('|')
+  const getOrderString = (rootLibPackagesDataInside: RootLibPackageData[]) => {
+    return rootLibPackagesDataInside.map(({ rootLibPackageName }) => rootLibPackageName).join('|')
   }
   const knownOrders = [getOrderString(rootLibPackagesDataExtended)]
   for (let i = 0; i < rootLibPackagesDataExtended.length; i++) {
     for (let j = i + 1; j < rootLibPackagesDataExtended.length; j++) {
       const { thisRootLibPackageDependsOnThatRootLibPackage } = await isThisRootLibPackageDependsOnThatRootLibPackage({
-        thisRootLibPackageJsonDir: rootLibPackagesDataExtended[i].libPackagePath,
-        thatRootLibPackageJsonDir: rootLibPackagesDataExtended[j].libPackagePath,
+        thisRootLibPackageJsonDir: rootLibPackagesDataExtended[i].rootLibPackagePath,
+        thatRootLibPackageJsonDir: rootLibPackagesDataExtended[j].rootLibPackagePath,
       })
       if (thisRootLibPackageDependsOnThatRootLibPackage) {
         const rootLibPackageData = rootLibPackagesDataExtended.splice(j, 1)[0]
@@ -445,13 +449,13 @@ export const orderRootLibPackagesFromDependsOnToDependent = async ({
     })
   }
 
-  const libPackagesDataExtendedOrdered = _.orderBy(
+  const rootLibPackagesDataExtendedOrdered = _.orderBy(
     rootLibPackagesDataExtended,
     ['dependency', 'circular'],
     ['desc', 'desc']
   )
 
-  return { rootLibPackagesDataOrdered: libPackagesDataExtendedOrdered }
+  return { rootLibPackagesDataOrdered: rootLibPackagesDataExtendedOrdered }
 }
 
 export const getOrderedRootLibPackagesData = async ({
@@ -464,23 +468,23 @@ export const getOrderedRootLibPackagesData = async ({
   exclude?: string[]
 }) => {
   const { config } = await getConfig({ cwd })
-  const rootLibPackagesDataNonOrdered: LibPackageData[] = []
-  for (const [libPackageName, libPackagePath] of Object.entries(config.items)) {
-    const { packageJsonData: libPackageJsonData } = await getPackageJson({ cwd: libPackagePath })
-    const existsInInclude = !include || include.includes(libPackageName)
-    const notExistsInExclude = !exclude?.includes(libPackageName)
+  const rootLibPackagesDataNonOrdered: RootLibPackageData[] = []
+  for (const [rootLibPackageName, rootLibPackagePath] of Object.entries(config.items)) {
+    const { packageJsonData: rootLibPackageJsonData } = await getPackageJson({ cwd: rootLibPackagePath })
+    const existsInInclude = !include || include.includes(rootLibPackageName)
+    const notExistsInExclude = !exclude?.includes(rootLibPackageName)
     if (existsInInclude && notExistsInExclude) {
       rootLibPackagesDataNonOrdered.push({
-        libPackageName,
-        libPackagePath,
-        libPackageJsonData: libPackageJsonData as PackageJson,
+        rootLibPackageName,
+        rootLibPackagePath,
+        rootLibPackageJsonData: rootLibPackageJsonData as PackageJson,
       })
     }
   }
   const { rootLibPackagesDataOrdered } = await orderRootLibPackagesFromDependsOnToDependent({
     rootLibPackagesData: rootLibPackagesDataNonOrdered,
   })
-  return { libPackagesData: rootLibPackagesDataOrdered }
+  return { rootLibPackagesData: rootLibPackagesDataOrdered }
 }
 
 export const isSuitableLibPackagesActual = async ({ cwd, forceAccuracy }: { cwd: string; forceAccuracy?: boolean }) => {

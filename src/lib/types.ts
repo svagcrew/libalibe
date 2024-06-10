@@ -20,16 +20,16 @@ export const typecheckIfPossible = async ({ cwd }: { cwd: string }) => {
 }
 
 export const typecheckRecursive = async ({ cwd }: { cwd: string }) => {
-  const { libPackagesData } = await getOrderedRootLibPackagesData({ cwd })
-  if (!libPackagesData.length) {
+  const { rootLibPackagesData } = await getOrderedRootLibPackagesData({ cwd })
+  if (!rootLibPackagesData.length) {
     throw new Error('No packages found')
   }
-  for (const { libPackagePath } of libPackagesData) {
-    const { typecheckable } = await isTypecheckable({ cwd: libPackagePath })
+  for (const { rootLibPackagePath } of rootLibPackagesData) {
+    const { typecheckable } = await isTypecheckable({ cwd: rootLibPackagePath })
     if (typecheckable) {
-      log.green(`Typechecking ${libPackagePath}`)
-      await typecheck({ cwd: libPackagePath })
-      log.toMemory.black(`Typechecked ${libPackagePath}`)
+      log.green(`Typechecking ${rootLibPackagePath}`)
+      await typecheck({ cwd: rootLibPackagePath })
+      log.toMemory.black(`Typechecked ${rootLibPackagePath}`)
     }
   }
 }

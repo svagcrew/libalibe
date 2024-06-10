@@ -24,31 +24,31 @@ export const lintIfPossible = async ({ cwd }: { cwd: string }) => {
 }
 
 export const lintRecursive = async ({ cwd }: { cwd: string }) => {
-  const { libPackagesData } = await getOrderedRootLibPackagesData({ cwd })
-  if (!libPackagesData.length) {
+  const { rootLibPackagesData } = await getOrderedRootLibPackagesData({ cwd })
+  if (!rootLibPackagesData.length) {
     throw new Error('No packages found')
   }
-  for (const { libPackagePath } of libPackagesData) {
-    const { lintable } = await isLintable({ cwd: libPackagePath })
+  for (const { rootLibPackagePath } of rootLibPackagesData) {
+    const { lintable } = await isLintable({ cwd: rootLibPackagePath })
     if (lintable) {
-      log.green(`Linting ${libPackagePath}`)
-      await lint({ cwd: libPackagePath })
-      log.toMemory.black(`Linted ${libPackagePath}`)
+      log.green(`Linting ${rootLibPackagePath}`)
+      await lint({ cwd: rootLibPackagePath })
+      log.toMemory.black(`Linted ${rootLibPackagePath}`)
     }
   }
 }
 
 export const lintFixRecursive = async ({ cwd }: { cwd: string }) => {
-  const { libPackagesData } = await getOrderedRootLibPackagesData({ cwd })
-  if (!libPackagesData.length) {
+  const { rootLibPackagesData } = await getOrderedRootLibPackagesData({ cwd })
+  if (!rootLibPackagesData.length) {
     throw new Error('No packages found')
   }
-  for (const { libPackagePath } of libPackagesData) {
-    const { lintable } = await isLintable({ cwd: libPackagePath })
+  for (const { rootLibPackagePath } of rootLibPackagesData) {
+    const { lintable } = await isLintable({ cwd: rootLibPackagePath })
     if (lintable) {
-      log.green(`Linting and fixing ${libPackagePath}`)
-      await lintFix({ cwd: libPackagePath })
-      log.toMemory.black(`Linted and fixed ${libPackagePath}`)
+      log.green(`Linting and fixing ${rootLibPackagePath}`)
+      await lintFix({ cwd: rootLibPackagePath })
+      log.toMemory.black(`Linted and fixed ${rootLibPackagePath}`)
     }
   }
 }

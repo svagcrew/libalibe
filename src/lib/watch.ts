@@ -1,4 +1,4 @@
-import { getOrderedRootLibPackagesData, type LibPackageData } from '@/lib/utils.js'
+import { getOrderedRootLibPackagesData, type RootLibPackageData } from '@/lib/utils.js'
 import { getPackageJson, spawn } from 'svag-cli-utils'
 import { get__dirname } from 'svag-esm'
 const __dirname = get__dirname(import.meta)
@@ -9,16 +9,16 @@ export const isWatchable = async ({ cwd }: { cwd: string }) => {
 }
 
 export const watchRecursiveConcurrently = async ({ cwd }: { cwd: string }) => {
-  const { libPackagesData } = await getOrderedRootLibPackagesData({ cwd })
-  if (!libPackagesData.length) {
+  const { rootLibPackagesData } = await getOrderedRootLibPackagesData({ cwd })
+  if (!rootLibPackagesData.length) {
     throw new Error('No packages found')
   }
 
-  const watchableLibPackagesData: LibPackageData[] = []
-  for (const libPackageData of libPackagesData) {
-    const { watchable } = await isWatchable({ cwd: libPackageData.libPackagePath })
+  const watchableLibPackagesData: RootLibPackageData[] = []
+  for (const rootLibPackageData of rootLibPackagesData) {
+    const { watchable } = await isWatchable({ cwd: rootLibPackageData.rootLibPackagePath })
     if (watchable) {
-      watchableLibPackagesData.push(libPackageData)
+      watchableLibPackagesData.push(rootLibPackageData)
     }
   }
   if (!watchableLibPackagesData.length) {
@@ -26,9 +26,9 @@ export const watchRecursiveConcurrently = async ({ cwd }: { cwd: string }) => {
   }
 
   const commands = watchableLibPackagesData
-    .map(({ libPackagePath }) => `"cd ${libPackagePath} && pnpm watch"`)
+    .map(({ rootLibPackagePath }) => `"cd ${rootLibPackagePath} && pnpm watch"`)
     .join(' ')
-  const names = watchableLibPackagesData.map(({ libPackageName }) => libPackageName).join(',')
+  const names = watchableLibPackagesData.map(({ rootLibPackageName }) => rootLibPackageName).join(',')
   await spawn({
     cwd: __dirname,
     command: `pnpm concurrently --kill-others-on-fail --names ${names} ${commands}`,
