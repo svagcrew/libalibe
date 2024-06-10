@@ -1,5 +1,5 @@
 import { isRunableCommand } from '@/lib/run.js'
-import { getOrderedLibPackagesData } from '@/lib/utils.js'
+import { getOrderedRootLibPackagesData } from '@/lib/utils.js'
 import { log, spawn } from 'svag-cli-utils'
 
 export const testIt = async ({ cwd }: { cwd: string }) => {
@@ -21,7 +21,7 @@ export const testItIfPossible = async ({ cwd }: { cwd: string }) => {
 }
 
 export const testItRecursive = async ({ cwd }: { cwd: string }) => {
-  const { libPackagesData } = await getOrderedLibPackagesData({ cwd })
+  const { libPackagesData } = await getOrderedRootLibPackagesData({ cwd })
   if (!libPackagesData.length) {
     throw new Error('No packages found')
   }

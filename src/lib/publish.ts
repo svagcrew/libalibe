@@ -1,15 +1,15 @@
-import { build, isBuildable } from '@/lib/build.js'
 import { update } from '@/lib/install.js'
 import { link } from '@/lib/link.js'
 import {
-  getOrderedLibPackagesData,
+  getOrderedRootLibPackagesData,
   isCommitable,
   isSuitableLibPackagesActual,
   type LibPackageDataExtended,
   throwIfNotMasterBaranch,
+  updatePackageJsonVersion,
 } from '@/lib/utils.js'
 import readlineSync from 'readline-sync'
-import { exec, getPackageJson, log, spawn, stringsToLikeArrayString } from 'svag-cli-utils'
+import { exec, getAllPackageJsonPaths, getPackageJson, log, spawn, stringsToLikeArrayString } from 'svag-cli-utils'
 
 // small helpers
 
@@ -29,9 +29,9 @@ const isLastCommitSetVersionSameToLatestTag = async ({ cwd }: { cwd: string }) =
   }
 }
 
-const addAllAndCommit = async ({ cwd, message }: { cwd: string; message: string }) => {
+const addAllAndCommit = async ({ cwd, message, noVerify }: { cwd: string; message: string; noVerify?: boolean }) => {
   await spawn({ cwd, command: `git add -A` })
-  await spawn({ cwd, command: `git commit -m "${message}"` })
+  await spawn({ cwd, command: `git commit -m "${message}"${noVerify ? ' --no-verify' : ''}` })
 }
 
 // big helpers
@@ -72,21 +72,32 @@ export const buildBumpPushPublish = async ({
   cwd: string
   bump?: 'patch' | 'major' | 'minor'
 }) => {
-  await throwIfNotMasterBaranch({ cwd })
-  const { buildable } = await isBuildable({ cwd })
-  if (buildable) {
-    log.green(`${cwd}: building`)
-    await build({ cwd })
+  // await throwIfNotMasterBaranch({ cwd })
+  // const { buildable } = await isBuildable({ cwd })
+  // if (buildable) {
+  //   log.green(`${cwd}: building`)
+  //   await build({ cwd })
+  // }
+  const { commitable } = await isCommitable({ cwd })
+  if (commitable) {
+    throw new Error(`Uncommited changes: ${cwd}`)
   }
-  const { packageJsonData: pjd1 } = await getPackageJson({ cwd })
-  await spawn({ cwd, command: `pnpm version ${bump}` })
-  const { packageJsonData: pjd2 } = await getPackageJson({ cwd })
+  const { packageJsonData: pjd1, packageJsonPath } = await getPackageJson({ cwd })
   const oldVersion = pjd1.version
-  const newVersion = pjd2.version
+  const { newVersion } = await updatePackageJsonVersion({ packageJsonPath, version: bump })
+  const { allPackageJsonsPathsAndDirs } = await getAllPackageJsonPaths({ cwd })
+  for (const { packageJsonPath: workspacePackageJsonPath } of allPackageJsonsPathsAndDirs) {
+    if (workspacePackageJsonPath === packageJsonPath) {
+      continue
+    }
+    // await spawn({ cwd: workspacePackageJsonDir, command: `pnpm version ${newVersion}` })
+    await updatePackageJsonVersion({ packageJsonPath: workspacePackageJsonPath, version: newVersion })
+  }
+  await addAllAndCommit({ cwd, message: newVersion, noVerify: true })
   log.green(`${cwd}: pushing`)
   await spawn({ cwd, command: `git push origin master` })
   log.green(`${cwd}: publishing`)
-  await spawn({ cwd, command: `pnpm publish` })
+  await spawn({ cwd, command: `pnpm recursive publish --access public` })
   log.toMemory.black(`${cwd}: published ${oldVersion}→${newVersion}`)
 }
 
@@ -154,7 +165,7 @@ export const updateLinkCommitBuildBumpPushPublishRecursive = async ({
   exclude?: string[]
   forceAccuracy?: boolean
 }) => {
-  const { libPackagesData } = await getOrderedLibPackagesData({ cwd, include, exclude })
+  const { libPackagesData } = await getOrderedRootLibPackagesData({ cwd, include, exclude })
   if (!libPackagesData.length) {
     throw new Error('No packages found')
   }
@@ -181,7 +192,7 @@ export const updateLinkCommitSmallFixBuildBumpPushPublishRecursive = async ({
   exclude?: string[]
   forceAccuracy?: boolean
 }) => {
-  const { libPackagesData } = await getOrderedLibPackagesData({ cwd, include, exclude })
+  const { libPackagesData } = await getOrderedRootLibPackagesData({ cwd, include, exclude })
   if (!libPackagesData.length) {
     throw new Error('No packages found')
   }
@@ -214,7 +225,7 @@ export const prepareUpdateLinkCommitBuildBumpPushPublishRecursive = async ({
   exclude?: string[]
   forceAccuracy?: boolean
 }) => {
-  const { libPackagesData } = await getOrderedLibPackagesData({ cwd, include, exclude })
+  const { libPackagesData } = await getOrderedRootLibPackagesData({ cwd, include, exclude })
   if (!libPackagesData.length) {
     throw new Error('No packages found')
   }
@@ -250,7 +261,7 @@ export const updateLinkCommitBuildBumpPushPublishRecursiveFoxy = async ({
   exclude?: string[]
   forceAccuracy?: boolean
 }) => {
-  const { libPackagesData } = await getOrderedLibPackagesData({ cwd, include, exclude })
+  const { libPackagesData } = await getOrderedRootLibPackagesData({ cwd, include, exclude })
   const libPackagesDataCircular = libPackagesData.filter(({ circular }) => circular)
   const libPackagesDataNonircular = libPackagesData.filter(({ circular }) => !circular)
   const libPackagesDataCommitableCircular: LibPackageDataExtended[] = []
@@ -301,7 +312,7 @@ export const updateLinkCommitSmallFixBuildBumpPushPublishRecursiveFoxy = async (
   exclude?: string[]
   forceAccuracy?: boolean
 }) => {
-  const { libPackagesData } = await getOrderedLibPackagesData({ cwd, include, exclude })
+  const { libPackagesData } = await getOrderedRootLibPackagesData({ cwd, include, exclude })
   const libPackagesDataCircular = libPackagesData.filter(({ circular }) => circular)
   const libPackagesDataNonircular = libPackagesData.filter(({ circular }) => !circular)
   const libPackagesDataCommitableCircular: LibPackageDataExtended[] = []
@@ -352,7 +363,7 @@ export const prepareUpdateLinkCommitBuildBumpPushPublishRecursiveFoxy = async ({
   exclude?: string[]
   forceAccuracy?: boolean
 }) => {
-  const { libPackagesData } = await getOrderedLibPackagesData({ cwd, include, exclude })
+  const { libPackagesData } = await getOrderedRootLibPackagesData({ cwd, include, exclude })
   const libPackagesDataCircular = libPackagesData.filter(({ circular }) => circular)
   const libPackagesDataNonircular = libPackagesData.filter(({ circular }) => !circular)
   const libPackagesDataCommitableCircular: LibPackageDataExtended[] = []

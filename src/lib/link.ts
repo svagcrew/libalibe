@@ -1,4 +1,4 @@
-import { getOrderedLibPackagesData, getSuitableLibPackages } from '@/lib/utils.js'
+import { getAllPackageJsonsPublicable, getOrderedRootLibPackagesData, getSuitableLibPackages } from '@/lib/utils.js'
 import { getAllPackageJsonPaths, log, spawn } from 'svag-cli-utils'
 
 export const link = async ({ cwd }: { cwd: string }) => {
@@ -23,7 +23,7 @@ export const linkCurrent = async ({ cwd }: { cwd: string }) => {
 }
 
 export const linkRecursive = async ({ cwd }: { cwd: string }) => {
-  const { libPackagesData } = await getOrderedLibPackagesData({ cwd })
+  const { libPackagesData } = await getOrderedRootLibPackagesData({ cwd })
   if (!libPackagesData.length) {
     throw new Error('No packages found')
   }
@@ -33,11 +33,14 @@ export const linkRecursive = async ({ cwd }: { cwd: string }) => {
 }
 
 export const linkGlobal = async ({ cwd }: { cwd: string }) => {
-  await spawn({ cwd, command: `pnpm link -g` })
+  const { packageJsonsPublicable } = await getAllPackageJsonsPublicable({ cwd })
+  for (const { packageJsonDir } of packageJsonsPublicable) {
+    await spawn({ cwd: packageJsonDir, command: `pnpm link -g` })
+  }
 }
 
 export const linkGlobalRecursive = async ({ cwd }: { cwd: string }) => {
-  const { libPackagesData } = await getOrderedLibPackagesData({ cwd })
+  const { libPackagesData } = await getOrderedRootLibPackagesData({ cwd })
   if (!libPackagesData.length) {
     throw new Error('No packages found')
   }

@@ -1,7 +1,8 @@
 import { getConfig } from '@/lib/config.js'
+import fs from 'fs/promises'
 import _ from 'lodash'
 import semver from 'semver'
-import { createDir, exec, getPackageJson, isDirExists } from 'svag-cli-utils'
+import { createDir, exec, getAllPackageJsonPaths, getPackageJson, isDirExists, jsonStringify } from 'svag-cli-utils'
 import type { PackageJson } from 'type-fest'
 
 export type PackageJsonDataLibalibe =
@@ -17,9 +18,11 @@ export type LibPackageDataExtended = LibPackageData & {
 }
 
 export const getSuitableLibPackages = async ({ cwd }: { cwd: string }) => {
-  const { config } = await getConfig({ cwd })
   const { packageJsonData: projectPackageJsonData } = await getPackageJson({ cwd })
-  const libPackagesNames = Object.keys(config.items)
+  const { packageJsonsPublicable } = await getAllLibPackageJsonsPublicable({ cwd })
+  const libPackagesNames = packageJsonsPublicable
+    .map(({ packageJsonData }) => packageJsonData.name)
+    .filter(Boolean) as string[]
   const devDependencies = Object.keys(projectPackageJsonData.devDependencies || {})
   const prodDependencies = Object.keys(projectPackageJsonData.dependencies || {})
   const allDependencies = [...new Set([...devDependencies, ...prodDependencies])]
@@ -46,7 +49,7 @@ export const getSuitableLibPackages = async ({ cwd }: { cwd: string }) => {
   }
 }
 
-export const getLibPackagePath = async ({ cwd, libPackageName }: { cwd: string; libPackageName: string }) => {
+export const getRootLibPackagePath = async ({ cwd, libPackageName }: { cwd: string; libPackageName: string }) => {
   const { config } = await getConfig({ cwd })
   const libPackagePath = config.items[libPackageName]
   if (!libPackagePath) {
@@ -55,13 +58,37 @@ export const getLibPackagePath = async ({ cwd, libPackageName }: { cwd: string; 
   return { libPackagePath }
 }
 
-export const getLibPackagesPaths = async ({ cwd, libPackagesNames }: { cwd: string; libPackagesNames: string[] }) => {
+export const getRootLibPackagesPaths = async ({
+  cwd,
+  libPackagesNames,
+}: {
+  cwd: string
+  libPackagesNames: string[]
+}) => {
   const libPackagesPaths = await Promise.all(
     libPackagesNames.map(async (libPackageName) => {
-      const { libPackagePath } = await getLibPackagePath({ cwd, libPackageName })
+      const { libPackagePath } = await getRootLibPackagePath({ cwd, libPackageName })
       return libPackagePath
     })
   )
+  return { libPackagesPaths }
+}
+
+export const getPublicableLibPackagesPaths = async ({
+  cwd,
+  libPackagesNames,
+}: {
+  cwd: string
+  libPackagesNames: string[]
+}) => {
+  const { packageJsonsPublicable } = await getAllLibPackageJsonsPublicable({ cwd })
+  const libPackagesPaths: string[] = []
+  for (const { packageJsonPath, packageJsonDir } of packageJsonsPublicable) {
+    const { packageJsonData } = await getPackageJson({ packageJsonPath })
+    if (packageJsonData.name && libPackagesNames.includes(packageJsonData.name)) {
+      libPackagesPaths.push(packageJsonDir)
+    }
+  }
   return { libPackagesPaths }
 }
 
@@ -74,7 +101,7 @@ export const getLibPackageJsonData = async ({
 }): Promise<{
   libPackageJsonData: PackageJson
 }> => {
-  const { libPackagePath } = await getLibPackagePath({ cwd, libPackageName })
+  const { libPackagePath } = await getRootLibPackagePath({ cwd, libPackageName })
   const { packageJsonData: libPackageJsonData } = await getPackageJson({ cwd: libPackagePath })
   return { libPackageJsonData } as { libPackageJsonData: PackageJson }
 }
@@ -106,7 +133,7 @@ export const isSuitableLibPackageActual = async ({
   }
   const projectPackageJsonDataLibalibe = (projectPackageJsonData as any).libalibe as PackageJsonDataLibalibe
   const libPackageJsonDataLibalibe = (libPackageJsonData as any).libalibe as PackageJsonDataLibalibe
-  const { libPackagesData } = await getOrderedLibPackagesData({ cwd })
+  const { libPackagesData } = await getOrderedRootLibPackagesData({ cwd })
   const libPackageData = libPackagesData.find((pkg) => pkg.libPackageName === libPackageName)
   if (!libPackageData) {
     throw new Error(`${cwd}: lib package data not found "${libPackageName}"`)
@@ -135,13 +162,45 @@ const isThisLibPackageDependencyOfThatLibPackage = ({
   thatLibPackageJsonData: PackageJson
 }) => {
   const thatLibPackageJsonDataDeps = {
+    ...thatLibPackageJsonData.peerDependencies,
     ...thatLibPackageJsonData.devDependencies,
     ...thatLibPackageJsonData.dependencies,
   }
   const thisLibPackageName = thisLibPackageJsonData.name
+  const existsInDepsExact = !!thisLibPackageName && !!thatLibPackageJsonDataDeps[thisLibPackageName]
+  const existsInDepsLike =
+    !!thisLibPackageName &&
+    !!Object.keys(thatLibPackageJsonDataDeps).some((depName) => depName.startsWith(`@${thisLibPackageName}/`))
   return {
-    thisLibPackageDependencyOfThatLibPackage: !!thisLibPackageName && !!thatLibPackageJsonDataDeps[thisLibPackageName],
+    thisLibPackageDependencyOfThatLibPackage: existsInDepsExact || existsInDepsLike,
   }
+}
+
+const isThisRootLibPackageDependencyOfThatRootLibPackage = async ({
+  thisRootLibPackageJsonDir,
+  thatRootLibPackageJsonDir,
+}: {
+  thisRootLibPackageJsonDir: string
+  thatRootLibPackageJsonDir: string
+}) => {
+  const { packageJsonsPublicable: thisRootLibPackageJsonsPublicable } = await getAllPackageJsonsPublicable({
+    cwd: thisRootLibPackageJsonDir,
+  })
+  const { packageJsonsPublicable: thatRootLibPackageJsonsPublicable } = await getAllPackageJsonsPublicable({
+    cwd: thatRootLibPackageJsonDir,
+  })
+  for (const { packageJsonData: thisLibPackageJsonDataPublicable } of thisRootLibPackageJsonsPublicable) {
+    for (const { packageJsonData: thatLibPackageJsonDataPublicable } of thatRootLibPackageJsonsPublicable) {
+      const { thisLibPackageDependencyOfThatLibPackage } = isThisLibPackageDependencyOfThatLibPackage({
+        thisLibPackageJsonData: thisLibPackageJsonDataPublicable,
+        thatLibPackageJsonData: thatLibPackageJsonDataPublicable,
+      })
+      if (thisLibPackageDependencyOfThatLibPackage) {
+        return { thisRootLibPackageDependencyOfThatRootLibPackage: true }
+      }
+    }
+  }
+  return { thisRootLibPackageDependencyOfThatRootLibPackage: false }
 }
 
 const isThisLibPackageDependsOnThatLibPackage = ({
@@ -152,30 +211,86 @@ const isThisLibPackageDependsOnThatLibPackage = ({
   thatLibPackageJsonData: PackageJson
 }) => {
   const thisLibPackageJsonDataDeps = {
+    ...thisLibPackageJsonData.peerDependencies,
     ...thisLibPackageJsonData.devDependencies,
     ...thisLibPackageJsonData.dependencies,
   }
   const thatLibPackageName = thatLibPackageJsonData.name
+  const existsInDepsExact = !!thatLibPackageName && !!thisLibPackageJsonDataDeps[thatLibPackageName]
+  const existsInDepsLike =
+    !!thatLibPackageName &&
+    !!Object.keys(thisLibPackageJsonDataDeps).some((depName) => depName.startsWith(`@${thatLibPackageName}/`))
   return {
-    thisLibPackageDependsOnThatLibPackage: !!thatLibPackageName && !!thisLibPackageJsonDataDeps[thatLibPackageName],
+    thisLibPackageDependsOnThatLibPackage: existsInDepsExact || existsInDepsLike,
   }
 }
 
-const isLibPackageDependencyOfAnother = ({
-  libPackageData,
-  libPackagesData,
+const isThisRootLibPackageDependsOnThatRootLibPackage = async ({
+  thisRootLibPackageJsonDir,
+  thatRootLibPackageJsonDir,
 }: {
-  libPackageData: LibPackageData
-  libPackagesData: LibPackageData[]
+  thisRootLibPackageJsonDir: string
+  thatRootLibPackageJsonDir: string
 }) => {
-  const dependencies = libPackagesData.filter(
-    (pkg) =>
-      isThisLibPackageDependencyOfThatLibPackage({
-        thisLibPackageJsonData: libPackageData.libPackageJsonData,
-        thatLibPackageJsonData: pkg.libPackageJsonData,
-      }).thisLibPackageDependencyOfThatLibPackage && pkg.libPackageName !== libPackageData.libPackageName
-  )
-  return dependencies.length > 0
+  const { packageJsonsPublicable: thisRootLibPackageJsonsPublicable } = await getAllPackageJsonsPublicable({
+    cwd: thisRootLibPackageJsonDir,
+  })
+  const { packageJsonsPublicable: thatRootLibPackageJsonsPublicable } = await getAllPackageJsonsPublicable({
+    cwd: thatRootLibPackageJsonDir,
+  })
+  for (const { packageJsonData: thisLibPackageJsonDataPublicable } of thisRootLibPackageJsonsPublicable) {
+    for (const { packageJsonData: thatLibPackageJsonDataPublicable } of thatRootLibPackageJsonsPublicable) {
+      const { thisLibPackageDependsOnThatLibPackage } = isThisLibPackageDependsOnThatLibPackage({
+        thisLibPackageJsonData: thisLibPackageJsonDataPublicable,
+        thatLibPackageJsonData: thatLibPackageJsonDataPublicable,
+      })
+      if (thisLibPackageDependsOnThatLibPackage) {
+        return { thisRootLibPackageDependsOnThatRootLibPackage: true }
+      }
+    }
+  }
+  return { thisRootLibPackageDependsOnThatRootLibPackage: false }
+}
+
+// const isLibPackageDependencyOfAnother = ({
+//   libPackageData,
+//   libPackagesData,
+// }: {
+//   libPackageData: LibPackageData
+//   libPackagesData: LibPackageData[]
+// }) => {
+//   const dependencies = libPackagesData.filter(
+//     (pkg) =>
+//       isThisLibPackageDependencyOfThatLibPackage({
+//         thisLibPackageJsonData: libPackageData.libPackageJsonData,
+//         thatLibPackageJsonData: pkg.libPackageJsonData,
+//       }).thisLibPackageDependencyOfThatLibPackage && pkg.libPackageName !== libPackageData.libPackageName
+//   )
+//   return dependencies.length > 0
+// }
+
+const isRootLibPackageDependencyOfAnother = async ({
+  rootLibPackageData,
+  rootLibPackagesData,
+}: {
+  rootLibPackageData: LibPackageData
+  rootLibPackagesData: LibPackageData[]
+}) => {
+  let dependenciesCount = 0
+  for (const pkg of rootLibPackagesData) {
+    if (pkg.libPackageName === rootLibPackageData.libPackageName) {
+      continue
+    }
+    const { thisRootLibPackageDependencyOfThatRootLibPackage } =
+      await isThisRootLibPackageDependencyOfThatRootLibPackage({
+        thisRootLibPackageJsonDir: rootLibPackageData.libPackagePath,
+        thatRootLibPackageJsonDir: pkg.libPackagePath,
+      })
+    if (thisRootLibPackageDependencyOfThatRootLibPackage) {
+      dependenciesCount++
+    }
+  }
+  return dependenciesCount > 0
 }
 
 const isLibPackageCircularDependency = ({
@@ -228,62 +343,118 @@ const isLibPackageCircularDependency = ({
   return hasCycle
 }
 
-export const orderLibPackagesFromDependsOnToDependent = ({
-  libPackagesData,
+const isRootLibPackageCircularDependency = async ({
+  rootLibPackageData,
+  rootLibPackagesData,
 }: {
-  libPackagesData: LibPackageData[]
+  rootLibPackageData: LibPackageData
+  rootLibPackagesData: LibPackageData[]
 }) => {
-  const libPackagesDataExtended = _.cloneDeep(libPackagesData).map((libPackageData) => ({
+  const visited = new Set<number>()
+  const onStack = new Set<number>()
+  let hasCycle = false
+
+  const visit = async (nodeIndex: number) => {
+    if (onStack.has(nodeIndex)) {
+      hasCycle = true
+      return // Cycle detected
+    }
+    if (visited.has(nodeIndex)) {
+      return // Already processed
+    }
+    visited.add(nodeIndex)
+    onStack.add(nodeIndex)
+
+    const currentNode = rootLibPackagesData[nodeIndex]
+    const dependencies: LibPackageData[] = []
+    for (const [idx, pkg] of rootLibPackagesData.entries()) {
+      if (idx === nodeIndex) {
+        continue
+      }
+      const { thisRootLibPackageDependencyOfThatRootLibPackage } =
+        await isThisRootLibPackageDependencyOfThatRootLibPackage({
+          thisRootLibPackageJsonDir: currentNode.libPackagePath,
+          thatRootLibPackageJsonDir: pkg.libPackagePath,
+        })
+      if (thisRootLibPackageDependencyOfThatRootLibPackage) {
+        dependencies.push(pkg)
+      }
+    }
+
+    for (const dep of dependencies) {
+      const depIndex = rootLibPackagesData.indexOf(dep)
+      await visit(depIndex)
+      if (hasCycle) {
+        continue
+      }
+    }
+
+    onStack.delete(nodeIndex)
+  }
+
+  const nodeIndexOutside = rootLibPackagesData.indexOf(rootLibPackageData)
+  if (nodeIndexOutside > -1) {
+    await visit(nodeIndexOutside)
+  }
+  return hasCycle
+}
+
+export const orderRootLibPackagesFromDependsOnToDependent = async ({
+  rootLibPackagesData,
+}: {
+  rootLibPackagesData: LibPackageData[]
+}) => {
+  const rootLibPackagesDataExtended = _.cloneDeep(rootLibPackagesData).map((libPackageData) => ({
     ...libPackageData,
     dependency: false,
     circular: false,
   })) as LibPackageDataExtended[]
 
   // TODO: check if this is correct
-  const getOrderString = (libPackagesDataInside: LibPackageData[]) => {
-    return libPackagesDataInside.map(({ libPackageName }) => libPackageName).join('|')
+  const getOrderString = (rootLibPackagesDataInside: LibPackageData[]) => {
+    return rootLibPackagesDataInside.map(({ libPackageName }) => libPackageName).join('|')
   }
-  const knownOrders = [getOrderString(libPackagesDataExtended)]
-  for (let i = 0; i < libPackagesDataExtended.length; i++) {
-    for (let j = i + 1; j < libPackagesDataExtended.length; j++) {
-      const { thisLibPackageDependsOnThatLibPackage } = isThisLibPackageDependsOnThatLibPackage({
-        thisLibPackageJsonData: libPackagesDataExtended[i].libPackageJsonData,
-        thatLibPackageJsonData: libPackagesDataExtended[j].libPackageJsonData,
+  const knownOrders = [getOrderString(rootLibPackagesDataExtended)]
+  for (let i = 0; i < rootLibPackagesDataExtended.length; i++) {
+    for (let j = i + 1; j < rootLibPackagesDataExtended.length; j++) {
+      const { thisRootLibPackageDependsOnThatRootLibPackage } = await isThisRootLibPackageDependsOnThatRootLibPackage({
+        thisRootLibPackageJsonDir: rootLibPackagesDataExtended[i].libPackagePath,
+        thatRootLibPackageJsonDir: rootLibPackagesDataExtended[j].libPackagePath,
       })
-      if (thisLibPackageDependsOnThatLibPackage) {
-        const libPackageData = libPackagesDataExtended.splice(j, 1)[0]
-        libPackageData.dependency = true
-        libPackagesDataExtended.splice(i, 0, libPackageData)
-        if (!knownOrders.includes(getOrderString(libPackagesDataExtended))) {
+      if (thisRootLibPackageDependsOnThatRootLibPackage) {
+        const rootLibPackageData = rootLibPackagesDataExtended.splice(j, 1)[0]
+        rootLibPackageData.dependency = true
+        rootLibPackagesDataExtended.splice(i, 0, rootLibPackageData)
+        if (!knownOrders.includes(getOrderString(rootLibPackagesDataExtended))) {
           i--
-          knownOrders.push(getOrderString(libPackagesDataExtended))
+          knownOrders.push(getOrderString(rootLibPackagesDataExtended))
         }
         break
       }
     }
   }
 
-  for (const libPackageDataExtended of libPackagesDataExtended) {
-    libPackageDataExtended.dependency = isLibPackageDependencyOfAnother({
-      libPackageData: libPackageDataExtended,
-      libPackagesData: libPackagesDataExtended,
+  for (const rootLibPackageDataExtended of rootLibPackagesDataExtended) {
+    rootLibPackageDataExtended.dependency = await isRootLibPackageDependencyOfAnother({
+      rootLibPackageData: rootLibPackageDataExtended,
+      rootLibPackagesData: rootLibPackagesDataExtended,
     })
-    libPackageDataExtended.circular = isLibPackageCircularDependency({
-      libPackageData: libPackageDataExtended,
-      libPackagesData: libPackagesDataExtended,
+    rootLibPackageDataExtended.circular = await isRootLibPackageCircularDependency({
+      rootLibPackageData: rootLibPackageDataExtended,
+      rootLibPackagesData: rootLibPackagesDataExtended,
     })
   }
 
   const libPackagesDataExtendedOrdered = _.orderBy(
-    libPackagesDataExtended,
+    rootLibPackagesDataExtended,
     ['dependency', 'circular'],
     ['desc', 'desc']
   )
 
-  return { libPackagesDataOrdered: libPackagesDataExtendedOrdered }
+  return { rootLibPackagesDataOrdered: libPackagesDataExtendedOrdered }
 }
 
-export const getOrderedLibPackagesData = async ({
+export const getOrderedRootLibPackagesData = async ({
   cwd,
   include,
   exclude,
@@ -293,23 +464,23 @@ export const getOrderedLibPackagesData = async ({
   exclude?: string[]
 }) => {
   const { config } = await getConfig({ cwd })
-  const libPackagesDataNonOrdered: LibPackageData[] = []
+  const rootLibPackagesDataNonOrdered: LibPackageData[] = []
   for (const [libPackageName, libPackagePath] of Object.entries(config.items)) {
     const { packageJsonData: libPackageJsonData } = await getPackageJson({ cwd: libPackagePath })
     const existsInInclude = !include || include.includes(libPackageName)
     const notExistsInExclude = !exclude?.includes(libPackageName)
     if (existsInInclude && notExistsInExclude) {
-      libPackagesDataNonOrdered.push({
+      rootLibPackagesDataNonOrdered.push({
         libPackageName,
         libPackagePath,
         libPackageJsonData: libPackageJsonData as PackageJson,
       })
     }
   }
-  const { libPackagesDataOrdered } = orderLibPackagesFromDependsOnToDependent({
-    libPackagesData: libPackagesDataNonOrdered,
+  const { rootLibPackagesDataOrdered } = await orderRootLibPackagesFromDependsOnToDependent({
+    rootLibPackagesData: rootLibPackagesDataNonOrdered,
   })
-  return { libPackagesData: libPackagesDataOrdered }
+  return { libPackagesData: rootLibPackagesDataOrdered }
 }
 
 export const isSuitableLibPackagesActual = async ({ cwd, forceAccuracy }: { cwd: string; forceAccuracy?: boolean }) => {
@@ -370,3 +541,119 @@ export const throwIfNotMasterBaranch = async ({ cwd }: { cwd: string }) => {
     throw new Error(`${cwd}: not on master branch (${currentBranch})`)
   }
 }
+
+export const updatePackageJson = async ({
+  packageJsonPath,
+  version,
+}: {
+  packageJsonPath: string
+  version: string
+}): Promise<{
+  packageJsonData: PackageJson
+}> => {
+  const { packageJsonData } = await getPackageJson({ packageJsonPath })
+  packageJsonData.version = version
+  const packageJsonString = jsonStringify({
+    data: packageJsonData,
+    order: [
+      'name',
+      'version',
+      'homepage',
+      'repository',
+      'bugs',
+      'author',
+      'license',
+      'private',
+      'publishConfig',
+      'module',
+      'main',
+      'bin',
+      'files',
+      'scripts',
+      'peerDependencies',
+      'dependencies',
+      'devDependencies',
+      'libalibe',
+    ],
+  })
+  await fs.writeFile(packageJsonPath, packageJsonString)
+  return {
+    packageJsonData,
+  }
+}
+
+export const updatePackageJsonVersion = async ({
+  packageJsonPath,
+  version,
+}: {
+  packageJsonPath: string
+  version: 'major' | 'minor' | 'patch' | string
+}): Promise<{
+  packageJsonData: PackageJson
+  newVersion: string
+}> => {
+  const { packageJsonData } = await getPackageJson({ packageJsonPath })
+  const newVersion = (() => {
+    if (version !== 'major' && version !== 'minor' && version !== 'patch') {
+      return version
+    }
+    if (!packageJsonData.version) {
+      return '0.1.0'
+    }
+    const newVersion = semver.inc(packageJsonData.version, version)
+    if (!newVersion) {
+      throw new Error(`Invalid version: ${version}, ${newVersion}`)
+    }
+    return newVersion
+  })()
+
+  const { packageJsonData: packageJsonDataUpdated } = await updatePackageJson({
+    packageJsonPath,
+    version: newVersion,
+  })
+  return { packageJsonData: packageJsonDataUpdated, newVersion }
+}
+
+const memoizeAsync = <T extends (...args: any[]) => any>(fn: T): T => {
+  const cache: { [key: string]: ReturnType<T> } = {}
+  return function (...args: Parameters<T>): ReturnType<T> {
+    const key = JSON.stringify(args)
+    if (!(key in cache)) {
+      cache[key] = fn(...args)
+    }
+    return cache[key]
+  } as T
+}
+
+export const getAllPackageJsonsPublicable = memoizeAsync(async ({ cwd }: { cwd: string }) => {
+  const { allPackageJsonsPathsAndDirs } = await getAllPackageJsonPaths({ cwd })
+  const packageJsonsPublicable: Array<{
+    packageJsonPath: string
+    packageJsonDir: string
+    packageJsonData: PackageJson
+  }> = []
+  for (const { packageJsonPath, packageJsonDir } of allPackageJsonsPathsAndDirs) {
+    const { packageJsonData } = await getPackageJson({ packageJsonPath })
+    if (!packageJsonData.private) {
+      packageJsonsPublicable.push({ packageJsonPath, packageJsonDir, packageJsonData })
+    }
+  }
+  return { packageJsonsPublicable }
+})
+
+export const getAllLibPackageJsonsPublicable = memoizeAsync(async ({ cwd }: { cwd: string }) => {
+  const { config } = await getConfig({ cwd })
+  const libPackagePaths = Object.values(config.items)
+  const packageJsonsPublicable: Array<{
+    packageJsonPath: string
+    packageJsonDir: string
+    packageJsonData: PackageJson
+  }> = []
+  for (const libPackagePath of libPackagePaths) {
+    const { packageJsonsPublicable: packageJsonsPublicableHere } = await getAllPackageJsonsPublicable({
+      cwd: libPackagePath,
+    })
+    packageJsonsPublicable.push(...packageJsonsPublicableHere)
+  }
+  return { packageJsonsPublicable }
+})

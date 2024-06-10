@@ -1,4 +1,4 @@
-import { getLibPackagesPaths, getSuitableLibPackages } from '@/lib/utils.js'
+import { getPublicableLibPackagesPaths, getSuitableLibPackages } from '@/lib/utils.js'
 import { exec, getAllPackageJsonPaths, getPackageJson, spawn } from 'svag-cli-utils'
 
 export const fixLinkRecursive = async ({ cwd }: { cwd: string }) => {
@@ -38,7 +38,7 @@ const getPackageNodeModulesPathByName = async ({ cwd, packageName }: { cwd: stri
 export const fixLink = async ({ cwd }: { cwd: string }) => {
   const { packageJsonDir: projectPath } = await getPackageJson({ cwd })
   const { suitablePackagesNames } = await getSuitableLibPackages({ cwd })
-  const { libPackagesPaths } = await getLibPackagesPaths({ cwd, libPackagesNames: suitablePackagesNames })
+  const { libPackagesPaths } = await getPublicableLibPackagesPaths({ cwd, libPackagesNames: suitablePackagesNames })
   for (const libPackagePath of libPackagesPaths) {
     const { peerDepsNames } = await getPeerLibPackagesNames({ cwd: libPackagePath })
     for (const peerDepName of peerDepsNames) {

@@ -1,4 +1,4 @@
-import { getOrderedLibPackagesData, type LibPackageData } from '@/lib/utils.js'
+import { getOrderedRootLibPackagesData, type LibPackageData } from '@/lib/utils.js'
 import { getPackageJson, spawn } from 'svag-cli-utils'
 import { get__dirname } from 'svag-esm'
 const __dirname = get__dirname(import.meta)
@@ -9,7 +9,7 @@ export const isWatchable = async ({ cwd }: { cwd: string }) => {
 }
 
 export const watchRecursiveConcurrently = async ({ cwd }: { cwd: string }) => {
-  const { libPackagesData } = await getOrderedLibPackagesData({ cwd })
+  const { libPackagesData } = await getOrderedRootLibPackagesData({ cwd })
   if (!libPackagesData.length) {
     throw new Error('No packages found')
   }

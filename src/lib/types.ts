@@ -1,4 +1,4 @@
-import { getOrderedLibPackagesData } from '@/lib/utils.js'
+import { getOrderedRootLibPackagesData } from '@/lib/utils.js'
 import { getPackageJson, log, spawn } from 'svag-cli-utils'
 
 export const typecheck = async ({ cwd }: { cwd: string }) => {
@@ -20,7 +20,7 @@ export const typecheckIfPossible = async ({ cwd }: { cwd: string }) => {
 }
 
 export const typecheckRecursive = async ({ cwd }: { cwd: string }) => {
-  const { libPackagesData } = await getOrderedLibPackagesData({ cwd })
+  const { libPackagesData } = await getOrderedRootLibPackagesData({ cwd })
   if (!libPackagesData.length) {
     throw new Error('No packages found')
   }

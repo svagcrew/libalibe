@@ -1,4 +1,4 @@
-import { getOrderedLibPackagesData } from '@/lib/utils.js'
+import { getOrderedRootLibPackagesData } from '@/lib/utils.js'
 import { getPackageJson, log, spawn } from 'svag-cli-utils'
 
 export const runCommand = async ({ cwd, command, argr }: { cwd: string; command: string; argr: string[] }) => {
@@ -28,7 +28,7 @@ export const runCommandIfPossible = async ({
 }
 
 export const runCommandRecursive = async ({ cwd, command, argr }: { cwd: string; command: string; argr: string[] }) => {
-  const { libPackagesData } = await getOrderedLibPackagesData({ cwd })
+  const { libPackagesData } = await getOrderedRootLibPackagesData({ cwd })
   if (!libPackagesData.length) {
     log.black('No packages found at all')
     return
