@@ -95,7 +95,7 @@ export const buildBumpPushPublish = async ({
   await addAllAndCommit({ cwd, message: newVersion, noVerify: true })
   await spawn({ cwd, command: `git tag v${newVersion}` })
   log.green(`${cwd}: pushing`)
-  await spawn({ cwd, command: `git push origin master` })
+  await spawn({ cwd, command: `git push origin main` })
   await spawn({ cwd, command: `git push origin v${newVersion}` })
   log.green(`${cwd}: publishing`)
   await spawn({ cwd, command: `pnpm recursive publish --access public` })

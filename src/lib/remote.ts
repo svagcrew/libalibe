@@ -115,3 +115,28 @@ export const addRemoteOrigin = async ({
     command: `git remote add origin ${url}`,
   })
 }
+
+export const switchGithubDefaultBranchToMain = async ({
+  cwd,
+  githubOrganization,
+  repositoryName,
+}: {
+  cwd: string
+  githubOrganization?: string
+  repositoryName?: string
+}) => {
+  repositoryName = await normalizeRepositoryName({ cwd, repositoryName })
+  githubOrganization = await normalizeGithubOrganization({ cwd, githubOrganization })
+  await axios({
+    method: 'patch',
+    url: `https://api.github.com/repos/${githubOrganization}/${repositoryName}`,
+    headers: {
+      Authorization: `Bearer ${getEnv('GITHUB_TOKEN')}`,
+      'X-GitHub-Api-Version': '2022-11-28',
+      Accept: 'application/vnd.github+json',
+    },
+    data: {
+      default_branch: 'main',
+    },
+  })
+}

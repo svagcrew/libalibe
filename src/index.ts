@@ -19,7 +19,7 @@ import {
   updateLinkCommitSmallFixBuildBumpPushPublishRecursiveFoxy,
 } from '@/lib/publish.js'
 import { pullOrCloneRecursive } from '@/lib/pull.js'
-import { addRemoteOrigin, createRemoteRepo } from '@/lib/remote.js'
+import { addRemoteOrigin, createRemoteRepo, switchGithubDefaultBranchToMain } from '@/lib/remote.js'
 import { runCommandRecursive } from '@/lib/run.js'
 import { testItRecursive } from '@/lib/testcmd.js'
 import { typecheckRecursive } from '@/lib/types.js'
@@ -100,6 +100,28 @@ defineCliApp(async ({ args, command, cwd, flags, argr }) => {
         isPublic: !isPrivate,
       })
       await addRemoteOrigin({ cwd, githubOrganization, repositoryName })
+      break
+    }
+    case 'github-main': {
+      const githubOrganization = getFlagAsString({ flags, keys: ['org', 'o'], coalesce: undefined })
+      const repositoryName = getFlagAsString({ flags, keys: ['name', 'n'], coalesce: undefined })
+      await switchGithubDefaultBranchToMain({ cwd, githubOrganization, repositoryName })
+      break
+    }
+    case 'github-remove-master': {
+      if (1) {
+        log.red('Please, no')
+      } else {
+        try {
+          await spawn({
+            cwd,
+            command: `git push origin --delete master`,
+            exitOnFailure: false,
+          })
+        } catch (error) {
+          log.red(error)
+        }
+      }
       break
     }
     case 'add-to-libalibe-config':

@@ -15,7 +15,7 @@ const pull = async ({ cwd }: { cwd: string }) => {
   if (commitable) {
     throw new Error(`${cwd}: uncommited changes`)
   }
-  await spawn({ cwd, command: `git pull origin master` })
+  await spawn({ cwd, command: `git pull origin main` })
 }
 
 const clone = async ({ cwd, libPackageName }: { cwd: string; libPackageName: string }) => {

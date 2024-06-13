@@ -534,15 +534,15 @@ export const isCommitable = async ({ cwd }: { cwd: string }) => {
 export const isMasterBaranch = async ({ cwd }: { cwd: string }) => {
   const out = await exec({ cwd, command: `git -c color.status=always branch --show-current` })
   return {
-    masterBaranch: out.trim() === 'master',
+    mainBaranch: out.trim() === 'main',
     currentBranch: out.trim(),
   }
 }
 
 export const throwIfNotMasterBaranch = async ({ cwd }: { cwd: string }) => {
-  const { masterBaranch, currentBranch } = await isMasterBaranch({ cwd })
-  if (!masterBaranch) {
-    throw new Error(`${cwd}: not on master branch (${currentBranch})`)
+  const { mainBaranch, currentBranch } = await isMasterBaranch({ cwd })
+  if (!mainBaranch) {
+    throw new Error(`${cwd}: not on main branch (${currentBranch})`)
   }
 }
 
