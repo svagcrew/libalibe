@@ -142,7 +142,7 @@ export const isSuitableLibPackageActual = async ({
   if (!rootLibPackageData) {
     throw new Error(`${cwd}: lib package data not found "${libPackageName}"`)
   }
-  const circular = isRootLibPackageCircularDependency({
+  const circular = await isRootLibPackageCircularDependency({
     rootLibPackageData,
     rootLibPackagesData,
   })
