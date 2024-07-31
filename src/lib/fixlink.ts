@@ -1,5 +1,5 @@
 import { getPublicableLibPackagesPaths, getSuitableLibPackages } from '@/lib/utils.js'
-import { exec, getAllPackageJsonPaths, getPackageJson, spawn } from 'svag-cli-utils'
+import { exec, getAllPackageJsonPaths, getPackageJson, log, spawn } from 'svag-cli-utils'
 
 export const fixLinkRecursive = async ({ cwd }: { cwd: string }) => {
   const { allPackageJsonsPathsAndDirs } = await getAllPackageJsonPaths({ cwd })
@@ -50,6 +50,10 @@ export const fixLink = async ({ cwd }: { cwd: string }) => {
         cwd: projectPath,
         packageName: peerDepName,
       })
+      if (!libPeerPackageNodeModulesPath || !projectPeerPackageNodeModulesPath) {
+        log.info(`No ${peerDepName} found in ${libPackagePath} or ${projectPath}`)
+        continue
+      }
       await spawn({
         cwd: libPackagePath,
         command: `rm -rf ${libPeerPackageNodeModulesPath} && ln -s ${projectPeerPackageNodeModulesPath} ${libPeerPackageNodeModulesPath}`,
