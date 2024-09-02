@@ -3,6 +3,7 @@ import { addItemToConfig } from '@/lib/config.js'
 import { edit } from '@/lib/edit.js'
 import { execCommandRecursive } from '@/lib/exec.js'
 import { fixLinkRecursive } from '@/lib/fixlink.js'
+import { hardreset, hardresetRecursive } from '@/lib/hardreset.js'
 import { update } from '@/lib/install.js'
 import { link, linkGlobal, linkGlobalRecursive, linkRecursive, unlink } from '@/lib/link.js'
 import { lintFixRecursive, lintRecursive } from '@/lib/lint.js'
@@ -36,6 +37,12 @@ defineCliApp(async ({ args, command, cwd, flags, argr }) => {
     }
     case 'execr':
       await execCommandRecursive({ cwd, command: argr.join(' ') })
+      break
+    case 'hardreset':
+      await hardreset({ cwd })
+      break
+    case 'hardresetr':
+      await hardresetRecursive({ cwd })
       break
     case 'link':
       await link({ cwd })
@@ -248,6 +255,8 @@ defineCliApp(async ({ args, command, cwd, flags, argr }) => {
       log.black(dedent`Commands:
         runr — run "pnpm {args[0]} {...restArgs}" command in all packages
         execr — run "{...args}" command in all packages
+        hardreset — hardreset current package (remove, clone)
+        hardresetr — hardreset all packages (remove, clone)
         link — link packages
         linkr — link packages recursive
         unlink — unlink packages

@@ -46,7 +46,7 @@
     "picocolors": "^1.0.0",
     "readline-sync": "^1.4.10",
     "semver": "^7.6.0",
-    "svag-cli-utils": "^0.1.67",
+    "svag-cli-utils": "^0.1.75",
     "svag-esm": "^0.1.10",
     "typescript": "^5.4.5",
     "yargs": "^17.7.2",

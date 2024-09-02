@@ -196,24 +196,51 @@ export const updateLinkCommitSmallFixBuildBumpPushPublishRecursive = async ({
   exclude?: string[]
   forceAccuracy?: boolean
 }) => {
+  // const { rootLibPackagesData } = await getOrderedRootLibPackagesData({ cwd, include, exclude })
+  // if (!rootLibPackagesData.length) {
+  //   throw new Error('No packages found')
+  // }
+  // let commitedSome = false
+  // let publishedSome = false
+  // for (const { rootLibPackagePath } of rootLibPackagesData) {
+  //   const { suitableLibPackagesActual } = await isSuitableLibPackagesActual({ cwd: rootLibPackagePath, forceAccuracy })
+  //   if (!suitableLibPackagesActual) {
+  //     await update({ cwd: rootLibPackagePath })
+  //     await link({ cwd: rootLibPackagePath })
+  //   }
+  //   const { commited } = await commitIfNeededWithMessage({ cwd: rootLibPackagePath, message: 'Small fix' })
+  //   const { published } = await buildBumpPushPublishIfNotActual({ cwd: rootLibPackagePath })
+  //   commitedSome = commitedSome || commited
+  //   publishedSome = publishedSome || published
+  // }
+  // if (!commitedSome && !publishedSome) {
+  //   log.green(`nothing to commit and publish`)
+  // }
+
   const { rootLibPackagesData } = await getOrderedRootLibPackagesData({ cwd, include, exclude })
   if (!rootLibPackagesData.length) {
     throw new Error('No packages found')
   }
-  let commitedSome = false
-  let publishedSome = false
+  let nothingToCommitAndPublish = true
   for (const { rootLibPackagePath } of rootLibPackagesData) {
-    const { suitableLibPackagesActual } = await isSuitableLibPackagesActual({ cwd: rootLibPackagePath, forceAccuracy })
+    const { suitableLibPackagesActual, notSuitableLibPackagesName } = await isSuitableLibPackagesActual({
+      cwd: rootLibPackagePath,
+      forceAccuracy,
+    })
     if (!suitableLibPackagesActual) {
+      log.green(`${rootLibPackagePath}: not suitable packages found: ${notSuitableLibPackagesName.join(', ')}`)
+      nothingToCommitAndPublish = false
       await update({ cwd: rootLibPackagePath })
       await link({ cwd: rootLibPackagePath })
     }
-    const { commited } = await commitIfNeededWithMessage({ cwd: rootLibPackagePath, message: 'Small fix' })
-    const { published } = await buildBumpPushPublishIfNotActual({ cwd: rootLibPackagePath })
-    commitedSome = commitedSome || commited
-    publishedSome = publishedSome || published
+    const { commitable } = await isCommitable({ cwd: rootLibPackagePath })
+    if (commitable) {
+      nothingToCommitAndPublish = false
+      await commitIfNeededWithMessage({ cwd: rootLibPackagePath, message: 'Small fix' })
+      await buildBumpPushPublishIfNotActual({ cwd: rootLibPackagePath })
+    }
   }
-  if (!commitedSome && !publishedSome) {
+  if (nothingToCommitAndPublish) {
     log.green(`nothing to commit and publish`)
   }
 }
@@ -309,6 +336,7 @@ export const updateLinkCommitBuildBumpPushPublishRecursiveFoxy = async ({
   }
 }
 
+// ASAP
 export const updateLinkCommitSmallFixBuildBumpPushPublishRecursiveFoxy = async ({
   cwd,
   include,
@@ -360,6 +388,7 @@ export const updateLinkCommitSmallFixBuildBumpPushPublishRecursiveFoxy = async (
   }
 }
 
+// ASAP
 export const prepareUpdateLinkCommitBuildBumpPushPublishRecursiveFoxy = async ({
   cwd,
   include,
