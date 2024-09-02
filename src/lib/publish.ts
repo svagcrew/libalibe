@@ -196,27 +196,6 @@ export const updateLinkCommitSmallFixBuildBumpPushPublishRecursive = async ({
   exclude?: string[]
   forceAccuracy?: boolean
 }) => {
-  // const { rootLibPackagesData } = await getOrderedRootLibPackagesData({ cwd, include, exclude })
-  // if (!rootLibPackagesData.length) {
-  //   throw new Error('No packages found')
-  // }
-  // let commitedSome = false
-  // let publishedSome = false
-  // for (const { rootLibPackagePath } of rootLibPackagesData) {
-  //   const { suitableLibPackagesActual } = await isSuitableLibPackagesActual({ cwd: rootLibPackagePath, forceAccuracy })
-  //   if (!suitableLibPackagesActual) {
-  //     await update({ cwd: rootLibPackagePath })
-  //     await link({ cwd: rootLibPackagePath })
-  //   }
-  //   const { commited } = await commitIfNeededWithMessage({ cwd: rootLibPackagePath, message: 'Small fix' })
-  //   const { published } = await buildBumpPushPublishIfNotActual({ cwd: rootLibPackagePath })
-  //   commitedSome = commitedSome || commited
-  //   publishedSome = publishedSome || published
-  // }
-  // if (!commitedSome && !publishedSome) {
-  //   log.green(`nothing to commit and publish`)
-  // }
-
   const { rootLibPackagesData } = await getOrderedRootLibPackagesData({ cwd, include, exclude })
   if (!rootLibPackagesData.length) {
     throw new Error('No packages found')
@@ -336,7 +315,6 @@ export const updateLinkCommitBuildBumpPushPublishRecursiveFoxy = async ({
   }
 }
 
-// ASAP
 export const updateLinkCommitSmallFixBuildBumpPushPublishRecursiveFoxy = async ({
   cwd,
   include,
@@ -388,7 +366,6 @@ export const updateLinkCommitSmallFixBuildBumpPushPublishRecursiveFoxy = async (
   }
 }
 
-// ASAP
 export const prepareUpdateLinkCommitBuildBumpPushPublishRecursiveFoxy = async ({
   cwd,
   include,
